@@ -40,32 +40,32 @@ export function Landing() {
     
     const features = [
         {
-            icon: '📋',
+            icon: 'CM',
             title: 'Case Management',
             description: 'Organize and track all your legal cases in one centralized platform'
         },
         {
-            icon: '📄',
+            icon: 'DC',
             title: 'Document Control',
             description: 'Securely manage, version, and collaborate on legal documents'
         },
         {
-            icon: '⏰',
+            icon: 'DT',
             title: 'Deadline Tracking',
             description: 'Never miss important dates with automated reminders and timelines'
         },
         {
-            icon: '👥',
+            icon: 'TC',
             title: 'Team Collaboration',
             description: 'Work seamlessly with your team on cases and documents'
         },
         {
-            icon: '🔒',
+            icon: 'SC',
             title: 'Security & Compliance',
             description: 'Enterprise-grade security with full compliance certifications'
         },
         {
-            icon: '📊',
+            icon: 'AR',
             title: 'Analytics & Reporting',
             description: 'Gain insights into your practice with detailed analytics'
         },
@@ -78,7 +78,7 @@ export function Landing() {
         },
         {
             question: 'Can I integrate with other tools?',
-            answer: 'Absolutely. 10x Legal integrates with popular legal software, document management systems, and communication tools.'
+            answer: 'Absolutely. 10X-Legal Tech integrates with popular legal software, document management systems, and communication tools.'
         },
         {
             question: 'What is the pricing?',
@@ -92,41 +92,11 @@ export function Landing() {
 
     return (
         <div className="landing-container">
-            {/* Navigation */}
-            <nav className="landing-nav">
-                <div className="nav-wrapper">
-                    <div className="nav-logo">
-                        <span className="nav-logo-icon">⚖️</span>
-                        <span className="nav-logo-text">10x Legal</span>
-                    </div>
-                    <div className="nav-actions">
-                        <button 
-                            className="nav-link-btn"
-                            onClick={() => {
-                                setShowAuthModal(true);
-                                setActiveTab('login');
-                            }}
-                        >
-                            Sign In
-                        </button>
-                        <button 
-                            className="nav-btn-primary"
-                            onClick={() => {
-                                setShowAuthModal(true);
-                                setActiveTab('register');
-                            }}
-                        >
-                            Get Started
-                        </button>
-                    </div>
-                </div>
-            </nav>
-
             {/* Hero Section */}
             <section className="hero-section">
                 <div className="hero-content">
                     <h1 className="hero-title">Legal Practice Management Made Simple</h1>
-                    <p className="hero-subtitle">Streamline your legal practice with 10x Legal. Manage cases, documents, deadlines, and your team all in one place.</p>
+                    <p className="hero-subtitle">Streamline your legal practice with 10X-Legal Tech. Manage cases, documents, deadlines, and your team all in one place.</p>
                     <div className="hero-actions">
                         <button 
                             className="btn-primary-large"
@@ -147,14 +117,14 @@ export function Landing() {
                     <p className="hero-trust-text">✓ No credit card required • 14-day free trial • Enterprise-grade security</p>
                 </div>
                 <div className="hero-image">
-                    <div className="hero-placeholder">📊 Dashboard Preview</div>
+                    <div className="hero-placeholder">Dashboard Preview</div>
                 </div>
             </section>
 
             {/* Features Section */}
             <section className="features-section">
                 <div className="section-wrapper">
-                    <h2>Why Choose 10x Legal?</h2>
+                    <h2>Why Choose 10X-Legal Tech?</h2>
                     <div className="features-grid">
                         {features.map((feature, index) => (
                             <div key={index} className="feature-card">
@@ -236,7 +206,7 @@ export function Landing() {
             <section className="cta-section">
                 <div className="cta-content">
                     <h2>Ready to transform your legal practice?</h2>
-                    <p>Join hundreds of law firms using 10x Legal to manage their practice more efficiently.</p>
+                    <p>Join hundreds of law firms using 10X-Legal Tech to manage their practice more efficiently.</p>
                     <button 
                         className="btn-primary-large"
                         onClick={() => {
@@ -253,7 +223,7 @@ export function Landing() {
             <footer className="landing-footer">
                 <div className="footer-content">
                     <div className="footer-column">
-                        <h4>10x Legal</h4>
+                        <h4>10X-Legal Tech</h4>
                         <p>Empowering law firms with modern practice management tools.</p>
                     </div>
                     <div className="footer-column">
@@ -276,7 +246,7 @@ export function Landing() {
                     </div>
                 </div>
                 <div className="footer-bottom">
-                    <p>&copy; 2024 10x Legal. All rights reserved.</p>
+                    <p>&copy; 2024 10X-Legal Tech. All rights reserved.</p>
                 </div>
             </footer>
 
@@ -310,7 +280,6 @@ export function Landing() {
                                     className={`role-btn ${selectedRole === 'client' ? 'selected' : ''}`}
                                     onClick={() => setSelectedRole('client')}
                                 >
-                                    <span className="role-icon">👤</span>
                                     <span className="role-label">Client</span>
                                 </button>
                                 <button
@@ -318,7 +287,6 @@ export function Landing() {
                                     className={`role-btn ${selectedRole === 'lawyer' ? 'selected' : ''}`}
                                     onClick={() => setSelectedRole('lawyer')}
                                 >
-                                    <span className="role-icon">⚖️</span>
                                     <span className="role-label">Lawyer</span>
                                 </button>
                                 <button
@@ -326,7 +294,6 @@ export function Landing() {
                                     className={`role-btn ${selectedRole === 'legal-official' ? 'selected' : ''}`}
                                     onClick={() => setSelectedRole('legal-official')}
                                 >
-                                    <span className="role-icon">👨‍⚖️</span>
                                     <span className="role-label">Legal Official</span>
                                 </button>
                             </div>

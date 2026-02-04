@@ -1,6 +1,6 @@
-# 10x Legal - Legal Practice Management Platform
+# 10X-Legal Tech - Legal Practice Management Platform
 
-A modern, full-featured web application designed to streamline legal practice management. 10x Legal provides lawyers, law firms, and legal professionals with an integrated platform to manage cases, documents, deadlines, and teams efficiently.
+A modern, full-featured web application designed to streamline legal practice management. 10X-Legal Tech provides lawyers, law firms, and legal professionals with an integrated platform to manage cases, documents, deadlines, and teams efficiently.
 
 ## Table of Contents
 
@@ -17,7 +17,7 @@ A modern, full-featured web application designed to streamline legal practice ma
 
 ## Overview
 
-10x Legal is a comprehensive legal practice management system built with modern web technologies. It provides a clean, intuitive interface for managing the complexities of legal work while maintaining security and compliance standards.
+10X-Legal Tech is a comprehensive legal practice management system built with modern web technologies. It provides a clean, intuitive interface for managing the complexities of legal work while maintaining security and compliance standards.
 
 The platform is designed to serve three main user types:
 - **Clients**: Track their cases and documents
@@ -26,7 +26,7 @@ The platform is designed to serve three main user types:
 
 ## Features
 
-### 🎯 Core Features
+### Core Features
 
 #### Dashboard
 - Real-time overview of active cases, pending documents, and upcoming deadlines
@@ -63,7 +63,7 @@ The platform is designed to serve three main user types:
 - Role-based access control
 - Session management
 
-### 🔒 Security Features
+### Security Features
 - Enterprise-grade authentication with JWT tokens
 - Secure password handling
 - Role-based access control (RBAC)
@@ -536,7 +536,7 @@ When contributing to this project:
 
 ## License
 
-This project is part of the 10x Legal platform.
+This project is part of the 10X-Legal Tech platform.
 
 ## Support
 
