@@ -459,6 +459,8 @@
   max-width: 420px;
   position: relative;
   box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 .modal-close {
@@ -567,6 +569,13 @@
   font-size: 24px;
 }
 
+.role-description {
+  font-size: 10px;
+  font-weight: 400;
+  color: #95a5a6;
+  line-height: 1.3;
+}
+
 /* Auth Form */
 .auth-form h2 {
   font-size: 24px;
@@ -586,9 +595,49 @@
   transition: border-color 0.3s ease;
 }
 
-.auth-form input:focus {
+.auth-form input:focus,
+.auth-form select:focus {
   outline: none;
   border-color: #3498db;
+}
+
+.auth-form select {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 16px;
+  border: 1px solid #ecf0f1;
+  border-radius: 6px;
+  font-size: 14px;
+  background: white;
+  color: #2c3e50;
+  transition: border-color 0.3s ease;
+  appearance: auto;
+}
+
+.role-specific-fields {
+  border: 1px solid #e8f4f8;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 16px;
+  background: #f8fbfd;
+}
+
+.role-fields-header {
+  margin-bottom: 16px;
+}
+
+.role-fields-header h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0 0 4px 0;
+}
+
+.role-fields-header p {
+  font-size: 12px;
+  color: #95a5a6;
+  margin: 0;
+  line-height: 1.4;
 }
 
 .remember-me {

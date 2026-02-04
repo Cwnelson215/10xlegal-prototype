@@ -1,10 +1,13 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth, type UserRole } from '../context/AuthContext';
+import type { RegisterRequest } from '../api/types';
+import { US_STATES } from '../api/types';
 import './landing.css';
 
 export function Landing() {
     const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
     const { register, login } = useAuth();
     const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
     const [showAuthModal, setShowAuthModal] = useState(false);
@@ -15,6 +18,26 @@ export function Landing() {
     const [registerEmail, setRegisterEmail] = useState('');
     const [registerPassword, setRegisterPassword] = useState('');
     const [registerPasswordConfirm, setRegisterPasswordConfirm] = useState('');
+    const [barState, setBarState] = useState('');
+    const [barNumber, setBarNumber] = useState('');
+    const [governmentAgency, setGovernmentAgency] = useState('');
+    const [officialId, setOfficialId] = useState('');
+
+    useEffect(() => {
+        if (searchParams.get('register') === 'true') {
+            setShowAuthModal(true);
+            setActiveTab('register');
+            setSearchParams({}, { replace: true });
+        }
+    }, [searchParams, setSearchParams]);
+
+    const handleRoleChange = (role: UserRole) => {
+        setSelectedRole(role);
+        setBarState('');
+        setBarNumber('');
+        setGovernmentAgency('');
+        setOfficialId('');
+    };
 
     const handleDashboardClick = () => {
         navigate('/dashboard');
@@ -32,7 +55,28 @@ export function Landing() {
     const handleRegister = (e: React.FormEvent) => {
         e.preventDefault();
         if (registerName && registerEmail && registerPassword && registerPassword === registerPasswordConfirm && selectedRole) {
-            register(registerName, registerEmail, registerPassword, selectedRole);
+            const data: RegisterRequest = {
+                name: registerName,
+                email: registerEmail,
+                password: registerPassword,
+                role: selectedRole as 'client' | 'lawyer' | 'legal-official',
+            };
+
+            if (selectedRole === 'lawyer' && barState && barNumber) {
+                data.lawyerInfo = {
+                    stateBarAssociation: barState,
+                    barNumber,
+                };
+            }
+
+            if (selectedRole === 'legal-official' && governmentAgency && officialId) {
+                data.legalOfficialInfo = {
+                    governmentAgency,
+                    officialId,
+                };
+            }
+
+            register(data);
             setShowAuthModal(false);
             navigate('/dashboard');
         }
@@ -278,23 +322,26 @@ export function Landing() {
                                 <button
                                     type="button"
                                     className={`role-btn ${selectedRole === 'client' ? 'selected' : ''}`}
-                                    onClick={() => setSelectedRole('client')}
+                                    onClick={() => handleRoleChange('client')}
                                 >
                                     <span className="role-label">Client</span>
+                                    <span className="role-description">Individual seeking legal help</span>
                                 </button>
                                 <button
                                     type="button"
                                     className={`role-btn ${selectedRole === 'lawyer' ? 'selected' : ''}`}
-                                    onClick={() => setSelectedRole('lawyer')}
+                                    onClick={() => handleRoleChange('lawyer')}
                                 >
                                     <span className="role-label">Lawyer</span>
+                                    <span className="role-description">Licensed attorney</span>
                                 </button>
                                 <button
                                     type="button"
                                     className={`role-btn ${selectedRole === 'legal-official' ? 'selected' : ''}`}
-                                    onClick={() => setSelectedRole('legal-official')}
+                                    onClick={() => handleRoleChange('legal-official')}
                                 >
                                     <span className="role-label">Legal Official</span>
+                                    <span className="role-description">Court or government staff</span>
                                 </button>
                             </div>
                         </div>
@@ -347,13 +394,65 @@ export function Landing() {
                                     onChange={(e) => setRegisterPassword(e.target.value)}
                                     required 
                                 />
-                                <input 
-                                    type="password" 
-                                    placeholder="Confirm password" 
+                                <input
+                                    type="password"
+                                    placeholder="Confirm password"
                                     value={registerPasswordConfirm}
                                     onChange={(e) => setRegisterPasswordConfirm(e.target.value)}
-                                    required 
+                                    required
                                 />
+
+                                {selectedRole === 'lawyer' && (
+                                    <div className="role-specific-fields">
+                                        <div className="role-fields-header">
+                                            <h3>Professional Verification</h3>
+                                            <p>Provide your bar association details for account verification.</p>
+                                        </div>
+                                        <select
+                                            value={barState}
+                                            onChange={(e) => setBarState(e.target.value)}
+                                            required
+                                        >
+                                            <option value="">Select State Bar Association</option>
+                                            {US_STATES.map((state) => (
+                                                <option key={state.abbreviation} value={state.abbreviation}>
+                                                    {state.name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <input
+                                            type="text"
+                                            placeholder="Bar number"
+                                            value={barNumber}
+                                            onChange={(e) => setBarNumber(e.target.value)}
+                                            required
+                                        />
+                                    </div>
+                                )}
+
+                                {selectedRole === 'legal-official' && (
+                                    <div className="role-specific-fields">
+                                        <div className="role-fields-header">
+                                            <h3>Official Verification</h3>
+                                            <p>Provide your government agency details for account verification.</p>
+                                        </div>
+                                        <input
+                                            type="text"
+                                            placeholder="Government agency name"
+                                            value={governmentAgency}
+                                            onChange={(e) => setGovernmentAgency(e.target.value)}
+                                            required
+                                        />
+                                        <input
+                                            type="text"
+                                            placeholder="Official ID number"
+                                            value={officialId}
+                                            onChange={(e) => setOfficialId(e.target.value)}
+                                            required
+                                        />
+                                    </div>
+                                )}
+
                                 <label className="remember-me">
                                     <input type="checkbox" />
                                     I agree to the Terms of Service

@@ -10,7 +10,7 @@ interface AuthContextType {
     isLoading: boolean;
     error: string | null;
     login: (email: string, password: string, role: UserRole) => Promise<void>;
-    register: (name: string, email: string, password: string, role: UserRole) => Promise<void>;
+    register: (data: RegisterRequest) => Promise<void>;
     logout: () => Promise<void>;
     clearError: () => void;
 }
@@ -48,18 +48,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     }, []);
 
-    const register = useCallback(async (name: string, email: string, password: string, role: UserRole) => {
+    const register = useCallback(async (data: RegisterRequest) => {
         setIsLoading(true);
         setError(null);
-        
-        try {
-            const data: RegisterRequest = {
-                name,
-                email,
-                password,
-                role: role as 'client' | 'lawyer' | 'legal-official',
-            };
 
+        try {
             const response = await authService.register(data);
             setUser(response.user);
         } catch (err) {

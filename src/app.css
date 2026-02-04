@@ -42,6 +42,12 @@
   font-weight: 700;
   letter-spacing: -0.5px;
   white-space: nowrap;
+  color: white;
+  text-decoration: none;
+}
+
+.heading:hover {
+  color: white;
 }
 
 .header-nav {
@@ -158,6 +164,69 @@
   background-color: #c0392b;
 }
 
+/* Header Login Form (unauthenticated) */
+.header-login-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-login-input {
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  font-size: 13px;
+  width: 160px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+.header-login-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.header-login-input:focus {
+  outline: none;
+  border-color: #3498db;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.header-signin-btn {
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.header-signin-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: white;
+}
+
+.header-register-btn {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  color: white;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: box-shadow 0.3s ease;
+}
+
+.header-register-btn:hover {
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .header-wrapper {
@@ -167,6 +236,14 @@
 
   .header-nav {
     display: none;
+  }
+
+  .header-login-form {
+    flex-direction: column;
+  }
+
+  .header-login-input {
+    width: 100%;
   }
 
   .logo-icon {
