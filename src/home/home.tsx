@@ -9,6 +9,7 @@ type CaseRecord = {
     prosecutionFirm: string;
     defenseAttorney: string;
     defenseFirm: string;
+    charge: string;
     courtDate: string;
     ruling: string;
     sentence: string;
@@ -226,6 +227,7 @@ export function Home() {
                                         <th>Prosecuting Firm</th>
                                         <th>Defense Attorney</th>
                                         <th>Defense Firm</th>
+                                        <th>Charge</th>
                                         <th>Court Date</th>
                                         <th>Ruling</th>
                                         <th>Sentence</th>
@@ -241,6 +243,7 @@ export function Home() {
                                             <td>{caseItem.prosecutionFirm}</td>
                                             <td>{caseItem.defenseAttorney}</td>
                                             <td>{caseItem.defenseFirm}</td>
+                                            <td>{caseItem.charge}</td>
                                             <td>{caseItem.courtDate}</td>
                                             <td>{caseItem.ruling}</td>
                                             <td>{caseItem.sentence}</td>

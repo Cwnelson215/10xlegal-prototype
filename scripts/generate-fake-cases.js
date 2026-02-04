@@ -94,6 +94,29 @@ const defenseFirms = [
   'Summit Defense Collective',
 ];
 
+const charges = [
+  'Possession of Child Sexual Abuse Material',
+  'Distribution of Child Sexual Abuse Material',
+  'Production of Child Sexual Abuse Material',
+  'Receipt of Child Sexual Abuse Material',
+  'Transportation of Child Sexual Abuse Material',
+  'Sexual Exploitation of a Minor',
+  'Sexual Abuse of a Minor - First Degree',
+  'Sexual Abuse of a Minor - Second Degree',
+  'Child Enticement',
+  'Online Solicitation of a Minor',
+  'Attempted Sexual Exploitation of a Minor',
+  'Conspiracy to Produce CSAM',
+  'Coercion and Enticement of a Minor',
+  'Trafficking of Minors',
+  'Child Pornography Possession',
+  'Child Pornography Distribution',
+  'Aggravated Sexual Abuse of a Minor',
+  'Using the Internet to Facilitate Child Exploitation',
+  'Interstate Travel for Illegal Sex with a Minor',
+  'Possession with Intent to Distribute CSAM',
+];
+
 const rulings = ['Guilty', 'Not Guilty', 'Dismissed', 'Plea Deal', 'Deferred', 'Mistrial'];
 
 const caseTypeCode = 'CR';
@@ -163,6 +186,7 @@ const generateCase = (usedNumbers, usedSequences) => {
     prosecutionFirm: randomFrom(prosecutionFirms),
     defenseAttorney: randomFrom(defenseAttorneys),
     defenseFirm: randomFrom(defenseFirms),
+    charge: randomFrom(charges),
     courtDate: courtDate.toISOString().slice(0, 10),
     ruling,
     sentence,
