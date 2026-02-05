@@ -149,6 +149,8 @@ const createCaseNumber = (usedNumbers, usedSequences) => {
   return candidate;
 };
 
+const clientIds = ['client-1', 'client-2', 'client-3', 'client-4', 'client-5'];
+
 const generateCase = (usedNumbers, usedSequences) => {
   const courtDate = randomDateBetween(new Date('2019-01-01'), new Date('2026-12-31'));
   const ruling = randomFrom(rulings);
@@ -190,6 +192,7 @@ const generateCase = (usedNumbers, usedSequences) => {
     courtDate: courtDate.toISOString().slice(0, 10),
     ruling,
     sentence,
+    clientId: randomFrom(clientIds),
   };
 };
 

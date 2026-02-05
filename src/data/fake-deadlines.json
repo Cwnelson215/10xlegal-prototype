@@ -1,0 +1,1502 @@
+[
+  {
+    "id": "deadline-1",
+    "title": "Pre-Trial Conference",
+    "description": "Witness List Due for case 20-CR-76739",
+    "dueDate": "2026-03-20",
+    "caseNumber": "20-CR-76739",
+    "assignedTo": "Logan Price",
+    "status": "pending",
+    "clientId": "client-4"
+  },
+  {
+    "id": "deadline-2",
+    "title": "Bail Review Hearing",
+    "description": "Bail Review Hearing for case 20-CR-82094",
+    "dueDate": "2024-11-01",
+    "caseNumber": "20-CR-82094",
+    "assignedTo": "Jordan Hayes",
+    "status": "completed",
+    "clientId": "client-4"
+  },
+  {
+    "id": "deadline-3",
+    "title": "Deposition Scheduled",
+    "description": "Mediation Session for case 20-CR-13732",
+    "dueDate": "2024-01-10",
+    "caseNumber": "20-CR-13732",
+    "assignedTo": "Maya Clarke",
+    "status": "completed",
+    "clientId": "client-5"
+  },
+  {
+    "id": "deadline-4",
+    "title": "Witness List Due",
+    "description": "Sentencing Hearing for case 20-CR-97951",
+    "dueDate": "2024-07-18",
+    "caseNumber": "20-CR-97951",
+    "assignedTo": "Miguel Santos",
+    "status": "overdue",
+    "clientId": "client-3"
+  },
+  {
+    "id": "deadline-5",
+    "title": "Motion Filing Deadline",
+    "description": "Motion Filing Deadline for case 26-CR-51788",
+    "dueDate": "2024-08-24",
+    "caseNumber": "26-CR-51788",
+    "assignedTo": "Miguel Santos",
+    "status": "completed",
+    "clientId": "client-2"
+  },
+  {
+    "id": "deadline-6",
+    "title": "Motion Filing Deadline",
+    "description": "Discovery Response Due for case 24-CR-13470",
+    "dueDate": "2024-06-12",
+    "caseNumber": "24-CR-13470",
+    "assignedTo": "Harper Cole",
+    "status": "completed",
+    "clientId": "client-5"
+  },
+  {
+    "id": "deadline-7",
+    "title": "Appeal Filing Deadline",
+    "description": "Bail Review Hearing for case 26-CR-89162",
+    "dueDate": "2024-08-18",
+    "caseNumber": "26-CR-89162",
+    "assignedTo": "Grant Lowell",
+    "status": "overdue",
+    "clientId": "client-4"
+  },
+  {
+    "id": "deadline-8",
+    "title": "Witness List Due",
+    "description": "Restitution Payment Due for case 23-CR-59933",
+    "dueDate": "2024-04-20",
+    "caseNumber": "23-CR-59933",
+    "assignedTo": "Sofia Bennett",
+    "status": "completed",
+    "clientId": "client-3"
+  },
+  {
+    "id": "deadline-9",
+    "title": "Probation Review",
+    "description": "Evidence Submission Deadline for case 26-CR-89162",
+    "dueDate": "2024-07-19",
+    "caseNumber": "26-CR-89162",
+    "assignedTo": "Grant Lowell",
+    "status": "completed",
+    "clientId": "client-4"
+  },
+  {
+    "id": "deadline-10",
+    "title": "Trial Date",
+    "description": "Sentencing Hearing for case 26-CR-51788",
+    "dueDate": "2025-06-24",
+    "caseNumber": "26-CR-51788",
+    "assignedTo": "Reed Patterson",
+    "status": "completed",
+    "clientId": "client-2"
+  },
+  {
+    "id": "deadline-11",
+    "title": "Expert Report Due",
+    "description": "Witness List Due for case 26-CR-48983",
+    "dueDate": "2024-07-30",
+    "caseNumber": "26-CR-48983",
+    "assignedTo": "Alexandra Pierce",
+    "status": "completed",
+    "clientId": "client-3"
+  },
+  {
+    "id": "deadline-12",
+    "title": "Deposition Scheduled",
+    "description": "Evidence Submission Deadline for case 23-CR-38086",
+    "dueDate": "2024-03-04",
+    "caseNumber": "23-CR-38086",
+    "assignedTo": "Dylan Carr",
+    "status": "completed",
+    "clientId": "client-1"
+  },
+  {
+    "id": "deadline-13",
+    "title": "Probation Review",
+    "description": "Evidence Submission Deadline for case 19-CR-61096",
+    "dueDate": "2026-08-14",
+    "caseNumber": "19-CR-61096",
+    "assignedTo": "Grant Lowell",
+    "status": "pending",
+    "clientId": "client-5"
+  },
+  {
+    "id": "deadline-14",
+    "title": "Deposition Scheduled",
+    "description": "Restitution Payment Due for case 23-CR-38987",
+    "dueDate": "2027-12-22",
+    "caseNumber": "23-CR-38987",
+    "assignedTo": "Renee Whitaker",
+    "status": "completed",
+    "clientId": "client-1"
+  },
+  {
+    "id": "deadline-15",
+    "title": "Motion Filing Deadline",
+    "description": "Expert Report Due for case 22-CR-21891",
+    "dueDate": "2027-02-08",
+    "caseNumber": "22-CR-21891",
+    "assignedTo": "Grant Lowell",
+    "status": "completed",
+    "clientId": "client-4"
+  },
+  {
+    "id": "deadline-16",
+    "title": "Jury Selection",
+    "description": "Witness List Due for case 19-CR-66310",
+    "dueDate": "2025-09-04",
+    "caseNumber": "19-CR-66310",
+    "assignedTo": "Noah Sinclair",
+    "status": "overdue",
+    "clientId": "client-4"
+  },
+  {
+    "id": "deadline-17",
+    "title": "Witness List Due",
+    "description": "Trial Date for case 20-CR-92740",
+    "dueDate": "2024-10-23",
+    "caseNumber": "20-CR-92740",
+    "assignedTo": "Renee Whitaker",
+    "status": "overdue",
+    "clientId": "client-3"
+  },
+  {
+    "id": "deadline-18",
+    "title": "Witness List Due",
+    "description": "Status Conference for case 19-CR-04476",
+    "dueDate": "2025-07-18",
+    "caseNumber": "19-CR-04476",
+    "assignedTo": "Camila Ortiz",
+    "status": "completed",
+    "clientId": "client-1"
+  },
+  {
+    "id": "deadline-19",
+    "title": "Jury Selection",
+    "description": "Restitution Payment Due for case 26-CR-74113",
+    "dueDate": "2025-11-23",
+    "caseNumber": "26-CR-74113",
+    "assignedTo": "Maya Clarke",
+    "status": "completed",
+    "clientId": "client-1"
+  },
+  {
+    "id": "deadline-20",
+    "title": "Trial Date",
+    "description": "Probation Review for case 25-CR-81763",
+    "dueDate": "2027-05-29",
+    "caseNumber": "25-CR-81763",
+    "assignedTo": "Maya Clarke",
+    "status": "pending",
+    "clientId": "client-4"
+  },
+  {
+    "id": "deadline-21",
+    "title": "Expert Report Due",
+    "description": "Sentencing Hearing for case 23-CR-86151",
+    "dueDate": "2024-03-04",
+    "caseNumber": "23-CR-86151",
+    "assignedTo": "Maya Clarke",
+    "status": "completed",
+    "clientId": "client-4"
+  },
+  {
+    "id": "deadline-22",
+    "title": "Sentencing Hearing",
+    "description": "Appeal Filing Deadline for case 21-CR-21283",
+    "dueDate": "2026-02-06",
+    "caseNumber": "21-CR-21283",
+    "assignedTo": "Grant Lowell",
+    "status": "pending",
+    "clientId": "client-5"
+  },
+  {
+    "id": "deadline-23",
+    "title": "Trial Date",
+    "description": "Preliminary Hearing for case 23-CR-67377",
+    "dueDate": "2024-07-02",
+    "caseNumber": "23-CR-67377",
+    "assignedTo": "Harper Cole",
+    "status": "completed",
+    "clientId": "client-1"
+  },
+  {
+    "id": "deadline-24",
+    "title": "Compliance Hearing",
+    "description": "Jury Selection for case 23-CR-86151",
+    "dueDate": "2026-01-26",
+    "caseNumber": "23-CR-86151",
+    "assignedTo": "Maya Clarke",
+    "status": "completed",
+    "clientId": "client-4"
+  },
+  {
+    "id": "deadline-25",
+    "title": "Discovery Response Due",
+    "description": "Bail Review Hearing for case 23-CR-67377",
+    "dueDate": "2026-05-18",
+    "caseNumber": "23-CR-67377",
+    "assignedTo": "Olivia Brooks",
+    "status": "pending",
+    "clientId": "client-1"
+  },
+  {
+    "id": "deadline-26",
+    "title": "Arraignment",
+    "description": "Expert Report Due for case 21-CR-30609",
+    "dueDate": "2026-03-04",
+    "caseNumber": "21-CR-30609",
+    "assignedTo": "Caleb Morgan",
+    "status": "pending",
+    "clientId": "client-3"
+  },
+  {
+    "id": "deadline-27",
+    "title": "Restitution Payment Due",
+    "description": "Compliance Hearing for case 26-CR-89162",
+    "dueDate": "2027-04-02",
+    "caseNumber": "26-CR-89162",
+    "assignedTo": "Grant Lowell",
+    "status": "pending",
+    "clientId": "client-4"
+  },
+  {
+    "id": "deadline-28",
+    "title": "Trial Date",
+    "description": "Expert Report Due for case 20-CR-82094",
+    "dueDate": "2026-12-08",
+    "caseNumber": "20-CR-82094",
+    "assignedTo": "Jordan Hayes",
+    "status": "pending",
+    "clientId": "client-4"
+  },
+  {
+    "id": "deadline-29",
+    "title": "Deposition Scheduled",
+    "description": "Sentencing Hearing for case 26-CR-69697",
+    "dueDate": "2024-03-08",
+    "caseNumber": "26-CR-69697",
+    "assignedTo": "Dylan Carr",
+    "status": "overdue",
+    "clientId": "client-5"
+  },
+  {
+    "id": "deadline-30",
+    "title": "Compliance Hearing",
+    "description": "Evidence Submission Deadline for case 24-CR-05850",
+    "dueDate": "2027-02-11",
+    "caseNumber": "24-CR-05850",
+    "assignedTo": "Reed Patterson",
+    "status": "pending",
+    "clientId": "client-5"
+  },
+  {
+    "id": "deadline-31",
+    "title": "Sentencing Hearing",
+    "description": "Expert Report Due for case 23-CR-96684",
+    "dueDate": "2024-08-20",
+    "caseNumber": "23-CR-96684",
+    "assignedTo": "Grant Lowell",
+    "status": "overdue",
+    "clientId": "client-2"
+  },
+  {
+    "id": "deadline-32",
+    "title": "Deposition Scheduled",
+    "description": "Plea Hearing for case 23-CR-38987",
+    "dueDate": "2025-06-16",
+    "caseNumber": "23-CR-38987",
+    "assignedTo": "Evan Kim",
+    "status": "completed",
+    "clientId": "client-1"
+  },
+  {
+    "id": "deadline-33",
+    "title": "Expert Report Due",
+    "description": "Compliance Hearing for case 24-CR-25034",
+    "dueDate": "2026-06-24",
+    "caseNumber": "24-CR-25034",
+    "assignedTo": "Harper Cole",
+    "status": "completed",
+    "clientId": "client-2"
+  },
+  {
+    "id": "deadline-34",
+    "title": "Pre-Trial Conference",
+    "description": "Restitution Payment Due for case 23-CR-59933",
+    "dueDate": "2025-01-21",
+    "caseNumber": "23-CR-59933",
+    "assignedTo": "Sofia Bennett",
+    "status": "completed",
+    "clientId": "client-3"
+  },
+  {
+    "id": "deadline-35",
+    "title": "Compliance Hearing",
+    "description": "Appeal Filing Deadline for case 19-CR-04476",
+    "dueDate": "2026-09-12",
+    "caseNumber": "19-CR-04476",
+    "assignedTo": "Renee Whitaker",
+    "status": "completed",
+    "clientId": "client-1"
+  },
+  {
+    "id": "deadline-36",
+    "title": "Mediation Session",
+    "description": "Pre-Trial Conference for case 26-CR-74113",
+    "dueDate": "2027-12-11",
+    "caseNumber": "26-CR-74113",
+    "assignedTo": "Alexandra Pierce",
+    "status": "pending",
+    "clientId": "client-1"
+  },
+  {
+    "id": "deadline-37",
+    "title": "Arraignment",
+    "description": "Restitution Payment Due for case 23-CR-38987",
+    "dueDate": "2025-06-27",
+    "caseNumber": "23-CR-38987",
+    "assignedTo": "Renee Whitaker",
+    "status": "completed",
+    "clientId": "client-1"
+  },
+  {
+    "id": "deadline-38",
+    "title": "Probation Review",
+    "description": "Preliminary Hearing for case 24-CR-05850",
+    "dueDate": "2026-08-20",
+    "caseNumber": "24-CR-05850",
+    "assignedTo": "Sofia Bennett",
+    "status": "pending",
+    "clientId": "client-5"
+  },
+  {
+    "id": "deadline-39",
+    "title": "Witness List Due",
+    "description": "Trial Date for case 23-CR-67650",
+    "dueDate": "2025-09-13",
+    "caseNumber": "23-CR-67650",
+    "assignedTo": "Miguel Santos",
+    "status": "completed",
+    "clientId": "client-4"
+  },
+  {
+    "id": "deadline-40",
+    "title": "Compliance Hearing",
+    "description": "Evidence Submission Deadline for case 24-CR-22229",
+    "dueDate": "2024-10-10",
+    "caseNumber": "24-CR-22229",
+    "assignedTo": "Grant Lowell",
+    "status": "overdue",
+    "clientId": "client-1"
+  },
+  {
+    "id": "deadline-41",
+    "title": "Evidence Submission Deadline",
+    "description": "Restitution Payment Due for case 24-CR-11640",
+    "dueDate": "2024-06-29",
+    "caseNumber": "24-CR-11640",
+    "assignedTo": "Caleb Morgan",
+    "status": "overdue",
+    "clientId": "client-2"
+  },
+  {
+    "id": "deadline-42",
+    "title": "Trial Date",
+    "description": "Restitution Payment Due for case 23-CR-36137",
+    "dueDate": "2025-11-26",
+    "caseNumber": "23-CR-36137",
+    "assignedTo": "Olivia Brooks",
+    "status": "completed",
+    "clientId": "client-2"
+  },
+  {
+    "id": "deadline-43",
+    "title": "Evidence Submission Deadline",
+    "description": "Appeal Filing Deadline for case 23-CR-67650",
+    "dueDate": "2027-03-08",
+    "caseNumber": "23-CR-67650",
+    "assignedTo": "Grant Lowell",
+    "status": "pending",
+    "clientId": "client-4"
+  },
+  {
+    "id": "deadline-44",
+    "title": "Sentencing Hearing",
+    "description": "Motion Filing Deadline for case 20-CR-90040",
+    "dueDate": "2025-06-20",
+    "caseNumber": "20-CR-90040",
+    "assignedTo": "Maya Clarke",
+    "status": "completed",
+    "clientId": "client-2"
+  },
+  {
+    "id": "deadline-45",
+    "title": "Compliance Hearing",
+    "description": "Bail Review Hearing for case 20-CR-13732",
+    "dueDate": "2026-01-05",
+    "caseNumber": "20-CR-13732",
+    "assignedTo": "Miguel Santos",
+    "status": "completed",
+    "clientId": "client-5"
+  },
+  {
+    "id": "deadline-46",
+    "title": "Discovery Response Due",
+    "description": "Pre-Trial Conference for case 26-CR-89162",
+    "dueDate": "2026-06-17",
+    "caseNumber": "26-CR-89162",
+    "assignedTo": "Grant Lowell",
+    "status": "pending",
+    "clientId": "client-4"
+  },
+  {
+    "id": "deadline-47",
+    "title": "Evidence Submission Deadline",
+    "description": "Motion Filing Deadline for case 20-CR-90040",
+    "dueDate": "2027-03-13",
+    "caseNumber": "20-CR-90040",
+    "assignedTo": "Miguel Santos",
+    "status": "pending",
+    "clientId": "client-2"
+  },
+  {
+    "id": "deadline-48",
+    "title": "Plea Hearing",
+    "description": "Trial Date for case 19-CR-04476",
+    "dueDate": "2026-12-04",
+    "caseNumber": "19-CR-04476",
+    "assignedTo": "Camila Ortiz",
+    "status": "pending",
+    "clientId": "client-1"
+  },
+  {
+    "id": "deadline-49",
+    "title": "Witness List Due",
+    "description": "Jury Selection for case 26-CR-26785",
+    "dueDate": "2026-08-01",
+    "caseNumber": "26-CR-26785",
+    "assignedTo": "Jordan Hayes",
+    "status": "pending",
+    "clientId": "client-4"
+  },
+  {
+    "id": "deadline-50",
+    "title": "Mediation Session",
+    "description": "Motion Filing Deadline for case 20-CR-13732",
+    "dueDate": "2026-02-24",
+    "caseNumber": "20-CR-13732",
+    "assignedTo": "Miguel Santos",
+    "status": "pending",
+    "clientId": "client-5"
+  },
+  {
+    "id": "deadline-51",
+    "title": "Arraignment",
+    "description": "Restitution Payment Due for case 20-CR-31215",
+    "dueDate": "2024-02-28",
+    "caseNumber": "20-CR-31215",
+    "assignedTo": "Elliot Shaw",
+    "status": "completed",
+    "clientId": "client-2"
+  },
+  {
+    "id": "deadline-52",
+    "title": "Motion Filing Deadline",
+    "description": "Sentencing Hearing for case 19-CR-61096",
+    "dueDate": "2025-09-23",
+    "caseNumber": "19-CR-61096",
+    "assignedTo": "Vera Whitman",
+    "status": "completed",
+    "clientId": "client-5"
+  },
+  {
+    "id": "deadline-53",
+    "title": "Witness List Due",
+    "description": "Arraignment for case 24-CR-52495",
+    "dueDate": "2027-02-11",
+    "caseNumber": "24-CR-52495",
+    "assignedTo": "Dylan Carr",
+    "status": "pending",
+    "clientId": "client-1"
+  },
+  {
+    "id": "deadline-54",
+    "title": "Trial Date",
+    "description": "Deposition Scheduled for case 25-CR-81763",
+    "dueDate": "2025-12-20",
+    "caseNumber": "25-CR-81763",
+    "assignedTo": "Alexandra Pierce",
+    "status": "overdue",
+    "clientId": "client-4"
+  },
+  {
+    "id": "deadline-55",
+    "title": "Probation Review",
+    "description": "Mediation Session for case 21-CR-43097",
+    "dueDate": "2026-01-13",
+    "caseNumber": "21-CR-43097",
+    "assignedTo": "Grant Lowell",
+    "status": "overdue",
+    "clientId": "client-2"
+  },
+  {
+    "id": "deadline-56",
+    "title": "Compliance Hearing",
+    "description": "Arraignment for case 19-CR-85859",
+    "dueDate": "2025-07-23",
+    "caseNumber": "19-CR-85859",
+    "assignedTo": "Grant Lowell",
+    "status": "completed",
+    "clientId": "client-3"
+  },
+  {
+    "id": "deadline-57",
+    "title": "Discovery Response Due",
+    "description": "Mediation Session for case 23-CR-38086",
+    "dueDate": "2024-11-28",
+    "caseNumber": "23-CR-38086",
+    "assignedTo": "Evan Kim",
+    "status": "overdue",
+    "clientId": "client-1"
+  },
+  {
+    "id": "deadline-58",
+    "title": "Motion Filing Deadline",
+    "description": "Discovery Response Due for case 19-CR-82494",
+    "dueDate": "2025-11-16",
+    "caseNumber": "19-CR-82494",
+    "assignedTo": "Noah Sinclair",
+    "status": "completed",
+    "clientId": "client-3"
+  },
+  {
+    "id": "deadline-59",
+    "title": "Jury Selection",
+    "description": "Motion Filing Deadline for case 21-CR-43097",
+    "dueDate": "2027-11-05",
+    "caseNumber": "21-CR-43097",
+    "assignedTo": "Grant Lowell",
+    "status": "pending",
+    "clientId": "client-2"
+  },
+  {
+    "id": "deadline-60",
+    "title": "Motion Filing Deadline",
+    "description": "Restitution Payment Due for case 24-CR-04124",
+    "dueDate": "2025-09-26",
+    "caseNumber": "24-CR-04124",
+    "assignedTo": "Evan Kim",
+    "status": "overdue",
+    "clientId": "client-1"
+  },
+  {
+    "id": "deadline-61",
+    "title": "Appeal Filing Deadline",
+    "description": "Compliance Hearing for case 26-CR-26785",
+    "dueDate": "2025-03-28",
+    "caseNumber": "26-CR-26785",
+    "assignedTo": "Harper Cole",
+    "status": "completed",
+    "clientId": "client-4"
+  },
+  {
+    "id": "deadline-62",
+    "title": "Arraignment",
+    "description": "Bail Review Hearing for case 19-CR-23452",
+    "dueDate": "2025-07-23",
+    "caseNumber": "19-CR-23452",
+    "assignedTo": "Vera Whitman",
+    "status": "completed",
+    "clientId": "client-3"
+  },
+  {
+    "id": "deadline-63",
+    "title": "Evidence Submission Deadline",
+    "description": "Deposition Scheduled for case 25-CR-81763",
+    "dueDate": "2026-11-05",
+    "caseNumber": "25-CR-81763",
+    "assignedTo": "Maya Clarke",
+    "status": "completed",
+    "clientId": "client-4"
+  },
+  {
+    "id": "deadline-64",
+    "title": "Mediation Session",
+    "description": "Mediation Session for case 26-CR-26785",
+    "dueDate": "2026-08-27",
+    "caseNumber": "26-CR-26785",
+    "assignedTo": "Harper Cole",
+    "status": "completed",
+    "clientId": "client-4"
+  },
+  {
+    "id": "deadline-65",
+    "title": "Sentencing Hearing",
+    "description": "Sentencing Hearing for case 22-CR-21891",
+    "dueDate": "2026-05-26",
+    "caseNumber": "22-CR-21891",
+    "assignedTo": "Grant Lowell",
+    "status": "pending",
+    "clientId": "client-4"
+  },
+  {
+    "id": "deadline-66",
+    "title": "Discovery Response Due",
+    "description": "Status Conference for case 21-CR-30609",
+    "dueDate": "2026-05-13",
+    "caseNumber": "21-CR-30609",
+    "assignedTo": "Caleb Morgan",
+    "status": "pending",
+    "clientId": "client-3"
+  },
+  {
+    "id": "deadline-67",
+    "title": "Preliminary Hearing",
+    "description": "Appeal Filing Deadline for case 25-CR-36101",
+    "dueDate": "2024-02-02",
+    "caseNumber": "25-CR-36101",
+    "assignedTo": "Grant Lowell",
+    "status": "completed",
+    "clientId": "client-2"
+  },
+  {
+    "id": "deadline-68",
+    "title": "Witness List Due",
+    "description": "Status Conference for case 24-CR-19805",
+    "dueDate": "2027-10-31",
+    "caseNumber": "24-CR-19805",
+    "assignedTo": "Logan Price",
+    "status": "pending",
+    "clientId": "client-1"
+  },
+  {
+    "id": "deadline-69",
+    "title": "Appeal Filing Deadline",
+    "description": "Deposition Scheduled for case 26-CR-89162",
+    "dueDate": "2026-12-16",
+    "caseNumber": "26-CR-89162",
+    "assignedTo": "Sofia Bennett",
+    "status": "pending",
+    "clientId": "client-4"
+  },
+  {
+    "id": "deadline-70",
+    "title": "Jury Selection",
+    "description": "Trial Date for case 21-CR-10012",
+    "dueDate": "2025-05-25",
+    "caseNumber": "21-CR-10012",
+    "assignedTo": "Noah Sinclair",
+    "status": "completed",
+    "clientId": "client-3"
+  },
+  {
+    "id": "deadline-71",
+    "title": "Discovery Response Due",
+    "description": "Deposition Scheduled for case 19-CR-28795",
+    "dueDate": "2025-03-01",
+    "caseNumber": "19-CR-28795",
+    "assignedTo": "Noah Sinclair",
+    "status": "completed",
+    "clientId": "client-4"
+  },
+  {
+    "id": "deadline-72",
+    "title": "Mediation Session",
+    "description": "Evidence Submission Deadline for case 23-CR-67650",
+    "dueDate": "2027-05-08",
+    "caseNumber": "23-CR-67650",
+    "assignedTo": "Grant Lowell",
+    "status": "pending",
+    "clientId": "client-4"
+  },
+  {
+    "id": "deadline-73",
+    "title": "Trial Date",
+    "description": "Pre-Trial Conference for case 21-CR-10012",
+    "dueDate": "2025-01-16",
+    "caseNumber": "21-CR-10012",
+    "assignedTo": "Elliot Shaw",
+    "status": "overdue",
+    "clientId": "client-3"
+  },
+  {
+    "id": "deadline-74",
+    "title": "Compliance Hearing",
+    "description": "Preliminary Hearing for case 20-CR-31215",
+    "dueDate": "2026-12-18",
+    "caseNumber": "20-CR-31215",
+    "assignedTo": "Renee Whitaker",
+    "status": "pending",
+    "clientId": "client-2"
+  },
+  {
+    "id": "deadline-75",
+    "title": "Motion Filing Deadline",
+    "description": "Trial Date for case 25-CR-36101",
+    "dueDate": "2025-01-24",
+    "caseNumber": "25-CR-36101",
+    "assignedTo": "Miguel Santos",
+    "status": "completed",
+    "clientId": "client-2"
+  },
+  {
+    "id": "deadline-76",
+    "title": "Bail Review Hearing",
+    "description": "Compliance Hearing for case 26-CR-69697",
+    "dueDate": "2025-03-06",
+    "caseNumber": "26-CR-69697",
+    "assignedTo": "Elliot Shaw",
+    "status": "completed",
+    "clientId": "client-5"
+  },
+  {
+    "id": "deadline-77",
+    "title": "Compliance Hearing",
+    "description": "Evidence Submission Deadline for case 23-CR-97435",
+    "dueDate": "2024-08-29",
+    "caseNumber": "23-CR-97435",
+    "assignedTo": "Jordan Hayes",
+    "status": "completed",
+    "clientId": "client-1"
+  },
+  {
+    "id": "deadline-78",
+    "title": "Evidence Submission Deadline",
+    "description": "Trial Date for case 23-CR-96684",
+    "dueDate": "2024-02-27",
+    "caseNumber": "23-CR-96684",
+    "assignedTo": "Jordan Hayes",
+    "status": "overdue",
+    "clientId": "client-2"
+  },
+  {
+    "id": "deadline-79",
+    "title": "Motion Filing Deadline",
+    "description": "Plea Hearing for case 23-CR-36137",
+    "dueDate": "2026-01-18",
+    "caseNumber": "23-CR-36137",
+    "assignedTo": "Talia Osborne",
+    "status": "overdue",
+    "clientId": "client-2"
+  },
+  {
+    "id": "deadline-80",
+    "title": "Probation Review",
+    "description": "Preliminary Hearing for case 24-CR-19805",
+    "dueDate": "2024-09-14",
+    "caseNumber": "24-CR-19805",
+    "assignedTo": "Logan Price",
+    "status": "completed",
+    "clientId": "client-1"
+  },
+  {
+    "id": "deadline-81",
+    "title": "Arraignment",
+    "description": "Expert Report Due for case 26-CR-74113",
+    "dueDate": "2024-05-22",
+    "caseNumber": "26-CR-74113",
+    "assignedTo": "Maya Clarke",
+    "status": "completed",
+    "clientId": "client-1"
+  },
+  {
+    "id": "deadline-82",
+    "title": "Appeal Filing Deadline",
+    "description": "Evidence Submission Deadline for case 26-CR-69697",
+    "dueDate": "2025-10-16",
+    "caseNumber": "26-CR-69697",
+    "assignedTo": "Dylan Carr",
+    "status": "overdue",
+    "clientId": "client-5"
+  },
+  {
+    "id": "deadline-83",
+    "title": "Sentencing Hearing",
+    "description": "Expert Report Due for case 21-CR-46295",
+    "dueDate": "2024-01-03",
+    "caseNumber": "21-CR-46295",
+    "assignedTo": "Reed Patterson",
+    "status": "completed",
+    "clientId": "client-4"
+  },
+  {
+    "id": "deadline-84",
+    "title": "Sentencing Hearing",
+    "description": "Expert Report Due for case 21-CR-30609",
+    "dueDate": "2026-04-09",
+    "caseNumber": "21-CR-30609",
+    "assignedTo": "Elliot Shaw",
+    "status": "pending",
+    "clientId": "client-3"
+  },
+  {
+    "id": "deadline-85",
+    "title": "Motion Filing Deadline",
+    "description": "Evidence Submission Deadline for case 26-CR-69697",
+    "dueDate": "2027-08-12",
+    "caseNumber": "26-CR-69697",
+    "assignedTo": "Dylan Carr",
+    "status": "completed",
+    "clientId": "client-5"
+  },
+  {
+    "id": "deadline-86",
+    "title": "Motion Filing Deadline",
+    "description": "Restitution Payment Due for case 20-CR-31215",
+    "dueDate": "2026-01-05",
+    "caseNumber": "20-CR-31215",
+    "assignedTo": "Renee Whitaker",
+    "status": "overdue",
+    "clientId": "client-2"
+  },
+  {
+    "id": "deadline-87",
+    "title": "Sentencing Hearing",
+    "description": "Discovery Response Due for case 26-CR-51788",
+    "dueDate": "2025-05-24",
+    "caseNumber": "26-CR-51788",
+    "assignedTo": "Miguel Santos",
+    "status": "overdue",
+    "clientId": "client-2"
+  },
+  {
+    "id": "deadline-88",
+    "title": "Restitution Payment Due",
+    "description": "Witness List Due for case 21-CR-21283",
+    "dueDate": "2024-02-07",
+    "caseNumber": "21-CR-21283",
+    "assignedTo": "Dylan Carr",
+    "status": "completed",
+    "clientId": "client-5"
+  },
+  {
+    "id": "deadline-89",
+    "title": "Jury Selection",
+    "description": "Witness List Due for case 23-CR-67377",
+    "dueDate": "2024-05-22",
+    "caseNumber": "23-CR-67377",
+    "assignedTo": "Harper Cole",
+    "status": "completed",
+    "clientId": "client-1"
+  },
+  {
+    "id": "deadline-90",
+    "title": "Discovery Response Due",
+    "description": "Arraignment for case 24-CR-52495",
+    "dueDate": "2026-06-02",
+    "caseNumber": "24-CR-52495",
+    "assignedTo": "Dylan Carr",
+    "status": "pending",
+    "clientId": "client-1"
+  },
+  {
+    "id": "deadline-91",
+    "title": "Deposition Scheduled",
+    "description": "Bail Review Hearing for case 19-CR-23452",
+    "dueDate": "2024-12-01",
+    "caseNumber": "19-CR-23452",
+    "assignedTo": "Reed Patterson",
+    "status": "completed",
+    "clientId": "client-3"
+  },
+  {
+    "id": "deadline-92",
+    "title": "Discovery Response Due",
+    "description": "Status Conference for case 23-CR-38086",
+    "dueDate": "2027-02-27",
+    "caseNumber": "23-CR-38086",
+    "assignedTo": "Evan Kim",
+    "status": "pending",
+    "clientId": "client-1"
+  },
+  {
+    "id": "deadline-93",
+    "title": "Preliminary Hearing",
+    "description": "Appeal Filing Deadline for case 19-CR-82494",
+    "dueDate": "2024-03-09",
+    "caseNumber": "19-CR-82494",
+    "assignedTo": "Noah Sinclair",
+    "status": "completed",
+    "clientId": "client-3"
+  },
+  {
+    "id": "deadline-94",
+    "title": "Plea Hearing",
+    "description": "Discovery Response Due for case 22-CR-21891",
+    "dueDate": "2025-05-05",
+    "caseNumber": "22-CR-21891",
+    "assignedTo": "Dylan Carr",
+    "status": "completed",
+    "clientId": "client-4"
+  },
+  {
+    "id": "deadline-95",
+    "title": "Plea Hearing",
+    "description": "Appeal Filing Deadline for case 23-CR-86151",
+    "dueDate": "2027-02-22",
+    "caseNumber": "23-CR-86151",
+    "assignedTo": "Maya Clarke",
+    "status": "pending",
+    "clientId": "client-4"
+  },
+  {
+    "id": "deadline-96",
+    "title": "Arraignment",
+    "description": "Trial Date for case 19-CR-04476",
+    "dueDate": "2026-08-28",
+    "caseNumber": "19-CR-04476",
+    "assignedTo": "Renee Whitaker",
+    "status": "pending",
+    "clientId": "client-1"
+  },
+  {
+    "id": "deadline-97",
+    "title": "Status Conference",
+    "description": "Motion Filing Deadline for case 24-CR-52495",
+    "dueDate": "2024-02-26",
+    "caseNumber": "24-CR-52495",
+    "assignedTo": "Dylan Carr",
+    "status": "completed",
+    "clientId": "client-1"
+  },
+  {
+    "id": "deadline-98",
+    "title": "Discovery Response Due",
+    "description": "Bail Review Hearing for case 24-CR-05850",
+    "dueDate": "2026-06-23",
+    "caseNumber": "24-CR-05850",
+    "assignedTo": "Sofia Bennett",
+    "status": "pending",
+    "clientId": "client-5"
+  },
+  {
+    "id": "deadline-99",
+    "title": "Restitution Payment Due",
+    "description": "Restitution Payment Due for case 19-CR-28795",
+    "dueDate": "2026-11-02",
+    "caseNumber": "19-CR-28795",
+    "assignedTo": "Noah Sinclair",
+    "status": "completed",
+    "clientId": "client-4"
+  },
+  {
+    "id": "deadline-100",
+    "title": "Expert Report Due",
+    "description": "Sentencing Hearing for case 19-CR-23452",
+    "dueDate": "2027-11-28",
+    "caseNumber": "19-CR-23452",
+    "assignedTo": "Reed Patterson",
+    "status": "pending",
+    "clientId": "client-3"
+  },
+  {
+    "id": "deadline-101",
+    "title": "Motion Filing Deadline",
+    "description": "Expert Report Due for case 23-CR-38086",
+    "dueDate": "2027-09-03",
+    "caseNumber": "23-CR-38086",
+    "assignedTo": "Dylan Carr",
+    "status": "pending",
+    "clientId": "client-1"
+  },
+  {
+    "id": "deadline-102",
+    "title": "Arraignment",
+    "description": "Bail Review Hearing for case 20-CR-82094",
+    "dueDate": "2026-11-07",
+    "caseNumber": "20-CR-82094",
+    "assignedTo": "Reed Patterson",
+    "status": "completed",
+    "clientId": "client-4"
+  },
+  {
+    "id": "deadline-103",
+    "title": "Expert Report Due",
+    "description": "Mediation Session for case 20-CR-31215",
+    "dueDate": "2027-05-14",
+    "caseNumber": "20-CR-31215",
+    "assignedTo": "Renee Whitaker",
+    "status": "pending",
+    "clientId": "client-2"
+  },
+  {
+    "id": "deadline-104",
+    "title": "Motion Filing Deadline",
+    "description": "Status Conference for case 19-CR-85859",
+    "dueDate": "2025-02-23",
+    "caseNumber": "19-CR-85859",
+    "assignedTo": "Olivia Brooks",
+    "status": "completed",
+    "clientId": "client-3"
+  },
+  {
+    "id": "deadline-105",
+    "title": "Trial Date",
+    "description": "Jury Selection for case 20-CR-31215",
+    "dueDate": "2027-09-04",
+    "caseNumber": "20-CR-31215",
+    "assignedTo": "Elliot Shaw",
+    "status": "pending",
+    "clientId": "client-2"
+  },
+  {
+    "id": "deadline-106",
+    "title": "Deposition Scheduled",
+    "description": "Probation Review for case 20-CR-90040",
+    "dueDate": "2024-05-04",
+    "caseNumber": "20-CR-90040",
+    "assignedTo": "Miguel Santos",
+    "status": "overdue",
+    "clientId": "client-2"
+  },
+  {
+    "id": "deadline-107",
+    "title": "Deposition Scheduled",
+    "description": "Mediation Session for case 24-CR-05850",
+    "dueDate": "2027-04-16",
+    "caseNumber": "24-CR-05850",
+    "assignedTo": "Sofia Bennett",
+    "status": "completed",
+    "clientId": "client-5"
+  },
+  {
+    "id": "deadline-108",
+    "title": "Status Conference",
+    "description": "Pre-Trial Conference for case 19-CR-28795",
+    "dueDate": "2026-04-06",
+    "caseNumber": "19-CR-28795",
+    "assignedTo": "Noah Sinclair",
+    "status": "pending",
+    "clientId": "client-4"
+  },
+  {
+    "id": "deadline-109",
+    "title": "Witness List Due",
+    "description": "Deposition Scheduled for case 26-CR-51788",
+    "dueDate": "2024-09-25",
+    "caseNumber": "26-CR-51788",
+    "assignedTo": "Miguel Santos",
+    "status": "completed",
+    "clientId": "client-2"
+  },
+  {
+    "id": "deadline-110",
+    "title": "Sentencing Hearing",
+    "description": "Arraignment for case 23-CR-67377",
+    "dueDate": "2027-12-14",
+    "caseNumber": "23-CR-67377",
+    "assignedTo": "Olivia Brooks",
+    "status": "pending",
+    "clientId": "client-1"
+  },
+  {
+    "id": "deadline-111",
+    "title": "Arraignment",
+    "description": "Restitution Payment Due for case 19-CR-04476",
+    "dueDate": "2026-09-13",
+    "caseNumber": "19-CR-04476",
+    "assignedTo": "Camila Ortiz",
+    "status": "pending",
+    "clientId": "client-1"
+  },
+  {
+    "id": "deadline-112",
+    "title": "Expert Report Due",
+    "description": "Bail Review Hearing for case 20-CR-97951",
+    "dueDate": "2027-02-08",
+    "caseNumber": "20-CR-97951",
+    "assignedTo": "Logan Price",
+    "status": "pending",
+    "clientId": "client-3"
+  },
+  {
+    "id": "deadline-113",
+    "title": "Motion Filing Deadline",
+    "description": "Mediation Session for case 19-CR-04476",
+    "dueDate": "2025-10-29",
+    "caseNumber": "19-CR-04476",
+    "assignedTo": "Camila Ortiz",
+    "status": "completed",
+    "clientId": "client-1"
+  },
+  {
+    "id": "deadline-114",
+    "title": "Trial Date",
+    "description": "Plea Hearing for case 23-CR-67377",
+    "dueDate": "2027-09-02",
+    "caseNumber": "23-CR-67377",
+    "assignedTo": "Harper Cole",
+    "status": "pending",
+    "clientId": "client-1"
+  },
+  {
+    "id": "deadline-115",
+    "title": "Arraignment",
+    "description": "Arraignment for case 23-CR-86151",
+    "dueDate": "2024-10-20",
+    "caseNumber": "23-CR-86151",
+    "assignedTo": "Maya Clarke",
+    "status": "completed",
+    "clientId": "client-4"
+  },
+  {
+    "id": "deadline-116",
+    "title": "Evidence Submission Deadline",
+    "description": "Expert Report Due for case 26-CR-43872",
+    "dueDate": "2024-11-24",
+    "caseNumber": "26-CR-43872",
+    "assignedTo": "Reed Patterson",
+    "status": "completed",
+    "clientId": "client-1"
+  },
+  {
+    "id": "deadline-117",
+    "title": "Probation Review",
+    "description": "Preliminary Hearing for case 23-CR-67650",
+    "dueDate": "2027-07-19",
+    "caseNumber": "23-CR-67650",
+    "assignedTo": "Grant Lowell",
+    "status": "pending",
+    "clientId": "client-4"
+  },
+  {
+    "id": "deadline-118",
+    "title": "Compliance Hearing",
+    "description": "Evidence Submission Deadline for case 25-CR-81763",
+    "dueDate": "2024-01-25",
+    "caseNumber": "25-CR-81763",
+    "assignedTo": "Alexandra Pierce",
+    "status": "overdue",
+    "clientId": "client-4"
+  },
+  {
+    "id": "deadline-119",
+    "title": "Probation Review",
+    "description": "Jury Selection for case 22-CR-21891",
+    "dueDate": "2025-05-23",
+    "caseNumber": "22-CR-21891",
+    "assignedTo": "Dylan Carr",
+    "status": "completed",
+    "clientId": "client-4"
+  },
+  {
+    "id": "deadline-120",
+    "title": "Discovery Response Due",
+    "description": "Status Conference for case 23-CR-96684",
+    "dueDate": "2025-11-02",
+    "caseNumber": "23-CR-96684",
+    "assignedTo": "Grant Lowell",
+    "status": "completed",
+    "clientId": "client-2"
+  },
+  {
+    "id": "deadline-121",
+    "title": "Bail Review Hearing",
+    "description": "Restitution Payment Due for case 24-CR-13470",
+    "dueDate": "2026-10-19",
+    "caseNumber": "24-CR-13470",
+    "assignedTo": "Harper Cole",
+    "status": "pending",
+    "clientId": "client-5"
+  },
+  {
+    "id": "deadline-122",
+    "title": "Evidence Submission Deadline",
+    "description": "Plea Hearing for case 26-CR-51788",
+    "dueDate": "2024-04-05",
+    "caseNumber": "26-CR-51788",
+    "assignedTo": "Miguel Santos",
+    "status": "overdue",
+    "clientId": "client-2"
+  },
+  {
+    "id": "deadline-123",
+    "title": "Mediation Session",
+    "description": "Compliance Hearing for case 24-CR-05850",
+    "dueDate": "2027-08-28",
+    "caseNumber": "24-CR-05850",
+    "assignedTo": "Sofia Bennett",
+    "status": "pending",
+    "clientId": "client-5"
+  },
+  {
+    "id": "deadline-124",
+    "title": "Trial Date",
+    "description": "Motion Filing Deadline for case 23-CR-67650",
+    "dueDate": "2026-07-25",
+    "caseNumber": "23-CR-67650",
+    "assignedTo": "Miguel Santos",
+    "status": "completed",
+    "clientId": "client-4"
+  },
+  {
+    "id": "deadline-125",
+    "title": "Probation Review",
+    "description": "Mediation Session for case 23-CR-67377",
+    "dueDate": "2026-08-16",
+    "caseNumber": "23-CR-67377",
+    "assignedTo": "Olivia Brooks",
+    "status": "pending",
+    "clientId": "client-1"
+  },
+  {
+    "id": "deadline-126",
+    "title": "Bail Review Hearing",
+    "description": "Status Conference for case 19-CR-66310",
+    "dueDate": "2026-01-20",
+    "caseNumber": "19-CR-66310",
+    "assignedTo": "Noah Sinclair",
+    "status": "overdue",
+    "clientId": "client-4"
+  },
+  {
+    "id": "deadline-127",
+    "title": "Sentencing Hearing",
+    "description": "Deposition Scheduled for case 21-CR-21283",
+    "dueDate": "2026-01-23",
+    "caseNumber": "21-CR-21283",
+    "assignedTo": "Grant Lowell",
+    "status": "completed",
+    "clientId": "client-5"
+  },
+  {
+    "id": "deadline-128",
+    "title": "Plea Hearing",
+    "description": "Discovery Response Due for case 20-CR-76739",
+    "dueDate": "2024-03-08",
+    "caseNumber": "20-CR-76739",
+    "assignedTo": "Logan Price",
+    "status": "completed",
+    "clientId": "client-4"
+  },
+  {
+    "id": "deadline-129",
+    "title": "Appeal Filing Deadline",
+    "description": "Evidence Submission Deadline for case 26-CR-74113",
+    "dueDate": "2027-10-22",
+    "caseNumber": "26-CR-74113",
+    "assignedTo": "Maya Clarke",
+    "status": "pending",
+    "clientId": "client-1"
+  },
+  {
+    "id": "deadline-130",
+    "title": "Compliance Hearing",
+    "description": "Bail Review Hearing for case 23-CR-97435",
+    "dueDate": "2026-11-06",
+    "caseNumber": "23-CR-97435",
+    "assignedTo": "Jordan Hayes",
+    "status": "pending",
+    "clientId": "client-1"
+  },
+  {
+    "id": "deadline-131",
+    "title": "Discovery Response Due",
+    "description": "Bail Review Hearing for case 23-CR-36137",
+    "dueDate": "2025-01-27",
+    "caseNumber": "23-CR-36137",
+    "assignedTo": "Olivia Brooks",
+    "status": "completed",
+    "clientId": "client-2"
+  },
+  {
+    "id": "deadline-132",
+    "title": "Trial Date",
+    "description": "Restitution Payment Due for case 24-CR-04124",
+    "dueDate": "2027-09-12",
+    "caseNumber": "24-CR-04124",
+    "assignedTo": "Olivia Brooks",
+    "status": "pending",
+    "clientId": "client-1"
+  },
+  {
+    "id": "deadline-133",
+    "title": "Pre-Trial Conference",
+    "description": "Pre-Trial Conference for case 19-CR-61096",
+    "dueDate": "2025-01-04",
+    "caseNumber": "19-CR-61096",
+    "assignedTo": "Vera Whitman",
+    "status": "completed",
+    "clientId": "client-5"
+  },
+  {
+    "id": "deadline-134",
+    "title": "Evidence Submission Deadline",
+    "description": "Bail Review Hearing for case 24-CR-22229",
+    "dueDate": "2027-11-17",
+    "caseNumber": "24-CR-22229",
+    "assignedTo": "Grant Lowell",
+    "status": "pending",
+    "clientId": "client-1"
+  },
+  {
+    "id": "deadline-135",
+    "title": "Plea Hearing",
+    "description": "Pre-Trial Conference for case 23-CR-42420",
+    "dueDate": "2025-11-03",
+    "caseNumber": "23-CR-42420",
+    "assignedTo": "Elliot Shaw",
+    "status": "completed",
+    "clientId": "client-3"
+  },
+  {
+    "id": "deadline-136",
+    "title": "Sentencing Hearing",
+    "description": "Status Conference for case 23-CR-97435",
+    "dueDate": "2027-11-02",
+    "caseNumber": "23-CR-97435",
+    "assignedTo": "Logan Price",
+    "status": "completed",
+    "clientId": "client-1"
+  },
+  {
+    "id": "deadline-137",
+    "title": "Appeal Filing Deadline",
+    "description": "Jury Selection for case 21-CR-37919",
+    "dueDate": "2025-05-01",
+    "caseNumber": "21-CR-37919",
+    "assignedTo": "Sofia Bennett",
+    "status": "completed",
+    "clientId": "client-4"
+  },
+  {
+    "id": "deadline-138",
+    "title": "Witness List Due",
+    "description": "Expert Report Due for case 21-CR-92272",
+    "dueDate": "2024-02-12",
+    "caseNumber": "21-CR-92272",
+    "assignedTo": "Olivia Brooks",
+    "status": "completed",
+    "clientId": "client-3"
+  },
+  {
+    "id": "deadline-139",
+    "title": "Status Conference",
+    "description": "Pre-Trial Conference for case 23-CR-38987",
+    "dueDate": "2027-03-09",
+    "caseNumber": "23-CR-38987",
+    "assignedTo": "Renee Whitaker",
+    "status": "pending",
+    "clientId": "client-1"
+  },
+  {
+    "id": "deadline-140",
+    "title": "Bail Review Hearing",
+    "description": "Bail Review Hearing for case 23-CR-97435",
+    "dueDate": "2024-03-19",
+    "caseNumber": "23-CR-97435",
+    "assignedTo": "Logan Price",
+    "status": "overdue",
+    "clientId": "client-1"
+  },
+  {
+    "id": "deadline-141",
+    "title": "Mediation Session",
+    "description": "Status Conference for case 26-CR-89162",
+    "dueDate": "2024-04-08",
+    "caseNumber": "26-CR-89162",
+    "assignedTo": "Grant Lowell",
+    "status": "completed",
+    "clientId": "client-4"
+  },
+  {
+    "id": "deadline-142",
+    "title": "Jury Selection",
+    "description": "Trial Date for case 19-CR-28795",
+    "dueDate": "2026-06-04",
+    "caseNumber": "19-CR-28795",
+    "assignedTo": "Evan Kim",
+    "status": "completed",
+    "clientId": "client-4"
+  },
+  {
+    "id": "deadline-143",
+    "title": "Sentencing Hearing",
+    "description": "Arraignment for case 23-CR-42420",
+    "dueDate": "2024-12-11",
+    "caseNumber": "23-CR-42420",
+    "assignedTo": "Dylan Carr",
+    "status": "completed",
+    "clientId": "client-3"
+  },
+  {
+    "id": "deadline-144",
+    "title": "Pre-Trial Conference",
+    "description": "Jury Selection for case 20-CR-77686",
+    "dueDate": "2026-12-19",
+    "caseNumber": "20-CR-77686",
+    "assignedTo": "Miguel Santos",
+    "status": "completed",
+    "clientId": "client-2"
+  },
+  {
+    "id": "deadline-145",
+    "title": "Witness List Due",
+    "description": "Pre-Trial Conference for case 23-CR-67650",
+    "dueDate": "2024-07-29",
+    "caseNumber": "23-CR-67650",
+    "assignedTo": "Miguel Santos",
+    "status": "completed",
+    "clientId": "client-4"
+  },
+  {
+    "id": "deadline-146",
+    "title": "Deposition Scheduled",
+    "description": "Plea Hearing for case 24-CR-19805",
+    "dueDate": "2026-08-15",
+    "caseNumber": "24-CR-19805",
+    "assignedTo": "Dylan Carr",
+    "status": "pending",
+    "clientId": "client-1"
+  },
+  {
+    "id": "deadline-147",
+    "title": "Pre-Trial Conference",
+    "description": "Arraignment for case 19-CR-28795",
+    "dueDate": "2024-05-15",
+    "caseNumber": "19-CR-28795",
+    "assignedTo": "Evan Kim",
+    "status": "completed",
+    "clientId": "client-4"
+  },
+  {
+    "id": "deadline-148",
+    "title": "Mediation Session",
+    "description": "Restitution Payment Due for case 19-CR-85859",
+    "dueDate": "2026-10-27",
+    "caseNumber": "19-CR-85859",
+    "assignedTo": "Olivia Brooks",
+    "status": "pending",
+    "clientId": "client-3"
+  },
+  {
+    "id": "deadline-149",
+    "title": "Evidence Submission Deadline",
+    "description": "Probation Review for case 24-CR-25034",
+    "dueDate": "2026-03-30",
+    "caseNumber": "24-CR-25034",
+    "assignedTo": "Harper Cole",
+    "status": "completed",
+    "clientId": "client-2"
+  },
+  {
+    "id": "deadline-150",
+    "title": "Jury Selection",
+    "description": "Pre-Trial Conference for case 19-CR-28795",
+    "dueDate": "2026-03-05",
+    "caseNumber": "19-CR-28795",
+    "assignedTo": "Noah Sinclair",
+    "status": "pending",
+    "clientId": "client-4"
+  }
+]

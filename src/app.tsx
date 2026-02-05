@@ -1,22 +1,26 @@
 import './app.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useNavigate, Link } from 'react-router-dom';
 import { useState } from 'react';
 import type { JSX } from 'react';
 import { Home } from './home/home';
 import { Landing } from './landing/landing';
+import { Analytics } from './analytics/analytics';
+import { Calendar } from './calendar/calendar';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import type { UserRole } from './context/AuthContext';
 
 function DynamicHeader(): JSX.Element {
     const { user, isAuthenticated, login, logout } = useAuth();
     const navigate = useNavigate();
     const [headerEmail, setHeaderEmail] = useState('');
     const [headerPassword, setHeaderPassword] = useState('');
+    const [headerRole, setHeaderRole] = useState<UserRole>('client');
 
     const handleHeaderLogin = (e: React.FormEvent) => {
         e.preventDefault();
         if (headerEmail && headerPassword) {
-            login(headerEmail, headerPassword, 'client');
+            login(headerEmail, headerPassword, headerRole);
             navigate('/dashboard');
         }
     };
@@ -25,12 +29,14 @@ function DynamicHeader(): JSX.Element {
         <header className="app-header">
             <div className="header-wrapper">
                 <div className="logo-section">
-                    <a href="/" className="heading">10X-Legal Tech</a>
+                    <Link to="/" className="heading">10X-Legal Tech</Link>
                 </div>
                 {isAuthenticated ? (
                     <>
                         <nav className="header-nav">
-                            <a href="/dashboard" className="nav-link">Dashboard</a>
+                            <Link to="/dashboard" className="nav-link">Dashboard</Link>
+                            <Link to="/analytics" className="nav-link">Analytics</Link>
+                            <Link to="/calendar" className="nav-link">Calendar</Link>
                         </nav>
                         <div className="header-actions">
                             <button className="btn-icon">Notifications</button>
@@ -63,6 +69,15 @@ function DynamicHeader(): JSX.Element {
                                 className="header-login-input"
                                 required
                             />
+                            <select
+                                value={headerRole ?? 'client'}
+                                onChange={(e) => setHeaderRole(e.target.value as UserRole)}
+                                className="header-role-select"
+                            >
+                                <option value="client">Client</option>
+                                <option value="lawyer">Lawyer</option>
+                                <option value="legal-official">Legal Official</option>
+                            </select>
                             <button type="submit" className="header-signin-btn">Sign In</button>
                         </form>
                         <button
@@ -85,6 +100,8 @@ function AppContent() {
             <Routes>
                 <Route path="/" element={<Landing />} />
                 <Route path="/dashboard" element={<Home />} />
+                <Route path="/analytics" element={<Analytics />} />
+                <Route path="/calendar" element={<Calendar />} />
             </Routes>
         </div>
     );

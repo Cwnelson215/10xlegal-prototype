@@ -1,24 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { useCaseData } from '../hooks';
 import './home.css';
 
-type CaseRecord = {
-    caseNumber: string;
-    county: string;
-    judge: string;
-    prosecutionAttorney: string;
-    prosecutionFirm: string;
-    defenseAttorney: string;
-    defenseFirm: string;
-    charge: string;
-    courtDate: string;
-    ruling: string;
-    sentence: string;
-};
-
 export function Home() {
-    const [allCases, setAllCases] = useState<CaseRecord[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [errorMessage, setErrorMessage] = useState('');
+    const { user, isAuthenticated } = useAuth();
+    const { cases: roleCases, allCases, isLoading, errorMessage } = useCaseData();
     const [caseNumberQuery, setCaseNumberQuery] = useState('');
     const [attorneyQuery, setAttorneyQuery] = useState('');
     const [firmQuery, setFirmQuery] = useState('');
@@ -26,40 +13,6 @@ export function Home() {
     const [countyFilter, setCountyFilter] = useState('all');
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
-
-    useEffect(() => {
-        let isMounted = true;
-
-        const loadCases = async () => {
-            try {
-                setIsLoading(true);
-                setErrorMessage('');
-                const dataUrl = new URL('../data/fake-cases.json', import.meta.url).href;
-                const response = await fetch(dataUrl);
-                if (!response.ok) {
-                    throw new Error('Unable to load case data.');
-                }
-                const data = (await response.json()) as CaseRecord[];
-                if (isMounted) {
-                    setAllCases(data);
-                }
-            } catch (error) {
-                if (isMounted) {
-                    setErrorMessage(error instanceof Error ? error.message : 'Unable to load cases.');
-                }
-            } finally {
-                if (isMounted) {
-                    setIsLoading(false);
-                }
-            }
-        };
-
-        loadCases();
-
-        return () => {
-            isMounted = false;
-        };
-    }, []);
 
     useEffect(() => {
         setPage(1);
@@ -78,7 +31,7 @@ export function Home() {
         const attorneyQueryLower = attorneyQuery.trim().toLowerCase();
         const firmQueryLower = firmQuery.trim().toLowerCase();
         const judgeQueryLower = judgeQuery.trim().toLowerCase();
-        return allCases.filter((caseItem) => {
+        return roleCases.filter((caseItem) => {
             const sequentialDigits = caseItem.caseNumber.split('-')[2] ?? '';
             const matchesCaseNumber = caseDigits.length > 0
                 ? sequentialDigits.startsWith(caseDigits)
@@ -103,7 +56,7 @@ export function Home() {
             return matchesCaseNumber && matchesAttorney && matchesFirm && matchesJudge && matchesCounty;
         });
     }, [
-        allCases,
+        roleCases,
         caseNumberQuery,
         attorneyQuery,
         firmQuery,
@@ -111,7 +64,7 @@ export function Home() {
         countyFilter,
     ]);
 
-    const totalCases = allCases.length;
+    const totalCases = roleCases.length;
     const totalPages = Math.max(1, Math.ceil(filteredCases.length / pageSize));
 
     const pagedCases = useMemo(() => {
@@ -139,8 +92,17 @@ export function Home() {
         <div className="home-container">
             <header className="home-header">
                 <div className="header-content">
-                    <h1>Case Dashboard</h1>
-                    <p>Filter and review all cases stored in the backend database</p>
+                    <h1>
+                        {isAuthenticated && user?.role === 'client' && 'Your Cases'}
+                        {isAuthenticated && user?.role === 'lawyer' && 'Your Caseload'}
+                        {isAuthenticated && user?.role === 'legal-official' && 'All Cases — Admin View'}
+                        {!isAuthenticated && 'Case Dashboard'}
+                    </h1>
+                    <p>
+                        {isAuthenticated && user
+                            ? <>{user.name} <span className="role-badge">{user.role === 'legal-official' ? 'Legal Official' : user.role.charAt(0).toUpperCase() + user.role.slice(1)}</span></>
+                            : 'Filter and review all cases stored in the database'}
+                    </p>
                 </div>
             </header>
             <section className="cases-dashboard-section">
@@ -198,7 +160,7 @@ export function Home() {
                             onChange={(event) => setCountyFilter(event.target.value)}
                         >
                             <option value="all">All</option>
-                            {Array.from(new Set(allCases.map((caseItem) => caseItem.county)))
+                            {Array.from(new Set(roleCases.map((caseItem) => caseItem.county)))
                                 .sort()
                                 .map((county) => (
                                     <option key={county} value={county}>

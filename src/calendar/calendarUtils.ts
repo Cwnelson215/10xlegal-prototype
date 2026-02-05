@@ -1,0 +1,73 @@
+import type { CaseRecord } from '../types';
+import type { DeadlineRecord } from '../hooks/useDeadlineData';
+
+export type CalendarEvent = {
+    id: string;
+    date: string;
+    title: string;
+    type: 'court-date' | 'deadline';
+    caseNumber: string;
+    detail: string;
+};
+
+export function getDaysInMonth(year: number, month: number): number {
+    return new Date(year, month + 1, 0).getDate();
+}
+
+export function getFirstDayOfMonth(year: number, month: number): number {
+    return new Date(year, month, 1).getDay();
+}
+
+export function buildCalendarEvents(
+    cases: CaseRecord[],
+    deadlines: DeadlineRecord[],
+): CalendarEvent[] {
+    const events: CalendarEvent[] = [];
+
+    for (const c of cases) {
+        events.push({
+            id: `court-${c.caseNumber}`,
+            date: c.courtDate,
+            title: `Court: ${c.caseNumber}`,
+            type: 'court-date',
+            caseNumber: c.caseNumber,
+            detail: `${c.charge} — ${c.county} County — Judge ${c.judge}`,
+        });
+    }
+
+    for (const d of deadlines) {
+        events.push({
+            id: d.id,
+            date: d.dueDate,
+            title: d.title,
+            type: 'deadline',
+            caseNumber: d.caseNumber,
+            detail: `${d.description} — Assigned to ${d.assignedTo} — Status: ${d.status}`,
+        });
+    }
+
+    return events;
+}
+
+export function getEventsForDate(events: CalendarEvent[], date: string): CalendarEvent[] {
+    return events.filter((e) => e.date === date);
+}
+
+export function getUpcomingEvents(events: CalendarEvent[], count: number): CalendarEvent[] {
+    const today = new Date().toISOString().slice(0, 10);
+    return events
+        .filter((e) => e.date >= today)
+        .sort((a, b) => a.date.localeCompare(b.date))
+        .slice(0, count);
+}
+
+export function formatMonthYear(year: number, month: number): string {
+    const date = new Date(year, month, 1);
+    return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+}
+
+export function toDateString(year: number, month: number, day: number): string {
+    const m = String(month + 1).padStart(2, '0');
+    const d = String(day).padStart(2, '0');
+    return `${year}-${m}-${d}`;
+}
