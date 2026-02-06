@@ -6,6 +6,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "vite",
+    "build": "vite build && cp dist/index.html dist/404.html",
+    "preview": "vite preview",
     "generate-data": "node ./scripts/generate-fake-cases.js",
     "generate-deadlines": "node ./scripts/generate-fake-deadlines.js",
     "generate-users": "node ./scripts/generate-fake-users.js"
