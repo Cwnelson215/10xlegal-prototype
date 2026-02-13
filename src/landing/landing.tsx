@@ -84,24 +84,24 @@ export function Landing() {
     
     const features = [
         {
-            icon: 'CM',
-            title: 'Case Management',
-            description: 'Organize and track all your legal cases in one centralized platform'
+            icon: 'CL',
+            title: 'Case Lookup',
+            description: 'Search and browse publicly available legal cases from a centralized dashboard'
         },
         {
-            icon: 'DC',
-            title: 'Document Control',
-            description: 'Securely manage, version, and collaborate on legal documents'
+            icon: 'CR',
+            title: 'Court Records',
+            description: 'Access court filings, rulings, and other publicly available legal documents'
         },
         {
-            icon: 'DT',
-            title: 'Deadline Tracking',
-            description: 'Never miss important dates with automated reminders and timelines'
+            icon: 'KD',
+            title: 'Key Dates',
+            description: 'View upcoming court dates, filing deadlines, and hearing schedules at a glance'
         },
         {
-            icon: 'TC',
-            title: 'Team Collaboration',
-            description: 'Work seamlessly with your team on cases and documents'
+            icon: 'RV',
+            title: 'Role-Based Views',
+            description: 'Tailored dashboards for clients, lawyers, and legal officials'
         },
         {
             icon: 'SC',
@@ -111,7 +111,7 @@ export function Landing() {
         {
             icon: 'AR',
             title: 'Analytics & Reporting',
-            description: 'Gain insights into your practice with detailed analytics'
+            description: 'Gain insights into case trends and legal data with detailed analytics'
         },
     ];
 
@@ -139,8 +139,8 @@ export function Landing() {
             {/* Hero Section */}
             <section className="hero-section">
                 <div className="hero-content">
-                    <h1 className="hero-title">Legal Practice Management Made Simple</h1>
-                    <p className="hero-subtitle">Streamline your legal practice with 10X-Legal Tech. Manage cases, documents, deadlines, and your team all in one place.</p>
+                    <h1 className="hero-title">Public Legal Case Data at Your Fingertips</h1>
+                    <p className="hero-subtitle">Access and explore publicly available legal case information with 10X-Legal Tech. Search cases, review court records, and stay informed — all from one dashboard.</p>
                     <div className="hero-actions">
                         <button 
                             className="btn-primary-large"
@@ -250,7 +250,7 @@ export function Landing() {
             <section className="cta-section">
                 <div className="cta-content">
                     <h2>Ready to transform your legal practice?</h2>
-                    <p>Join hundreds of law firms using 10X-Legal Tech to manage their practice more efficiently.</p>
+                    <p>Join hundreds of legal professionals using 10X-Legal Tech to stay informed on public case data.</p>
                     <button 
                         className="btn-primary-large"
                         onClick={() => {
@@ -268,7 +268,7 @@ export function Landing() {
                 <div className="footer-content">
                     <div className="footer-column">
                         <h4>10X-Legal Tech</h4>
-                        <p>Empowering law firms with modern practice management tools.</p>
+                        <p>Empowering legal professionals with accessible public case information.</p>
                     </div>
                     <div className="footer-column">
                         <h4>Product</h4>
