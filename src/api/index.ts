@@ -5,5 +5,5 @@
 
 export * from './types';
 export { default as apiClient } from './client';
-export { API_ENDPOINTS, API_BASE_URL_VALUE } from './config';
+export { API_ENDPOINTS } from './config';
 export * from './services';

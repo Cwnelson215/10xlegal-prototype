@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "generate-data": "node ./scripts/generate-fake-cases.js",
     "generate-deadlines": "node ./scripts/generate-fake-deadlines.js",
-    "generate-users": "node ./scripts/generate-fake-users.js"
+    "generate-users": "node ./scripts/generate-fake-users.js",
+    "server": "npm --prefix server run dev"
   },
   "repository": {
     "type": "git",

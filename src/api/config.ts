@@ -1,77 +1,59 @@
 /**
  * API Configuration
- * Define base URL and endpoints for backend communication
+ * Define endpoints for backend communication as relative paths.
+ * The API client (client.ts) prepends the base URL automatically.
  */
-
-const getApiBaseUrl = (): string => {
-    if (typeof window !== 'undefined' && (window as any).__API_URL) {
-        return (window as any).__API_URL;
-    }
-    
-    // For Vite, import.meta.env is only available at build time
-    // So we use a string that Vite will replace during build
-    const envUrl = '__VITE_API_URL__';
-    if (envUrl && envUrl !== '__VITE_API_URL__') {
-        return envUrl;
-    }
-    
-    return 'http://localhost:3000/api';
-};
-
-const API_BASE_URL = getApiBaseUrl();
 
 export const API_ENDPOINTS = {
     // Authentication endpoints
     AUTH: {
-        LOGIN: `${API_BASE_URL}/auth/login`,
-        REGISTER: `${API_BASE_URL}/auth/register`,
-        LOGOUT: `${API_BASE_URL}/auth/logout`,
-        REFRESH_TOKEN: `${API_BASE_URL}/auth/refresh-token`,
-        VERIFY_TOKEN: `${API_BASE_URL}/auth/verify-token`,
+        LOGIN: '/auth/login',
+        REGISTER: '/auth/register',
+        LOGOUT: '/auth/logout',
+        REFRESH_TOKEN: '/auth/refresh-token',
+        VERIFY_TOKEN: '/auth/verify-token',
     },
-    
+
     // User endpoints
     USERS: {
-        GET_PROFILE: `${API_BASE_URL}/users/profile`,
-        UPDATE_PROFILE: `${API_BASE_URL}/users/profile`,
-        GET_USER: (id: string) => `${API_BASE_URL}/users/${id}`,
+        GET_PROFILE: '/users/profile',
+        UPDATE_PROFILE: '/users/profile',
+        GET_USER: (id: string) => `/users/${id}`,
     },
-    
+
     // Cases endpoints
     CASES: {
-        LIST: `${API_BASE_URL}/cases`,
-        CREATE: `${API_BASE_URL}/cases`,
-        GET: (id: string) => `${API_BASE_URL}/cases/${id}`,
-        UPDATE: (id: string) => `${API_BASE_URL}/cases/${id}`,
-        DELETE: (id: string) => `${API_BASE_URL}/cases/${id}`,
+        LIST: '/cases',
+        CREATE: '/cases',
+        GET: (id: string) => `/cases/${id}`,
+        UPDATE: (id: string) => `/cases/${id}`,
+        DELETE: (id: string) => `/cases/${id}`,
     },
-    
+
     // Documents endpoints
     DOCUMENTS: {
-        LIST: `${API_BASE_URL}/documents`,
-        UPLOAD: `${API_BASE_URL}/documents/upload`,
-        GET: (id: string) => `${API_BASE_URL}/documents/${id}`,
-        DELETE: (id: string) => `${API_BASE_URL}/documents/${id}`,
-        DOWNLOAD: (id: string) => `${API_BASE_URL}/documents/${id}/download`,
+        LIST: '/documents',
+        UPLOAD: '/documents/upload',
+        GET: (id: string) => `/documents/${id}`,
+        DELETE: (id: string) => `/documents/${id}`,
+        DOWNLOAD: (id: string) => `/documents/${id}/download`,
     },
-    
+
     // Deadlines endpoints
     DEADLINES: {
-        LIST: `${API_BASE_URL}/deadlines`,
-        CREATE: `${API_BASE_URL}/deadlines`,
-        GET: (id: string) => `${API_BASE_URL}/deadlines/${id}`,
-        UPDATE: (id: string) => `${API_BASE_URL}/deadlines/${id}`,
-        DELETE: (id: string) => `${API_BASE_URL}/deadlines/${id}`,
+        LIST: '/deadlines',
+        CREATE: '/deadlines',
+        GET: (id: string) => `/deadlines/${id}`,
+        UPDATE: (id: string) => `/deadlines/${id}`,
+        DELETE: (id: string) => `/deadlines/${id}`,
     },
-    
+
     // Team endpoints
     TEAM: {
-        LIST: `${API_BASE_URL}/team`,
-        ADD_MEMBER: `${API_BASE_URL}/team/members`,
-        GET_MEMBER: (id: string) => `${API_BASE_URL}/team/members/${id}`,
-        UPDATE_MEMBER: (id: string) => `${API_BASE_URL}/team/members/${id}`,
-        REMOVE_MEMBER: (id: string) => `${API_BASE_URL}/team/members/${id}`,
+        LIST: '/team',
+        ADD_MEMBER: '/team/members',
+        GET_MEMBER: (id: string) => `/team/members/${id}`,
+        UPDATE_MEMBER: (id: string) => `/team/members/${id}`,
+        REMOVE_MEMBER: (id: string) => `/team/members/${id}`,
     },
 };
-
-export const API_BASE_URL_VALUE = API_BASE_URL;
