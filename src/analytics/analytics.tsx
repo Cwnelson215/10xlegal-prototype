@@ -1,4 +1,3 @@
-import { useAuth } from '../context/AuthContext';
 import { useCaseData } from '../hooks';
 import { SummaryStats } from './SummaryStats';
 import {
@@ -10,7 +9,6 @@ import {
 import './analytics.css';
 
 export function Analytics() {
-    const { user, isAuthenticated } = useAuth();
     const { cases, isLoading, errorMessage } = useCaseData();
 
     return (
@@ -18,11 +16,7 @@ export function Analytics() {
             <header className="analytics-header">
                 <div className="header-content">
                     <h1>Analytics</h1>
-                    <p>
-                        {isAuthenticated && user
-                            ? `Showing analytics for ${user.name} (${user.role === 'legal-official' ? 'Legal Official' : user.role.charAt(0).toUpperCase() + user.role.slice(1)})`
-                            : 'Overview of all case data'}
-                    </p>
+                    <p>Overview of all case data</p>
                 </div>
             </header>
 
