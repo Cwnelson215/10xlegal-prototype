@@ -19,7 +19,7 @@ export function DayCell({ day, events, isToday, isSelected, onClick }: DayCellPr
 
     return (
         <div
-            className={`day-cell${isToday ? ' today' : ''}${isSelected ? ' selected' : ''}`}
+            className={`day-cell${isToday ? ' today' : ''}${isSelected ? ' selected' : ''}${hasCourtDate ? ' has-court-date' : ''}${hasDeadline ? ' has-deadline' : ''}`}
             onClick={onClick}
         >
             <span className="day-number">{day}</span>

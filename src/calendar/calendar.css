@@ -101,22 +101,22 @@
 .month-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 2px;
+  gap: 4px;
 }
 
 .weekday-header {
   text-align: center;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: #7f8c8d;
   text-transform: uppercase;
-  padding: 8px 0;
+  padding: 10px 0;
 }
 
 /* Day cell */
 .day-cell {
-  min-height: 64px;
-  padding: 6px;
+  min-height: 100px;
+  padding: 8px;
   border: 1px solid #eef2f6;
   border-radius: 6px;
   cursor: pointer;
@@ -147,7 +147,7 @@
 }
 
 .day-number {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
   color: #2c3e50;
 }
@@ -158,8 +158,8 @@
 }
 
 .dot {
-  width: 6px;
-  height: 6px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
 }
 
@@ -169,6 +169,22 @@
 
 .deadline-dot {
   background: #f39c12;
+}
+
+/* Event-highlighted day cells */
+.day-cell.has-court-date {
+  background-color: rgba(52, 152, 219, 0.06);
+  border-left: 3px solid #3498db;
+}
+
+.day-cell.has-deadline {
+  background-color: rgba(243, 156, 18, 0.06);
+  border-left: 3px solid #f39c12;
+}
+
+.day-cell.has-court-date.has-deadline {
+  background: linear-gradient(135deg, rgba(52, 152, 219, 0.06) 0%, rgba(243, 156, 18, 0.06) 100%);
+  border-left: 3px solid #3498db;
 }
 
 /* Event detail */
@@ -337,7 +353,7 @@
 
 @media (max-width: 480px) {
   .day-cell {
-    min-height: 48px;
+    min-height: 64px;
     padding: 4px;
   }
 
