@@ -48,6 +48,24 @@ export const API_ENDPOINTS = {
         DELETE: (id: string) => `/deadlines/${id}`,
     },
 
+    // Judges endpoints
+    JUDGES: {
+        LIST: '/judges',
+        GET: (id: string) => `/judges/${id}`,
+    },
+
+    // Attorneys endpoints
+    ATTORNEYS: {
+        LIST: '/attorneys',
+        GET: (id: string) => `/attorneys/${id}`,
+    },
+
+    // Firms endpoints
+    FIRMS: {
+        LIST: '/firms',
+        GET: (id: string) => `/firms/${id}`,
+    },
+
     // Team endpoints
     TEAM: {
         LIST: '/team',

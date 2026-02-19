@@ -6,6 +6,8 @@ import { config } from '../config.js';
 import { getDb } from '../db/connection.js';
 import { authenticate } from '../middleware/auth.js';
 import { apiResponse, apiError } from '../utils/responses.js';
+import { validate } from '../middleware/validate.js';
+import { loginSchema, registerSchema } from '../validation/schemas.js';
 
 const router = Router();
 
@@ -62,13 +64,8 @@ function generateTokens(user: { id: string; name: string; email: string; role: s
 }
 
 // POST /auth/login
-router.post('/login', (req, res) => {
+router.post('/login', validate(loginSchema), (req, res) => {
   const { email, password, role } = req.body;
-
-  if (!email || !password || !role) {
-    apiError(res, 'Email, password, and role are required');
-    return;
-  }
 
   const user = getDb().prepare(
     'SELECT * FROM users WHERE email = ? AND role = ?'
@@ -94,13 +91,8 @@ router.post('/login', (req, res) => {
 });
 
 // POST /auth/register
-router.post('/register', (req, res) => {
+router.post('/register', validate(registerSchema), (req, res) => {
   const { name, email, password, role, lawyerInfo, legalOfficialInfo } = req.body;
-
-  if (!name || !email || !password || !role) {
-    apiError(res, 'Name, email, password, and role are required');
-    return;
-  }
 
   const existing = getDb().prepare('SELECT id FROM users WHERE email = ?').get(email);
   if (existing) {

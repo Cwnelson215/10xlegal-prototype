@@ -27,6 +27,30 @@ export function runSchema(): void {
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
 
+    CREATE TABLE IF NOT EXISTS judges (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL UNIQUE,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS law_firms (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL UNIQUE,
+      type TEXT NOT NULL DEFAULT '' CHECK(type IN ('prosecution', 'defense', '')),
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS attorneys (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      type TEXT NOT NULL CHECK(type IN ('prosecution', 'defense')),
+      firm_id TEXT REFERENCES law_firms(id),
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
     CREATE TABLE IF NOT EXISTS cases (
       id TEXT PRIMARY KEY,
       title TEXT NOT NULL,
@@ -37,10 +61,15 @@ export function runSchema(): void {
       lawyer_id TEXT NOT NULL DEFAULT '',
       county TEXT NOT NULL DEFAULT '',
       judge TEXT NOT NULL DEFAULT '',
+      judge_id TEXT REFERENCES judges(id),
       prosecution_attorney TEXT NOT NULL DEFAULT '',
+      prosecution_attorney_id TEXT REFERENCES attorneys(id),
       prosecution_firm TEXT NOT NULL DEFAULT '',
+      prosecution_firm_id TEXT REFERENCES law_firms(id),
       defense_attorney TEXT NOT NULL DEFAULT '',
+      defense_attorney_id TEXT REFERENCES attorneys(id),
       defense_firm TEXT NOT NULL DEFAULT '',
+      defense_firm_id TEXT REFERENCES law_firms(id),
       charge TEXT NOT NULL DEFAULT '',
       court_date TEXT NOT NULL DEFAULT '',
       ruling TEXT NOT NULL DEFAULT '',

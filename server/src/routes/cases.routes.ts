@@ -1,8 +1,10 @@
 import { Router } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { getDb } from '../db/connection.js';
-import { authenticate } from '../middleware/auth.js';
+import { authenticate, optionalAuth } from '../middleware/auth.js';
 import { apiResponse, apiError, parsePagination, paginatedResponse } from '../utils/responses.js';
+import { validate } from '../middleware/validate.js';
+import { createCaseSchema, updateCaseSchema } from '../validation/schemas.js';
 
 const router = Router();
 
@@ -16,10 +18,15 @@ interface CaseRow {
   lawyer_id: string;
   county: string;
   judge: string;
+  judge_id: string | null;
   prosecution_attorney: string;
+  prosecution_attorney_id: string | null;
   prosecution_firm: string;
+  prosecution_firm_id: string | null;
   defense_attorney: string;
+  defense_attorney_id: string | null;
   defense_firm: string;
+  defense_firm_id: string | null;
   charge: string;
   court_date: string;
   ruling: string;
@@ -39,10 +46,15 @@ function toCaseResponse(row: CaseRow) {
     lawyerId: row.lawyer_id,
     county: row.county,
     judge: row.judge,
+    judgeId: row.judge_id,
     prosecutionAttorney: row.prosecution_attorney,
+    prosecutionAttorneyId: row.prosecution_attorney_id,
     prosecutionFirm: row.prosecution_firm,
+    prosecutionFirmId: row.prosecution_firm_id,
     defenseAttorney: row.defense_attorney,
+    defenseAttorneyId: row.defense_attorney_id,
     defenseFirm: row.defense_firm,
+    defenseFirmId: row.defense_firm_id,
     charge: row.charge,
     courtDate: row.court_date,
     ruling: row.ruling,
@@ -53,7 +65,7 @@ function toCaseResponse(row: CaseRow) {
 }
 
 // GET /cases
-router.get('/', authenticate, (req, res) => {
+router.get('/', optionalAuth, (req, res) => {
   const { page, pageSize } = parsePagination(req.query as Record<string, unknown>);
   const offset = (page - 1) * pageSize;
 
@@ -64,13 +76,8 @@ router.get('/', authenticate, (req, res) => {
 });
 
 // POST /cases
-router.post('/', authenticate, (req, res) => {
+router.post('/', authenticate, validate(createCaseSchema), (req, res) => {
   const { title, description, caseNumber, clientId, lawyerId } = req.body;
-
-  if (!title || !caseNumber || !clientId) {
-    apiError(res, 'Title, caseNumber, and clientId are required');
-    return;
-  }
 
   const id = uuidv4();
   const now = new Date().toISOString();
@@ -85,7 +92,7 @@ router.post('/', authenticate, (req, res) => {
 });
 
 // GET /cases/:id
-router.get('/:id', authenticate, (req, res) => {
+router.get('/:id', optionalAuth, (req, res) => {
   const row = getDb().prepare('SELECT * FROM cases WHERE id = ?').get(req.params.id) as CaseRow | undefined;
   if (!row) {
     apiError(res, 'Case not found', 404);
@@ -95,7 +102,7 @@ router.get('/:id', authenticate, (req, res) => {
 });
 
 // PUT /cases/:id
-router.put('/:id', authenticate, (req, res) => {
+router.put('/:id', authenticate, validate(updateCaseSchema), (req, res) => {
   const existing = getDb().prepare('SELECT * FROM cases WHERE id = ?').get(req.params.id) as CaseRow | undefined;
   if (!existing) {
     apiError(res, 'Case not found', 404);

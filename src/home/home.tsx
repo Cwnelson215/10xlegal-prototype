@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCaseData } from '../hooks';
 import './home.css';
@@ -198,13 +199,33 @@ export function Home() {
                                 <tbody>
                                     {pagedCases.map((caseItem) => (
                                         <tr key={caseItem.caseNumber}>
-                                            <td>{caseItem.caseNumber}</td>
+                                            <td><Link to={`/cases/${caseItem.id}`} className="entity-link">{caseItem.caseNumber}</Link></td>
                                             <td>{caseItem.county}</td>
-                                            <td>{caseItem.judge}</td>
-                                            <td>{caseItem.prosecutionAttorney}</td>
-                                            <td>{caseItem.prosecutionFirm}</td>
-                                            <td>{caseItem.defenseAttorney}</td>
-                                            <td>{caseItem.defenseFirm}</td>
+                                            <td>
+                                                {caseItem.judgeId
+                                                    ? <Link to={`/judges/${caseItem.judgeId}`} className="entity-link">{caseItem.judge}</Link>
+                                                    : caseItem.judge}
+                                            </td>
+                                            <td>
+                                                {caseItem.prosecutionAttorneyId
+                                                    ? <Link to={`/attorneys/${caseItem.prosecutionAttorneyId}`} className="entity-link">{caseItem.prosecutionAttorney}</Link>
+                                                    : caseItem.prosecutionAttorney}
+                                            </td>
+                                            <td>
+                                                {caseItem.prosecutionFirmId
+                                                    ? <Link to={`/firms/${caseItem.prosecutionFirmId}`} className="entity-link">{caseItem.prosecutionFirm}</Link>
+                                                    : caseItem.prosecutionFirm}
+                                            </td>
+                                            <td>
+                                                {caseItem.defenseAttorneyId
+                                                    ? <Link to={`/attorneys/${caseItem.defenseAttorneyId}`} className="entity-link">{caseItem.defenseAttorney}</Link>
+                                                    : caseItem.defenseAttorney}
+                                            </td>
+                                            <td>
+                                                {caseItem.defenseFirmId
+                                                    ? <Link to={`/firms/${caseItem.defenseFirmId}`} className="entity-link">{caseItem.defenseFirm}</Link>
+                                                    : caseItem.defenseFirm}
+                                            </td>
                                             <td>{caseItem.charge}</td>
                                             <td>{caseItem.courtDate}</td>
                                             <td>{caseItem.ruling}</td>

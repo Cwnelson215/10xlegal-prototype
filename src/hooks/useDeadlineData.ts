@@ -1,16 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { deadlinesService } from '../api/services/deadlinesService';
+import type { Deadline } from '../api/types';
 
-export type DeadlineRecord = {
-    id: string;
-    title: string;
-    description: string;
-    dueDate: string;
-    caseNumber: string;
-    assignedTo: string;
-    status: string;
-    clientId: string;
-};
+export type DeadlineRecord = Deadline;
 
 export function useDeadlineData() {
     const { user, isAuthenticated } = useAuth();
@@ -25,14 +18,9 @@ export function useDeadlineData() {
             try {
                 setIsLoading(true);
                 setErrorMessage('');
-                const dataUrl = new URL('../data/fake-deadlines.json', import.meta.url).href;
-                const response = await fetch(dataUrl);
-                if (!response.ok) {
-                    throw new Error('Unable to load deadline data.');
-                }
-                const data = (await response.json()) as DeadlineRecord[];
+                const response = await deadlinesService.getDeadlines(undefined, 1, 1000);
                 if (isMounted) {
-                    setAllDeadlines(data);
+                    setAllDeadlines(response.data);
                 }
             } catch (error) {
                 if (isMounted) {

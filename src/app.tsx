@@ -7,6 +7,10 @@ import { Home } from './home/home';
 import { Landing } from './landing/landing';
 import { Analytics } from './analytics/analytics';
 import { Calendar } from './calendar/calendar';
+import { CaseDetail } from './cases/CaseDetail';
+import { JudgeProfile } from './profiles/JudgeProfile';
+import { AttorneyProfile } from './profiles/AttorneyProfile';
+import { FirmProfile } from './profiles/FirmProfile';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import type { UserRole } from './context/AuthContext';
 
@@ -102,6 +106,10 @@ function AppContent() {
                 <Route path="/dashboard" element={<Home />} />
                 <Route path="/analytics" element={<Analytics />} />
                 <Route path="/calendar" element={<Calendar />} />
+                <Route path="/cases/:id" element={<CaseDetail />} />
+                <Route path="/judges/:id" element={<JudgeProfile />} />
+                <Route path="/attorneys/:id" element={<AttorneyProfile />} />
+                <Route path="/firms/:id" element={<FirmProfile />} />
             </Routes>
         </div>
     );

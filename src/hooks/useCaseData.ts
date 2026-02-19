@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { casesService } from '../api/services/casesService';
 import type { CaseRecord } from '../types';
 
 export function useCaseData() {
@@ -15,14 +16,9 @@ export function useCaseData() {
             try {
                 setIsLoading(true);
                 setErrorMessage('');
-                const dataUrl = new URL('../data/fake-cases.json', import.meta.url).href;
-                const response = await fetch(dataUrl);
-                if (!response.ok) {
-                    throw new Error('Unable to load case data.');
-                }
-                const data = (await response.json()) as CaseRecord[];
+                const response = await casesService.getCases(1, 1000);
                 if (isMounted) {
-                    setAllCases(data);
+                    setAllCases(response.data);
                 }
             } catch (error) {
                 if (isMounted) {

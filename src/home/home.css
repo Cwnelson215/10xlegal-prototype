@@ -144,6 +144,16 @@
   background-color: #fbfcfd;
 }
 
+.entity-link {
+  color: #2980b9;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.entity-link:hover {
+  text-decoration: underline;
+}
+
 .status-pill {
   display: inline-flex;
   align-items: center;

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { authService } from '../api/services/authService';
 import type { LoginRequest, RegisterRequest, User } from '../api/types';
 
@@ -19,8 +19,29 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+
+    // Restore session on mount if token exists
+    useEffect(() => {
+        const restoreSession = async () => {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                setIsLoading(false);
+                return;
+            }
+            try {
+                const restoredUser = await authService.verifyToken();
+                setUser(restoredUser);
+            } catch {
+                // Token invalid or backend unavailable — clear stale token
+                authService.clearToken();
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        restoreSession();
+    }, []);
 
     const clearError = useCallback(() => {
         setError(null);
@@ -39,30 +60,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
             const response = await authService.login(credentials);
             setUser(response.user);
-        } catch {
-            // No backend available — simulate login from fake users
-            try {
-                const dataUrl = new URL('../data/fake-users.json', import.meta.url).href;
-                const res = await fetch(dataUrl);
-                const fakeUsers = (await res.json()) as Array<{ id: string; name: string; email: string; role: string }>;
-                const matched = fakeUsers.find((u) => u.role === role) ?? fakeUsers[0];
-                if (matched) {
-                    const simulatedUser: User = {
-                        id: matched.id,
-                        name: matched.name,
-                        email: email || matched.email,
-                        role: matched.role as 'client' | 'lawyer' | 'legal-official',
-                        verificationStatus: 'verified',
-                        createdAt: new Date().toISOString(),
-                        updatedAt: new Date().toISOString(),
-                    };
-                    setUser(simulatedUser);
-                    return;
-                }
-            } catch {
-                // If fake users also fail, fall through to error
-            }
-            setError('Login failed — no backend or fake data available');
+        } catch (err) {
+            const message = err instanceof Error ? err.message : 'Login failed. Is the backend running?';
+            setError(message);
         } finally {
             setIsLoading(false);
         }
@@ -87,14 +87,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const logout = useCallback(async () => {
         setIsLoading(true);
         setError(null);
-        
+
         try {
             await authService.logout();
-            setUser(null);
-        } catch (err) {
-            const errorMessage = err instanceof Error ? err.message : 'Logout failed';
-            setError(errorMessage);
+        } catch {
+            // Logout failed on server, still clear locally
         } finally {
+            setUser(null);
+            authService.clearToken();
             setIsLoading(false);
         }
     }, []);

@@ -173,12 +173,12 @@ class ApiClient {
 
 // Create and export instance
 const getApiBaseUrl = (): string => {
-    if (typeof window !== 'undefined' && (window as any).__API_URL) {
-        return (window as any).__API_URL;
+    if (typeof window !== 'undefined' && (window as any).__API_URL__) {
+        return (window as any).__API_URL__;
     }
-    
-    // Default fallback for development
-    return 'http://localhost:3000/api';
+
+    // Use relative path so Vite proxy handles it in dev
+    return '/api';
 };
 
 const apiClient = new ApiClient(getApiBaseUrl());

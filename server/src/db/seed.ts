@@ -87,18 +87,104 @@ export function seedDatabase(): void {
   insertUserMany(users);
   console.log(`  Seeded ${users.length} users`);
 
-  // Seed cases
+  // Load cases to extract entities
   const casesPath = path.join(dataDir, 'fake-cases.json');
   const cases: FakeCase[] = JSON.parse(fs.readFileSync(casesPath, 'utf-8'));
 
+  // Extract unique judges
+  const judgeNames = new Set<string>();
+  for (const c of cases) {
+    if (c.judge) judgeNames.add(c.judge);
+  }
+  const judgeNameToId = new Map<string, string>();
+  const insertJudge = db.prepare(`
+    INSERT INTO judges (id, name, created_at, updated_at) VALUES (?, ?, ?, ?)
+  `);
+  const insertJudgeMany = db.transaction((names: string[]) => {
+    for (const name of names) {
+      const id = uuidv4();
+      judgeNameToId.set(name, id);
+      insertJudge.run(id, name, now, now);
+    }
+  });
+  insertJudgeMany([...judgeNames]);
+  console.log(`  Seeded ${judgeNames.size} judges`);
+
+  // Extract unique firms (track which side they appear on)
+  const firmSides = new Map<string, Set<string>>();
+  for (const c of cases) {
+    if (c.prosecutionFirm) {
+      if (!firmSides.has(c.prosecutionFirm)) firmSides.set(c.prosecutionFirm, new Set());
+      firmSides.get(c.prosecutionFirm)!.add('prosecution');
+    }
+    if (c.defenseFirm) {
+      if (!firmSides.has(c.defenseFirm)) firmSides.set(c.defenseFirm, new Set());
+      firmSides.get(c.defenseFirm)!.add('defense');
+    }
+  }
+  const firmNameToId = new Map<string, string>();
+  const insertFirm = db.prepare(`
+    INSERT INTO law_firms (id, name, type, created_at, updated_at) VALUES (?, ?, ?, ?, ?)
+  `);
+  const insertFirmMany = db.transaction((entries: [string, Set<string>][]) => {
+    for (const [name, sides] of entries) {
+      const id = uuidv4();
+      firmNameToId.set(name, id);
+      // If firm appears on both sides, leave type empty
+      const type = sides.size === 1 ? [...sides][0]! : '';
+      insertFirm.run(id, name, type, now, now);
+    }
+  });
+  insertFirmMany([...firmSides.entries()]);
+  console.log(`  Seeded ${firmSides.size} law firms`);
+
+  // Extract unique attorneys (name + type combo to handle same-name attorneys on different sides)
+  const attorneyKeys = new Map<string, { name: string; type: string; firmId: string | null }>();
+  for (const c of cases) {
+    if (c.prosecutionAttorney) {
+      const key = `prosecution:${c.prosecutionAttorney}`;
+      if (!attorneyKeys.has(key)) {
+        attorneyKeys.set(key, {
+          name: c.prosecutionAttorney,
+          type: 'prosecution',
+          firmId: firmNameToId.get(c.prosecutionFirm) ?? null,
+        });
+      }
+    }
+    if (c.defenseAttorney) {
+      const key = `defense:${c.defenseAttorney}`;
+      if (!attorneyKeys.has(key)) {
+        attorneyKeys.set(key, {
+          name: c.defenseAttorney,
+          type: 'defense',
+          firmId: firmNameToId.get(c.defenseFirm) ?? null,
+        });
+      }
+    }
+  }
+  const attorneyKeyToId = new Map<string, string>();
+  const insertAttorney = db.prepare(`
+    INSERT INTO attorneys (id, name, type, firm_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)
+  `);
+  const insertAttorneyMany = db.transaction((entries: [string, { name: string; type: string; firmId: string | null }][]) => {
+    for (const [key, att] of entries) {
+      const id = uuidv4();
+      attorneyKeyToId.set(key, id);
+      insertAttorney.run(id, att.name, att.type, att.firmId, now, now);
+    }
+  });
+  insertAttorneyMany([...attorneyKeys.entries()]);
+  console.log(`  Seeded ${attorneyKeys.size} attorneys`);
+
+  // Seed cases with entity FK references
   const insertCase = db.prepare(`
     INSERT INTO cases (id, title, description, status, case_number, client_id, lawyer_id,
-      county, judge, prosecution_attorney, prosecution_firm, defense_attorney, defense_firm,
-      charge, court_date, ruling, sentence, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      county, judge, judge_id, prosecution_attorney, prosecution_attorney_id,
+      prosecution_firm, prosecution_firm_id, defense_attorney, defense_attorney_id,
+      defense_firm, defense_firm_id, charge, court_date, ruling, sentence, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
-  // Build a caseNumber -> id map for deadlines
   const caseNumberToId = new Map<string, string>();
 
   const insertCaseMany = db.transaction((items: FakeCase[]) => {
@@ -110,11 +196,20 @@ export function seedDatabase(): void {
 
       caseNumberToId.set(c.caseNumber, id);
 
+      const judgeId = judgeNameToId.get(c.judge) ?? null;
+      const prosAttId = attorneyKeyToId.get(`prosecution:${c.prosecutionAttorney}`) ?? null;
+      const defAttId = attorneyKeyToId.get(`defense:${c.defenseAttorney}`) ?? null;
+      const prosFirmId = firmNameToId.get(c.prosecutionFirm) ?? null;
+      const defFirmId = firmNameToId.get(c.defenseFirm) ?? null;
+
       insertCase.run(
         id, title, description, status, c.caseNumber, c.clientId, '',
-        c.county, c.judge, c.prosecutionAttorney, c.prosecutionFirm,
-        c.defenseAttorney, c.defenseFirm, c.charge, c.courtDate,
-        c.ruling, c.sentence, now, now
+        c.county, c.judge, judgeId,
+        c.prosecutionAttorney, prosAttId,
+        c.prosecutionFirm, prosFirmId,
+        c.defenseAttorney, defAttId,
+        c.defenseFirm, defFirmId,
+        c.charge, c.courtDate, c.ruling, c.sentence, now, now
       );
     }
   });

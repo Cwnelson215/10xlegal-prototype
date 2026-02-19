@@ -5,12 +5,29 @@ import { casesRoutes } from './cases.routes.js';
 import { deadlinesRoutes } from './deadlines.routes.js';
 import { documentsRoutes } from './documents.routes.js';
 import { teamRoutes } from './team.routes.js';
+import { judgesRoutes } from './judges.routes.js';
+import { attorneysRoutes } from './attorneys.routes.js';
+import { firmsRoutes } from './firms.routes.js';
+import { getDb } from '../db/connection.js';
 
 const router = Router();
 
 // Health check
 router.get('/health', (_req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  let dbStatus = 'unknown';
+  try {
+    const row = getDb().prepare('SELECT 1 as ok').get() as { ok: number } | undefined;
+    dbStatus = row?.ok === 1 ? 'connected' : 'error';
+  } catch {
+    dbStatus = 'error';
+  }
+
+  res.json({
+    status: dbStatus === 'connected' ? 'ok' : 'degraded',
+    timestamp: new Date().toISOString(),
+    version: '1.0.0',
+    database: dbStatus,
+  });
 });
 
 router.use('/auth', authRoutes);
@@ -19,5 +36,8 @@ router.use('/cases', casesRoutes);
 router.use('/deadlines', deadlinesRoutes);
 router.use('/documents', documentsRoutes);
 router.use('/team', teamRoutes);
+router.use('/judges', judgesRoutes);
+router.use('/attorneys', attorneysRoutes);
+router.use('/firms', firmsRoutes);
 
 export { router as routes };

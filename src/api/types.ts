@@ -58,6 +58,21 @@ export interface Case {
     caseNumber: string;
     clientId: string;
     lawyerId: string;
+    county: string;
+    judge: string;
+    prosecutionAttorney: string;
+    prosecutionFirm: string;
+    defenseAttorney: string;
+    defenseFirm: string;
+    charge: string;
+    courtDate: string;
+    ruling: string;
+    sentence: string;
+    judgeId?: string;
+    prosecutionAttorneyId?: string;
+    defenseAttorneyId?: string;
+    prosecutionFirmId?: string;
+    defenseFirmId?: string;
     createdAt: string;
     updatedAt: string;
 }
@@ -103,8 +118,10 @@ export interface Deadline {
     description: string;
     dueDate: string;
     caseId: string;
+    caseNumber: string;
     assignedTo: string;
     status: 'pending' | 'completed' | 'overdue';
+    clientId: string;
     createdAt: string;
     updatedAt: string;
 }
@@ -123,6 +140,39 @@ export interface UpdateDeadlineRequest {
     dueDate?: string;
     status?: string;
     assignedTo?: string;
+}
+
+// Entity Types
+export interface Judge {
+    id: string;
+    name: string;
+    caseCount: number;
+    counties: string[];
+    rulingDistribution?: Record<string, number>;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface Attorney {
+    id: string;
+    name: string;
+    type: 'prosecution' | 'defense';
+    firmId: string | null;
+    firmName: string | null;
+    caseCount: number;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface LawFirm {
+    id: string;
+    name: string;
+    type: 'prosecution' | 'defense';
+    attorneyCount: number;
+    caseCount: number;
+    attorneys?: Attorney[];
+    createdAt: string;
+    updatedAt: string;
 }
 
 // Team Types

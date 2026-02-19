@@ -41,3 +41,24 @@ export function authenticate(req: Request, res: Response, next: NextFunction): v
     res.status(401).json({ success: false, error: 'Invalid or expired token' });
   }
 }
+
+export function optionalAuth(req: Request, _res: Response, next: NextFunction): void {
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith('Bearer ')) {
+    next();
+    return;
+  }
+
+  const token = authHeader.slice(7);
+
+  try {
+    const decoded = jwt.verify(token, config.jwtSecret) as AuthUser;
+    const user = getDb().prepare('SELECT id, name, email, role FROM users WHERE id = ?').get(decoded.id) as AuthUser | undefined;
+    if (user) {
+      req.user = user;
+    }
+  } catch {
+    // Token invalid — continue as unauthenticated
+  }
+  next();
+}

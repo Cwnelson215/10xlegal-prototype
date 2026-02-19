@@ -1,8 +1,10 @@
 import { Router } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { getDb } from '../db/connection.js';
-import { authenticate } from '../middleware/auth.js';
+import { authenticate, optionalAuth } from '../middleware/auth.js';
 import { apiResponse, apiError, parsePagination, paginatedResponse } from '../utils/responses.js';
+import { validate } from '../middleware/validate.js';
+import { createDeadlineSchema, updateDeadlineSchema } from '../validation/schemas.js';
 
 const router = Router();
 
@@ -37,7 +39,7 @@ function toDeadlineResponse(row: DeadlineRow) {
 }
 
 // GET /deadlines
-router.get('/', authenticate, (req, res) => {
+router.get('/', optionalAuth, (req, res) => {
   const { page, pageSize } = parsePagination(req.query as Record<string, unknown>);
   const offset = (page - 1) * pageSize;
   const caseId = req.query.caseId as string | undefined;
@@ -57,13 +59,8 @@ router.get('/', authenticate, (req, res) => {
 });
 
 // POST /deadlines
-router.post('/', authenticate, (req, res) => {
+router.post('/', authenticate, validate(createDeadlineSchema), (req, res) => {
   const { title, description, dueDate, caseId, assignedTo } = req.body;
-
-  if (!title || !dueDate || !caseId) {
-    apiError(res, 'Title, dueDate, and caseId are required');
-    return;
-  }
 
   const id = uuidv4();
   const now = new Date().toISOString();
@@ -78,7 +75,7 @@ router.post('/', authenticate, (req, res) => {
 });
 
 // GET /deadlines/:id
-router.get('/:id', authenticate, (req, res) => {
+router.get('/:id', optionalAuth, (req, res) => {
   const row = getDb().prepare('SELECT * FROM deadlines WHERE id = ?').get(req.params.id) as DeadlineRow | undefined;
   if (!row) {
     apiError(res, 'Deadline not found', 404);
@@ -88,7 +85,7 @@ router.get('/:id', authenticate, (req, res) => {
 });
 
 // PUT /deadlines/:id
-router.put('/:id', authenticate, (req, res) => {
+router.put('/:id', authenticate, validate(updateDeadlineSchema), (req, res) => {
   const existing = getDb().prepare('SELECT * FROM deadlines WHERE id = ?').get(req.params.id) as DeadlineRow | undefined;
   if (!existing) {
     apiError(res, 'Deadline not found', 404);
