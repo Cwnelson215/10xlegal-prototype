@@ -7,6 +7,11 @@ import { errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
 
+// Root-level health check for ALB (before rate limiter)
+app.get('/health', (_req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
 // CORS
 const allowedOrigins = config.isProduction
   ? [config.frontendUrl]

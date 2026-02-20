@@ -173,8 +173,14 @@ class ApiClient {
 
 // Create and export instance
 const getApiBaseUrl = (): string => {
+    // Runtime override (e.g. set in index.html)
     if (typeof window !== 'undefined' && (window as any).__API_URL__) {
         return (window as any).__API_URL__;
+    }
+
+    // Build-time env var (set in CI or .env)
+    if (import.meta.env.VITE_API_URL) {
+        return import.meta.env.VITE_API_URL;
     }
 
     // Use relative path so Vite proxy handles it in dev
