@@ -72,8 +72,9 @@ class ApiClient {
                 },
             });
 
-            // Handle token refresh on 401
-            if (response.status === 401) {
+            // Handle 401: redirect to login unless the request is to an auth endpoint
+            // (auth endpoints use 401 for "bad credentials", not "session expired")
+            if (response.status === 401 && !endpoint.startsWith('/auth/')) {
                 this.clearToken();
                 window.location.href = '/';
                 throw new Error('Session expired. Please log in again.');

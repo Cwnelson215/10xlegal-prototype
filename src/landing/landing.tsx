@@ -8,7 +8,7 @@ import './landing.css';
 export function Landing() {
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
-    const { register, login } = useAuth();
+    const { register, login, error, clearError } = useAuth();
     const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
     const [showAuthModal, setShowAuthModal] = useState(false);
     const [selectedRole, setSelectedRole] = useState<UserRole>('client');
@@ -309,15 +309,15 @@ export function Landing() {
                         <button className="modal-close" onClick={() => setShowAuthModal(false)}>✕</button>
                         
                         <div className="modal-tabs">
-                            <button 
+                            <button
                                 className={`modal-tab ${activeTab === 'login' ? 'active' : ''}`}
-                                onClick={() => setActiveTab('login')}
+                                onClick={() => { setActiveTab('login'); clearError(); }}
                             >
                                 Sign In
                             </button>
-                            <button 
+                            <button
                                 className={`modal-tab ${activeTab === 'register' ? 'active' : ''}`}
-                                onClick={() => setActiveTab('register')}
+                                onClick={() => { setActiveTab('register'); clearError(); }}
                             >
                                 Register
                             </button>
@@ -353,6 +353,12 @@ export function Landing() {
                                 </button>
                             </div>
                         </div>
+
+                        {error && (
+                            <div className="alert alert-danger" role="alert" style={{ margin: '0 0 1rem' }}>
+                                {error}
+                            </div>
+                        )}
 
                         {activeTab === 'login' ? (
                             <form className="auth-form" onSubmit={handleLogin}>
