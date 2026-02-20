@@ -24,11 +24,15 @@ function DynamicHeader(): JSX.Element {
     const [headerPassword, setHeaderPassword] = useState('');
     const [headerRole, setHeaderRole] = useState<UserRole>('client');
 
-    const handleHeaderLogin = (e: React.FormEvent) => {
+    const handleHeaderLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         if (headerEmail && headerPassword) {
-            login(headerEmail, headerPassword, headerRole);
-            navigate('/dashboard');
+            try {
+                await login(headerEmail, headerPassword, headerRole);
+                navigate('/dashboard');
+            } catch {
+                // login failed — AuthContext already sets the error state
+            }
         }
     };
 

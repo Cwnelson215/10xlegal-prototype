@@ -63,6 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } catch (err) {
             const message = err instanceof Error ? err.message : 'Login failed. Is the backend running?';
             setError(message);
+            throw err;
         } finally {
             setIsLoading(false);
         }

@@ -43,16 +43,20 @@ export function Landing() {
         navigate('/dashboard');
     };
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         if (loginEmail && loginPassword && selectedRole) {
-            login(loginEmail, loginPassword, selectedRole);
-            setShowAuthModal(false);
-            navigate('/dashboard');
+            try {
+                await login(loginEmail, loginPassword, selectedRole);
+                setShowAuthModal(false);
+                navigate('/dashboard');
+            } catch {
+                // login failed — AuthContext already sets the error state
+            }
         }
     };
 
-    const handleRegister = (e: React.FormEvent) => {
+    const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
         if (registerName && registerEmail && registerPassword && registerPassword === registerPasswordConfirm && selectedRole) {
             const data: RegisterRequest = {
@@ -76,9 +80,13 @@ export function Landing() {
                 };
             }
 
-            register(data);
-            setShowAuthModal(false);
-            navigate('/dashboard');
+            try {
+                await register(data);
+                setShowAuthModal(false);
+                navigate('/dashboard');
+            } catch {
+                // register failed — AuthContext already sets the error state
+            }
         }
     };
     
