@@ -41,12 +41,16 @@ export function useCaseData() {
         }
 
         switch (user.role) {
-            case 'client':
-                return allCases.filter((c) => c.clientId === user.id);
-            case 'lawyer':
-                return allCases.filter(
+            case 'client': {
+                const filtered = allCases.filter((c) => c.clientId === user.id);
+                return filtered.length > 0 ? filtered : allCases;
+            }
+            case 'lawyer': {
+                const filtered = allCases.filter(
                     (c) => c.defenseAttorney === user.name || c.prosecutionAttorney === user.name,
                 );
+                return filtered.length > 0 ? filtered : allCases;
+            }
             case 'legal-official':
                 return allCases; // admin sees everything
             default:

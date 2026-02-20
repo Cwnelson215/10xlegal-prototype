@@ -43,10 +43,14 @@ export function useDeadlineData() {
         }
 
         switch (user.role) {
-            case 'client':
-                return allDeadlines.filter((d) => d.clientId === user.id);
-            case 'lawyer':
-                return allDeadlines.filter((d) => d.assignedTo === user.name);
+            case 'client': {
+                const filtered = allDeadlines.filter((d) => d.clientId === user.id);
+                return filtered.length > 0 ? filtered : allDeadlines;
+            }
+            case 'lawyer': {
+                const filtered = allDeadlines.filter((d) => d.assignedTo === user.name);
+                return filtered.length > 0 ? filtered : allDeadlines;
+            }
             case 'legal-official':
                 return allDeadlines;
             default:
