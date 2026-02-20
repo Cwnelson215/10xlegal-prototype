@@ -106,6 +106,20 @@ export function Home() {
                     </p>
                 </div>
             </header>
+            <section className="directory-links">
+                <Link to="/judges" className="directory-card">
+                    <h3>Judges</h3>
+                    <p>Browse all judges and their case histories</p>
+                </Link>
+                <Link to="/attorneys" className="directory-card">
+                    <h3>Attorneys</h3>
+                    <p>Look up attorneys and their case records</p>
+                </Link>
+                <Link to="/firms" className="directory-card">
+                    <h3>Firms</h3>
+                    <p>Explore law firms and their associated cases</p>
+                </Link>
+            </section>
             <section className="cases-dashboard-section">
                 <div className="section-header">
                     <h2>Cases</h2>

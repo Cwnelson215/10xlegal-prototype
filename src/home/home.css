@@ -47,7 +47,45 @@
   vertical-align: middle;
 }
 
-/* Stats Section */
+/* Directory Quick-Links */
+.directory-links {
+  display: flex;
+  gap: 20px;
+  max-width: 1600px;
+  margin: 0 auto 32px;
+  padding: 0 20px;
+}
+
+.directory-card {
+  flex: 1;
+  display: block;
+  background: white;
+  border-radius: 12px;
+  padding: 20px 24px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.directory-card:hover {
+  border-color: #2c3e50;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+}
+
+.directory-card h3 {
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.directory-card p {
+  margin: 0;
+  font-size: 13px;
+  color: #5d6d7e;
+}
+
 /* Cases Dashboard */
 .cases-dashboard-section {
   max-width: 1600px;
@@ -305,6 +343,12 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
+  }
+
+  .directory-links {
+    flex-direction: column;
+    padding: 0 16px;
+    margin-bottom: 24px;
   }
 
   .cases-dashboard-section {
