@@ -163,11 +163,3 @@ export function seedTestCase(judgeId?: string) {
   return id;
 }
 
-export function seedTestJudge() {
-  const id = uuidv4();
-  const now = new Date().toISOString();
-  testDb.prepare(`
-    INSERT INTO judges (id, name, created_at, updated_at) VALUES (?, ?, ?, ?)
-  `).run(id, 'Hon. Test Judge', now, now);
-  return id;
-}

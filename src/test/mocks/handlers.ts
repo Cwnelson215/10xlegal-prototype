@@ -131,13 +131,6 @@ export const handlers = [
         return HttpResponse.json({ success: true, data: null });
     }),
 
-    http.get('/api/judges', () => {
-        return HttpResponse.json({
-            data: [{ id: 'judge-1', name: 'Hon. Test Judge', caseCount: 1, counties: ['Salt Lake'], createdAt: '', updatedAt: '' }],
-            total: 1, page: 1, pageSize: 100, totalPages: 1,
-        });
-    }),
-
     http.get('/api/attorneys', () => {
         return HttpResponse.json({
             data: [], total: 0, page: 1, pageSize: 100, totalPages: 1,
