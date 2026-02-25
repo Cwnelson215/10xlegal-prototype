@@ -5,7 +5,7 @@ export type CalendarEvent = {
     id: string;
     date: string;
     title: string;
-    type: 'court-date' | 'deadline';
+    type: 'court-date' | 'deadline' | 'filing-date' | 'disposition' | 'conviction';
     caseNumber: string;
     detail: string;
 };
@@ -33,6 +33,39 @@ export function buildCalendarEvents(
             caseNumber: c.caseNumber,
             detail: `${c.charge} — ${c.county} County — Judge ${c.judge}`,
         });
+
+        if (c.filingDate) {
+            events.push({
+                id: `filing-${c.caseNumber}`,
+                date: c.filingDate,
+                title: `Filed: ${c.caseNumber}`,
+                type: 'filing-date',
+                caseNumber: c.caseNumber,
+                detail: `${c.charge} — ${c.county} County`,
+            });
+        }
+
+        if (c.dispositionDate && c.dispositionDate !== 'N/A') {
+            events.push({
+                id: `disposition-${c.caseNumber}`,
+                date: c.dispositionDate,
+                title: `Disposition: ${c.caseNumber}`,
+                type: 'disposition',
+                caseNumber: c.caseNumber,
+                detail: `${c.charge} — Ruling: ${c.ruling}`,
+            });
+        }
+
+        if (c.convictionDate && c.convictionDate !== 'N/A') {
+            events.push({
+                id: `conviction-${c.caseNumber}`,
+                date: c.convictionDate,
+                title: `Conviction: ${c.caseNumber}`,
+                type: 'conviction',
+                caseNumber: c.caseNumber,
+                detail: `${c.charge} — ${c.convictionOutcome}`,
+            });
+        }
     }
 
     for (const d of deadlines) {

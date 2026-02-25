@@ -94,6 +94,24 @@ const defenseFirms = [
   'Summit Defense Collective',
 ];
 
+const judicialDistricts = [
+  { district: 'First Judicial District', counties: ['Box Elder', 'Cache', 'Rich'], location: 'Logan, UT' },
+  { district: 'Second Judicial District', counties: ['Davis', 'Morgan', 'Weber'], location: 'Ogden, UT' },
+  { district: 'Third Judicial District', counties: ['Salt Lake', 'Summit', 'Tooele'], location: 'Salt Lake City, UT' },
+  { district: 'Fourth Judicial District', counties: ['Juab', 'Millard', 'Utah', 'Wasatch'], location: 'Provo, UT' },
+  { district: 'Fifth Judicial District', counties: ['Beaver', 'Iron', 'Washington'], location: 'Cedar City, UT' },
+  { district: 'Sixth Judicial District', counties: ['Garfield', 'Kane', 'Piute', 'Sanpete', 'Sevier', 'Wayne'], location: 'Richfield, UT' },
+  { district: 'Seventh Judicial District', counties: ['Carbon', 'Emery', 'Grand', 'San Juan'], location: 'Price, UT' },
+  { district: 'Eighth Judicial District', counties: ['Daggett', 'Duchesne', 'Uintah'], location: 'Vernal, UT' },
+];
+
+const getDistrictForCounty = (county) => {
+  for (const d of judicialDistricts) {
+    if (d.counties.includes(county)) return d;
+  }
+  return judicialDistricts[2]; // default to Third (Salt Lake)
+};
+
 const charges = [
   'Possession of Child Sexual Abuse Material',
   'Distribution of Child Sexual Abuse Material',
@@ -180,9 +198,28 @@ const generateCase = (usedNumbers, usedSequences) => {
     return `${years} years`;
   })();
 
+  const county = randomFrom(counties);
+  const districtInfo = getDistrictForCounty(county);
+
+  // Filing date is 30-365 days before court date
+  const filingOffset = Math.floor(Math.random() * 335) + 30;
+  const filingDate = new Date(courtDate.getTime() - filingOffset * 86400000);
+
+  // Disposition date: same as or within 14 days of court date for resolved cases
+  const isResolved = ['Guilty', 'Not Guilty', 'Dismissed', 'Plea Deal'].includes(ruling);
+  const dispositionDate = isResolved
+    ? new Date(courtDate.getTime() + Math.floor(Math.random() * 14) * 86400000)
+    : null;
+
+  const isConvicted = ['Guilty', 'Plea Deal'].includes(ruling);
+  const convictionOutcome = isConvicted ? 'Guilty' : 'N/A';
+  const convictionDate = isConvicted && dispositionDate ? dispositionDate : null;
+
   return {
     caseNumber: createCaseNumber(usedNumbers, usedSequences),
-    county: randomFrom(counties),
+    county,
+    courtDistrict: districtInfo.district,
+    courtLocation: districtInfo.location,
     judge: randomFrom(judges),
     prosecutionAttorney: randomFrom(prosecutionAttorneys),
     prosecutionFirm: randomFrom(prosecutionFirms),
@@ -190,6 +227,10 @@ const generateCase = (usedNumbers, usedSequences) => {
     defenseFirm: randomFrom(defenseFirms),
     charge: randomFrom(charges),
     courtDate: courtDate.toISOString().slice(0, 10),
+    filingDate: filingDate.toISOString().slice(0, 10),
+    dispositionDate: dispositionDate ? dispositionDate.toISOString().slice(0, 10) : 'N/A',
+    convictionOutcome,
+    convictionDate: convictionDate ? convictionDate.toISOString().slice(0, 10) : 'N/A',
     ruling,
     sentence,
     clientId: randomFrom(clientIds),

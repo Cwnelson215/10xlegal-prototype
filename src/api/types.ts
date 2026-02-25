@@ -66,6 +66,12 @@ export interface Case {
     defenseFirm: string;
     charge: string;
     courtDate: string;
+    courtDistrict: string;
+    courtLocation: string;
+    filingDate: string;
+    dispositionDate: string;
+    convictionOutcome: string;
+    convictionDate: string;
     ruling: string;
     sentence: string;
     judgeId?: string;

@@ -46,12 +46,24 @@ export function CaseDetail() {
                             <dd><span className={`status-pill status-${caseData.status}`}>{caseData.status}</span></dd>
                             <dt>County</dt>
                             <dd>{caseData.county}</dd>
+                            <dt>Court District</dt>
+                            <dd>{caseData.courtDistrict}</dd>
+                            <dt>Court Location</dt>
+                            <dd>{caseData.courtLocation}</dd>
                             <dt>Charge</dt>
                             <dd>{caseData.charge}</dd>
+                            <dt>Filing Date</dt>
+                            <dd>{caseData.filingDate}</dd>
                             <dt>Court Date</dt>
                             <dd>{caseData.courtDate}</dd>
                             <dt>Ruling</dt>
                             <dd>{caseData.ruling || 'Pending'}</dd>
+                            <dt>Disposition Date</dt>
+                            <dd>{caseData.dispositionDate}</dd>
+                            <dt>Conviction Outcome</dt>
+                            <dd>{caseData.convictionOutcome}</dd>
+                            <dt>Conviction Date</dt>
+                            <dd>{caseData.convictionDate}</dd>
                             <dt>Sentence</dt>
                             <dd>{caseData.sentence || 'N/A'}</dd>
                         </dl>

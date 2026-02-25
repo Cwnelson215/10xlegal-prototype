@@ -10,20 +10,18 @@ export function Home() {
     const [caseNumberQuery, setCaseNumberQuery] = useState('');
     const [attorneyQuery, setAttorneyQuery] = useState('');
     const [firmQuery, setFirmQuery] = useState('');
-    const [judgeQuery, setJudgeQuery] = useState('');
     const [countyFilter, setCountyFilter] = useState('all');
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
 
     useEffect(() => {
         setPage(1);
-    }, [caseNumberQuery, attorneyQuery, firmQuery, judgeQuery, countyFilter, pageSize]);
+    }, [caseNumberQuery, attorneyQuery, firmQuery, countyFilter, pageSize]);
 
     const hasSearchCriteria =
         caseNumberQuery.trim().length > 0 ||
         attorneyQuery.trim().length > 0 ||
         firmQuery.trim().length > 0 ||
-        judgeQuery.trim().length > 0 ||
         countyFilter !== 'all';
 
     const filteredCases = useMemo(() => {
@@ -31,7 +29,6 @@ export function Home() {
         const caseDigits = caseQuery.replace(/\D/g, '');
         const attorneyQueryLower = attorneyQuery.trim().toLowerCase();
         const firmQueryLower = firmQuery.trim().toLowerCase();
-        const judgeQueryLower = judgeQuery.trim().toLowerCase();
         return roleCases.filter((caseItem) => {
             const sequentialDigits = caseItem.caseNumber.split('-')[2] ?? '';
             const matchesCaseNumber = caseDigits.length > 0
@@ -48,20 +45,15 @@ export function Home() {
                   caseItem.defenseFirm.toLowerCase().includes(firmQueryLower)
                 : true;
 
-            const matchesJudge = judgeQueryLower.length > 0
-                ? caseItem.judge.toLowerCase().includes(judgeQueryLower)
-                : true;
-
             const matchesCounty = countyFilter === 'all' ? true : caseItem.county === countyFilter;
 
-            return matchesCaseNumber && matchesAttorney && matchesFirm && matchesJudge && matchesCounty;
+            return matchesCaseNumber && matchesAttorney && matchesFirm && matchesCounty;
         });
     }, [
         roleCases,
         caseNumberQuery,
         attorneyQuery,
         firmQuery,
-        judgeQuery,
         countyFilter,
     ]);
 
@@ -158,16 +150,6 @@ export function Home() {
                         />
                     </div>
                     <div className="filter-group">
-                        <label htmlFor="judge-search">Judge Name</label>
-                        <input
-                            id="judge-search"
-                            type="search"
-                            placeholder="Judge name"
-                            value={judgeQuery}
-                            onChange={(event) => setJudgeQuery(event.target.value)}
-                        />
-                    </div>
-                    <div className="filter-group">
                         <label htmlFor="county-filter">County</label>
                         <select
                             id="county-filter"
@@ -199,7 +181,6 @@ export function Home() {
                                     <tr>
                                         <th>Case Number</th>
                                         <th>County</th>
-                                        <th>Judge</th>
                                         <th>Prosecuting Attorney</th>
                                         <th>Prosecuting Firm</th>
                                         <th>Defense Attorney</th>
@@ -207,6 +188,7 @@ export function Home() {
                                         <th>Charge</th>
                                         <th>Court Date</th>
                                         <th>Ruling</th>
+                                        <th>Conviction</th>
                                         <th>Sentence</th>
                                     </tr>
                                 </thead>
@@ -215,11 +197,6 @@ export function Home() {
                                         <tr key={caseItem.caseNumber}>
                                             <td><Link to={`/cases/${caseItem.id}`} className="entity-link">{caseItem.caseNumber}</Link></td>
                                             <td>{caseItem.county}</td>
-                                            <td>
-                                                {caseItem.judgeId
-                                                    ? <Link to={`/judges/${caseItem.judgeId}`} className="entity-link">{caseItem.judge}</Link>
-                                                    : caseItem.judge}
-                                            </td>
                                             <td>
                                                 {caseItem.prosecutionAttorneyId
                                                     ? <Link to={`/attorneys/${caseItem.prosecutionAttorneyId}`} className="entity-link">{caseItem.prosecutionAttorney}</Link>
@@ -243,6 +220,7 @@ export function Home() {
                                             <td>{caseItem.charge}</td>
                                             <td>{caseItem.courtDate}</td>
                                             <td>{caseItem.ruling}</td>
+                                            <td>{caseItem.convictionOutcome}</td>
                                             <td>{caseItem.sentence}</td>
                                         </tr>
                                     ))}
