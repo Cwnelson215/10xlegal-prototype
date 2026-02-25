@@ -1,7 +1,7 @@
 import { useCaseData } from '../hooks';
 import { SummaryStats } from './SummaryStats';
 import {
-    RulingDistributionChart,
+    ConvictionDistributionChart,
     CasesByCountyChart,
     CasesOverTimeChart,
     ChargeDistributionChart,
@@ -29,8 +29,8 @@ export function Analytics() {
 
                     <div className="charts-grid">
                         <div className="chart-card">
-                            <h3>Ruling Distribution</h3>
-                            <RulingDistributionChart cases={cases} />
+                            <h3>Conviction Distribution</h3>
+                            <ConvictionDistributionChart cases={cases} />
                         </div>
                         <div className="chart-card">
                             <h3>Cases by County</h3>

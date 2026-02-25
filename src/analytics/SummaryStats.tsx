@@ -5,17 +5,17 @@ export function SummaryStats({ cases }: { cases: CaseRecord[] }) {
     const stats = useMemo(() => {
         const totalCases = cases.length;
 
-        // Most common ruling
-        const rulingCounts = new Map<string, number>();
+        // Most common conviction outcome
+        const convictionCounts = new Map<string, number>();
         for (const c of cases) {
-            rulingCounts.set(c.ruling, (rulingCounts.get(c.ruling) ?? 0) + 1);
+            convictionCounts.set(c.convictionOutcome, (convictionCounts.get(c.convictionOutcome) ?? 0) + 1);
         }
-        let mostCommonRuling = 'N/A';
-        let maxRuling = 0;
-        for (const [ruling, count] of rulingCounts) {
-            if (count > maxRuling) {
-                maxRuling = count;
-                mostCommonRuling = ruling;
+        let mostCommonConviction = 'N/A';
+        let maxConviction = 0;
+        for (const [outcome, count] of convictionCounts) {
+            if (count > maxConviction) {
+                maxConviction = count;
+                mostCommonConviction = outcome;
             }
         }
 
@@ -40,7 +40,7 @@ export function SummaryStats({ cases }: { cases: CaseRecord[] }) {
         }
         const avgPerMonth = months.size > 0 ? (totalCases / months.size).toFixed(1) : '0';
 
-        return { totalCases, mostCommonRuling, mostActiveCounty, avgPerMonth };
+        return { totalCases, mostCommonConviction, mostActiveCounty, avgPerMonth };
     }, [cases]);
 
     return (
@@ -50,8 +50,8 @@ export function SummaryStats({ cases }: { cases: CaseRecord[] }) {
                 <p className="stat-value">{stats.totalCases}</p>
             </div>
             <div className="stat-card">
-                <p className="stat-label">Most Common Ruling</p>
-                <p className="stat-value">{stats.mostCommonRuling}</p>
+                <p className="stat-label">Most Common Conviction</p>
+                <p className="stat-value">{stats.mostCommonConviction}</p>
             </div>
             <div className="stat-card">
                 <p className="stat-label">Most Active County</p>

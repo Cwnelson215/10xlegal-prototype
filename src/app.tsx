@@ -8,10 +8,8 @@ import { Landing } from './landing/landing';
 import { Analytics } from './analytics/analytics';
 import { Calendar } from './calendar/calendar';
 import { CaseDetail } from './cases/CaseDetail';
-import { JudgeProfile } from './profiles/JudgeProfile';
 import { AttorneyProfile } from './profiles/AttorneyProfile';
 import { FirmProfile } from './profiles/FirmProfile';
-import { JudgesList } from './profiles/JudgesList';
 import { AttorneysList } from './profiles/AttorneysList';
 import { FirmsList } from './profiles/FirmsList';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -46,7 +44,6 @@ function DynamicHeader(): JSX.Element {
                     <>
                         <nav className="header-nav">
                             <Link to="/dashboard" className="nav-link">Dashboard</Link>
-                            <Link to="/judges" className="nav-link">Judges</Link>
                             <Link to="/attorneys" className="nav-link">Attorneys</Link>
                             <Link to="/firms" className="nav-link">Firms</Link>
                             <Link to="/analytics" className="nav-link">Analytics</Link>
@@ -117,8 +114,6 @@ function AppContent() {
                 <Route path="/analytics" element={<Analytics />} />
                 <Route path="/calendar" element={<Calendar />} />
                 <Route path="/cases/:id" element={<CaseDetail />} />
-                <Route path="/judges" element={<JudgesList />} />
-                <Route path="/judges/:id" element={<JudgeProfile />} />
                 <Route path="/attorneys" element={<AttorneysList />} />
                 <Route path="/attorneys/:id" element={<AttorneyProfile />} />
                 <Route path="/firms" element={<FirmsList />} />

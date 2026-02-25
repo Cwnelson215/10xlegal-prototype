@@ -56,8 +56,6 @@ export function CaseDetail() {
                             <dd>{caseData.filingDate}</dd>
                             <dt>Court Date</dt>
                             <dd>{caseData.courtDate}</dd>
-                            <dt>Ruling</dt>
-                            <dd>{caseData.ruling || 'Pending'}</dd>
                             <dt>Disposition Date</dt>
                             <dd>{caseData.dispositionDate}</dd>
                             <dt>Conviction Outcome</dt>
@@ -66,18 +64,6 @@ export function CaseDetail() {
                             <dd>{caseData.convictionDate}</dd>
                             <dt>Sentence</dt>
                             <dd>{caseData.sentence || 'N/A'}</dd>
-                        </dl>
-                    </div>
-
-                    <div className="detail-card">
-                        <h3>Judge</h3>
-                        <dl>
-                            <dt>Name</dt>
-                            <dd>
-                                {caseData.judgeId
-                                    ? <Link to={`/judges/${caseData.judgeId}`}>{caseData.judge}</Link>
-                                    : caseData.judge}
-                            </dd>
                         </dl>
                     </div>
 

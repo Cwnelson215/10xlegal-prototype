@@ -4,11 +4,11 @@ import type { CaseRecord } from '../../types';
 
 const COLORS = ['#2c3e50', '#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6'];
 
-export function RulingDistributionChart({ cases }: { cases: CaseRecord[] }) {
+export function ConvictionDistributionChart({ cases }: { cases: CaseRecord[] }) {
     const data = useMemo(() => {
         const counts = new Map<string, number>();
         for (const c of cases) {
-            counts.set(c.ruling, (counts.get(c.ruling) ?? 0) + 1);
+            counts.set(c.convictionOutcome, (counts.get(c.convictionOutcome) ?? 0) + 1);
         }
         return Array.from(counts, ([name, value]) => ({ name, value })).sort(
             (a, b) => b.value - a.value,

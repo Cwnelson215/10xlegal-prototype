@@ -4,6 +4,5 @@ export { documentsService } from './documentsService';
 export { deadlinesService } from './deadlinesService';
 export { teamService } from './teamService';
 export { userService } from './userService';
-export { judgesService } from './judgesService';
 export { attorneysService } from './attorneysService';
 export { firmsService } from './firmsService';

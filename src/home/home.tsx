@@ -99,10 +99,6 @@ export function Home() {
                 </div>
             </header>
             <section className="directory-links">
-                <Link to="/judges" className="directory-card">
-                    <h3>Judges</h3>
-                    <p>Browse all judges and their case histories</p>
-                </Link>
                 <Link to="/attorneys" className="directory-card">
                     <h3>Attorneys</h3>
                     <p>Look up attorneys and their case records</p>
@@ -187,7 +183,6 @@ export function Home() {
                                         <th>Defense Firm</th>
                                         <th>Charge</th>
                                         <th>Court Date</th>
-                                        <th>Ruling</th>
                                         <th>Conviction</th>
                                         <th>Sentence</th>
                                     </tr>
@@ -219,7 +214,6 @@ export function Home() {
                                             </td>
                                             <td>{caseItem.charge}</td>
                                             <td>{caseItem.courtDate}</td>
-                                            <td>{caseItem.ruling}</td>
                                             <td>{caseItem.convictionOutcome}</td>
                                             <td>{caseItem.sentence}</td>
                                         </tr>

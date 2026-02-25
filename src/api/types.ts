@@ -149,16 +149,6 @@ export interface UpdateDeadlineRequest {
 }
 
 // Entity Types
-export interface Judge {
-    id: string;
-    name: string;
-    caseCount: number;
-    counties: string[];
-    rulingDistribution?: Record<string, number>;
-    createdAt: string;
-    updatedAt: string;
-}
-
 export interface Attorney {
     id: string;
     name: string;

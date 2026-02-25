@@ -99,7 +99,7 @@ export function Landing() {
         {
             icon: 'CR',
             title: 'Court Records',
-            description: 'Access court filings, rulings, and other publicly available legal documents'
+            description: 'Access court filings, convictions, and other publicly available legal documents'
         },
         {
             icon: 'KD',
