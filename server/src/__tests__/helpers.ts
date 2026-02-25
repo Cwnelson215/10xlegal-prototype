@@ -7,24 +7,23 @@ import { config } from '../config.js';
 const { Pool } = pg;
 
 let testPool: pg.Pool;
+let schemaName: string;
 
 const testDbUrl = process.env.TEST_DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/10xlegal_test';
 
 export async function setupTestDb(): Promise<pg.Pool> {
-  testPool = new Pool({ connectionString: testDbUrl });
+  // Each test suite gets its own schema to avoid parallel conflicts
+  schemaName = `test_${uuidv4().replace(/-/g, '_')}`;
 
-  // Drop and recreate all tables for a clean slate
-  await testPool.query(`
-    DROP TABLE IF EXISTS team_members CASCADE;
-    DROP TABLE IF EXISTS documents CASCADE;
-    DROP TABLE IF EXISTS deadlines CASCADE;
-    DROP TABLE IF EXISTS cases CASCADE;
-    DROP TABLE IF EXISTS attorneys CASCADE;
-    DROP TABLE IF EXISTS law_firms CASCADE;
-    DROP TABLE IF EXISTS judges CASCADE;
-    DROP TABLE IF EXISTS refresh_tokens CASCADE;
-    DROP TABLE IF EXISTS users CASCADE;
-  `);
+  // Use a temporary pool to create the schema
+  const setupPool = new Pool({ connectionString: testDbUrl });
+  await setupPool.query(`CREATE SCHEMA ${schemaName}`);
+  await setupPool.end();
+
+  // Create the real pool with search_path set so all connections use the schema
+  const url = new URL(testDbUrl);
+  url.searchParams.set('options', `-c search_path=${schemaName}`);
+  testPool = new Pool({ connectionString: url.toString() });
 
   await testPool.query(`
     CREATE TABLE users (
@@ -145,7 +144,10 @@ export function getTestDb(): pg.Pool {
 }
 
 export async function closeTestDb() {
-  if (testPool) await testPool.end();
+  if (testPool) {
+    await testPool.query(`DROP SCHEMA IF EXISTS ${schemaName} CASCADE`);
+    await testPool.end();
+  }
 }
 
 export async function seedTestUser(role: string = 'legal-official') {
