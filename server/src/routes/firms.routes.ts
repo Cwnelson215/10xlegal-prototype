@@ -13,11 +13,16 @@ interface FirmRow {
   updated_at: string;
 }
 
-function toFirmResponse(row: FirmRow, includeAttorneys = false) {
-  const attorneyCount = (getDb().prepare('SELECT COUNT(*) as count FROM attorneys WHERE firm_id = ?').get(row.id) as { count: number }).count;
+async function toFirmResponse(row: FirmRow, includeAttorneys = false) {
+  const db = getDb();
 
-  const prosCaseCount = (getDb().prepare('SELECT COUNT(*) as count FROM cases WHERE prosecution_firm_id = ?').get(row.id) as { count: number }).count;
-  const defCaseCount = (getDb().prepare('SELECT COUNT(*) as count FROM cases WHERE defense_firm_id = ?').get(row.id) as { count: number }).count;
+  const attorneyCountResult = await db.query('SELECT COUNT(*)::int as count FROM attorneys WHERE firm_id = $1', [row.id]);
+  const attorneyCount = attorneyCountResult.rows[0]!.count as number;
+
+  const prosResult = await db.query('SELECT COUNT(*)::int as count FROM cases WHERE prosecution_firm_id = $1', [row.id]);
+  const prosCaseCount = prosResult.rows[0]!.count as number;
+  const defResult = await db.query('SELECT COUNT(*)::int as count FROM cases WHERE defense_firm_id = $1', [row.id]);
+  const defCaseCount = defResult.rows[0]!.count as number;
   const caseCount = prosCaseCount + defCaseCount;
 
   const result: Record<string, unknown> = {
@@ -31,32 +36,37 @@ function toFirmResponse(row: FirmRow, includeAttorneys = false) {
   };
 
   if (includeAttorneys) {
-    const attorneys = getDb().prepare('SELECT id, name, type FROM attorneys WHERE firm_id = ? ORDER BY name ASC').all(row.id) as { id: string; name: string; type: string }[];
-    result.attorneys = attorneys;
+    const attorneysResult = await db.query('SELECT id, name, type FROM attorneys WHERE firm_id = $1 ORDER BY name ASC', [row.id]);
+    result.attorneys = attorneysResult.rows;
   }
 
   return result;
 }
 
 // GET /firms
-router.get('/', optionalAuth, (req, res) => {
+router.get('/', optionalAuth, async (req, res) => {
   const { page, pageSize } = parsePagination(req.query as Record<string, unknown>);
   const offset = (page - 1) * pageSize;
+  const db = getDb();
 
-  const total = (getDb().prepare('SELECT COUNT(*) as count FROM law_firms').get() as { count: number }).count;
-  const rows = getDb().prepare('SELECT * FROM law_firms ORDER BY name ASC LIMIT ? OFFSET ?').all(pageSize, offset) as FirmRow[];
+  const countResult = await db.query('SELECT COUNT(*)::int as count FROM law_firms');
+  const total = countResult.rows[0]!.count as number;
+  const rowsResult = await db.query('SELECT * FROM law_firms ORDER BY name ASC LIMIT $1 OFFSET $2', [pageSize, offset]);
+  const rows = rowsResult.rows as FirmRow[];
 
-  paginatedResponse(res, rows.map((r) => toFirmResponse(r)), total, page, pageSize);
+  const data = await Promise.all(rows.map((r) => toFirmResponse(r)));
+  paginatedResponse(res, data, total, page, pageSize);
 });
 
 // GET /firms/:id
-router.get('/:id', optionalAuth, (req, res) => {
-  const row = getDb().prepare('SELECT * FROM law_firms WHERE id = ?').get(req.params.id) as FirmRow | undefined;
+router.get('/:id', optionalAuth, async (req, res) => {
+  const result = await getDb().query('SELECT * FROM law_firms WHERE id = $1', [req.params.id]);
+  const row = result.rows[0] as FirmRow | undefined;
   if (!row) {
     apiError(res, 'Firm not found', 404);
     return;
   }
-  apiResponse(res, toFirmResponse(row, true));
+  apiResponse(res, await toFirmResponse(row, true));
 });
 
 export { router as firmsRoutes };

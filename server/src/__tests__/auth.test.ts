@@ -5,7 +5,7 @@ import { setupTestDb, getTestDb, closeTestDb, seedTestUser, generateToken } from
 // Mock the database connection before importing app
 vi.mock('../db/connection.js', () => ({
   getDb: () => getTestDb(),
-  initDb: () => {},
+  initDb: async () => {},
 }));
 
 import { app } from '../app.js';
@@ -19,7 +19,7 @@ async function request(path: string, options: RequestInit = {}) {
 
 describe('Auth routes', () => {
   beforeAll(async () => {
-    setupTestDb();
+    await setupTestDb();
     server = http.createServer(app);
     await new Promise<void>((resolve) => {
       server.listen(0, () => resolve());
@@ -30,7 +30,7 @@ describe('Auth routes', () => {
 
   afterAll(async () => {
     await new Promise<void>((resolve) => server.close(() => resolve()));
-    closeTestDb();
+    await closeTestDb();
   });
 
   describe('POST /api/auth/register', () => {
@@ -71,7 +71,7 @@ describe('Auth routes', () => {
 
   describe('POST /api/auth/login', () => {
     it('logs in with valid credentials', async () => {
-      seedTestUser('lawyer');
+      await seedTestUser('lawyer');
 
       const res = await request('/api/auth/login', {
         method: 'POST',
@@ -107,7 +107,7 @@ describe('Auth routes', () => {
 
   describe('GET /api/auth/verify-token', () => {
     it('returns user for valid token', async () => {
-      const user = seedTestUser('legal-official');
+      const user = await seedTestUser('legal-official');
       const token = generateToken(user);
 
       const res = await request('/api/auth/verify-token', {

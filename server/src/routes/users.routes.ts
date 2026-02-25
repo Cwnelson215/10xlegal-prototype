@@ -40,8 +40,9 @@ function toUserResponse(row: UserRow) {
 }
 
 // GET /users/profile
-router.get('/profile', authenticate, (req, res) => {
-  const user = getDb().prepare('SELECT * FROM users WHERE id = ?').get(req.user!.id) as UserRow | undefined;
+router.get('/profile', authenticate, async (req, res) => {
+  const result = await getDb().query('SELECT * FROM users WHERE id = $1', [req.user!.id]);
+  const user = result.rows[0] as UserRow | undefined;
   if (!user) {
     apiError(res, 'User not found', 404);
     return;
@@ -50,34 +51,38 @@ router.get('/profile', authenticate, (req, res) => {
 });
 
 // PUT /users/profile
-router.put('/profile', authenticate, (req, res) => {
+router.put('/profile', authenticate, async (req, res) => {
+  const db = getDb();
   const { name, email } = req.body;
   const now = new Date().toISOString();
 
   const updates: string[] = [];
   const values: unknown[] = [];
+  let paramIdx = 1;
 
-  if (name) { updates.push('name = ?'); values.push(name); }
-  if (email) { updates.push('email = ?'); values.push(email); }
+  if (name) { updates.push(`name = $${paramIdx++}`); values.push(name); }
+  if (email) { updates.push(`email = $${paramIdx++}`); values.push(email); }
 
   if (updates.length === 0) {
     apiError(res, 'No fields to update');
     return;
   }
 
-  updates.push('updated_at = ?');
+  updates.push(`updated_at = $${paramIdx++}`);
   values.push(now);
   values.push(req.user!.id);
 
-  getDb().prepare(`UPDATE users SET ${updates.join(', ')} WHERE id = ?`).run(...values);
+  await db.query(`UPDATE users SET ${updates.join(', ')} WHERE id = $${paramIdx}`, values);
 
-  const user = getDb().prepare('SELECT * FROM users WHERE id = ?').get(req.user!.id) as UserRow;
+  const result = await db.query('SELECT * FROM users WHERE id = $1', [req.user!.id]);
+  const user = result.rows[0] as UserRow;
   apiResponse(res, toUserResponse(user));
 });
 
 // GET /users/:id
-router.get('/:id', authenticate, (req, res) => {
-  const user = getDb().prepare('SELECT * FROM users WHERE id = ?').get(req.params.id) as UserRow | undefined;
+router.get('/:id', authenticate, async (req, res) => {
+  const result = await getDb().query('SELECT * FROM users WHERE id = $1', [req.params.id]);
+  const user = result.rows[0] as UserRow | undefined;
   if (!user) {
     apiError(res, 'User not found', 404);
     return;

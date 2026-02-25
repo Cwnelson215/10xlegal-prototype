@@ -12,11 +12,11 @@ import { getDb } from '../db/connection.js';
 const router = Router();
 
 // Health check
-router.get('/health', (_req, res) => {
+router.get('/health', async (_req, res) => {
   let dbStatus = 'unknown';
   try {
-    const row = getDb().prepare('SELECT 1 as ok').get() as { ok: number } | undefined;
-    dbStatus = row?.ok === 1 ? 'connected' : 'error';
+    const result = await getDb().query('SELECT 1 as ok');
+    dbStatus = result.rows[0]?.ok === 1 ? 'connected' : 'error';
   } catch {
     dbStatus = 'error';
   }

@@ -46,7 +46,7 @@ function toUserResponse(row: UserRow) {
   };
 }
 
-function generateTokens(user: { id: string; name: string; email: string; role: string }) {
+async function generateTokens(user: { id: string; name: string; email: string; role: string }) {
   const token = jwt.sign(
     { id: user.id, name: user.name, email: user.email, role: user.role },
     config.jwtSecret,
@@ -56,20 +56,23 @@ function generateTokens(user: { id: string; name: string; email: string; role: s
   const refreshToken = uuidv4();
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
 
-  getDb().prepare(
-    'INSERT INTO refresh_tokens (id, user_id, token, expires_at) VALUES (?, ?, ?, ?)'
-  ).run(uuidv4(), user.id, refreshToken, expiresAt);
+  await getDb().query(
+    'INSERT INTO refresh_tokens (id, user_id, token, expires_at) VALUES ($1, $2, $3, $4)',
+    [uuidv4(), user.id, refreshToken, expiresAt]
+  );
 
   return { token, refreshToken };
 }
 
 // POST /auth/login
-router.post('/login', validate(loginSchema), (req, res) => {
+router.post('/login', validate(loginSchema), async (req, res) => {
   const { email, password, role } = req.body;
 
-  const user = getDb().prepare(
-    'SELECT * FROM users WHERE email = ? AND role = ?'
-  ).get(email, role) as UserRow | undefined;
+  const result = await getDb().query(
+    'SELECT * FROM users WHERE email = $1 AND role = $2',
+    [email, role]
+  );
+  const user = result.rows[0] as UserRow | undefined;
 
   if (!user) {
     apiError(res, 'Invalid credentials', 401);
@@ -81,7 +84,7 @@ router.post('/login', validate(loginSchema), (req, res) => {
     return;
   }
 
-  const tokens = generateTokens(user);
+  const tokens = await generateTokens(user);
 
   apiResponse(res, {
     token: tokens.token,
@@ -91,11 +94,11 @@ router.post('/login', validate(loginSchema), (req, res) => {
 });
 
 // POST /auth/register
-router.post('/register', validate(registerSchema), (req, res) => {
+router.post('/register', validate(registerSchema), async (req, res) => {
   const { name, email, password, role, lawyerInfo, legalOfficialInfo } = req.body;
 
-  const existing = getDb().prepare('SELECT id FROM users WHERE email = ?').get(email);
-  if (existing) {
+  const existing = await getDb().query('SELECT id FROM users WHERE email = $1', [email]);
+  if (existing.rows[0]) {
     apiError(res, 'Email already registered', 409);
     return;
   }
@@ -104,21 +107,22 @@ router.post('/register', validate(registerSchema), (req, res) => {
   const hashedPassword = bcryptjs.hashSync(password, 10);
   const now = new Date().toISOString();
 
-  getDb().prepare(`
+  await getDb().query(`
     INSERT INTO users (id, name, email, password, role, lawyer_state_bar, lawyer_bar_number,
       official_agency, official_id, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+  `, [
     id, name, email, hashedPassword, role,
     lawyerInfo?.stateBarAssociation || null,
     lawyerInfo?.barNumber || null,
     legalOfficialInfo?.governmentAgency || null,
     legalOfficialInfo?.officialId || null,
-    now, now
-  );
+    now, now,
+  ]);
 
-  const user = getDb().prepare('SELECT * FROM users WHERE id = ?').get(id) as UserRow;
-  const tokens = generateTokens(user);
+  const userResult = await getDb().query('SELECT * FROM users WHERE id = $1', [id]);
+  const user = userResult.rows[0] as UserRow;
+  const tokens = await generateTokens(user);
 
   apiResponse(res, {
     token: tokens.token,
@@ -128,13 +132,13 @@ router.post('/register', validate(registerSchema), (req, res) => {
 });
 
 // POST /auth/logout
-router.post('/logout', authenticate, (req, res) => {
-  getDb().prepare('DELETE FROM refresh_tokens WHERE user_id = ?').run(req.user!.id);
+router.post('/logout', authenticate, async (req, res) => {
+  await getDb().query('DELETE FROM refresh_tokens WHERE user_id = $1', [req.user!.id]);
   apiResponse(res, null);
 });
 
 // POST /auth/refresh-token
-router.post('/refresh-token', (req, res) => {
+router.post('/refresh-token', async (req, res) => {
   const { refreshToken } = req.body;
 
   if (!refreshToken) {
@@ -142,9 +146,11 @@ router.post('/refresh-token', (req, res) => {
     return;
   }
 
-  const tokenRow = getDb().prepare(
-    'SELECT * FROM refresh_tokens WHERE token = ?'
-  ).get(refreshToken) as { id: string; user_id: string; expires_at: string } | undefined;
+  const tokenResult = await getDb().query(
+    'SELECT * FROM refresh_tokens WHERE token = $1',
+    [refreshToken]
+  );
+  const tokenRow = tokenResult.rows[0] as { id: string; user_id: string; expires_at: string } | undefined;
 
   if (!tokenRow) {
     apiError(res, 'Invalid refresh token', 401);
@@ -152,21 +158,22 @@ router.post('/refresh-token', (req, res) => {
   }
 
   if (new Date(tokenRow.expires_at) < new Date()) {
-    getDb().prepare('DELETE FROM refresh_tokens WHERE id = ?').run(tokenRow.id);
+    await getDb().query('DELETE FROM refresh_tokens WHERE id = $1', [tokenRow.id]);
     apiError(res, 'Refresh token expired', 401);
     return;
   }
 
   // Delete old refresh token
-  getDb().prepare('DELETE FROM refresh_tokens WHERE id = ?').run(tokenRow.id);
+  await getDb().query('DELETE FROM refresh_tokens WHERE id = $1', [tokenRow.id]);
 
-  const user = getDb().prepare('SELECT * FROM users WHERE id = ?').get(tokenRow.user_id) as UserRow | undefined;
+  const userResult = await getDb().query('SELECT * FROM users WHERE id = $1', [tokenRow.user_id]);
+  const user = userResult.rows[0] as UserRow | undefined;
   if (!user) {
     apiError(res, 'User not found', 401);
     return;
   }
 
-  const tokens = generateTokens(user);
+  const tokens = await generateTokens(user);
 
   apiResponse(res, {
     token: tokens.token,
@@ -176,8 +183,9 @@ router.post('/refresh-token', (req, res) => {
 });
 
 // GET /auth/verify-token
-router.get('/verify-token', authenticate, (req, res) => {
-  const user = getDb().prepare('SELECT * FROM users WHERE id = ?').get(req.user!.id) as UserRow;
+router.get('/verify-token', authenticate, async (req, res) => {
+  const result = await getDb().query('SELECT * FROM users WHERE id = $1', [req.user!.id]);
+  const user = result.rows[0] as UserRow;
   apiResponse(res, toUserResponse(user));
 });
 

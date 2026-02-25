@@ -1,9 +1,9 @@
 import { getDb } from './connection.js';
 
-export function runSchema(): void {
-  const db = getDb();
+export async function runSchema(): Promise<void> {
+  const pool = getDb();
 
-  db.exec(`
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS users (
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL,
@@ -15,42 +15,52 @@ export function runSchema(): void {
       official_agency TEXT,
       official_id TEXT,
       verification_status TEXT DEFAULT 'pending' CHECK(verification_status IN ('pending', 'verified', 'rejected')),
-      created_at TEXT NOT NULL DEFAULT (datetime('now')),
-      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
-    );
+      created_at TEXT NOT NULL DEFAULT NOW(),
+      updated_at TEXT NOT NULL DEFAULT NOW()
+    )
+  `);
 
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS refresh_tokens (
       id TEXT PRIMARY KEY,
       user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
       token TEXT NOT NULL UNIQUE,
       expires_at TEXT NOT NULL,
-      created_at TEXT NOT NULL DEFAULT (datetime('now'))
-    );
+      created_at TEXT NOT NULL DEFAULT NOW()
+    )
+  `);
 
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS judges (
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL UNIQUE,
-      created_at TEXT NOT NULL DEFAULT (datetime('now')),
-      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
-    );
+      created_at TEXT NOT NULL DEFAULT NOW(),
+      updated_at TEXT NOT NULL DEFAULT NOW()
+    )
+  `);
 
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS law_firms (
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL UNIQUE,
       type TEXT NOT NULL DEFAULT '' CHECK(type IN ('prosecution', 'defense', '')),
-      created_at TEXT NOT NULL DEFAULT (datetime('now')),
-      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
-    );
+      created_at TEXT NOT NULL DEFAULT NOW(),
+      updated_at TEXT NOT NULL DEFAULT NOW()
+    )
+  `);
 
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS attorneys (
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL,
       type TEXT NOT NULL CHECK(type IN ('prosecution', 'defense')),
       firm_id TEXT REFERENCES law_firms(id),
-      created_at TEXT NOT NULL DEFAULT (datetime('now')),
-      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
-    );
+      created_at TEXT NOT NULL DEFAULT NOW(),
+      updated_at TEXT NOT NULL DEFAULT NOW()
+    )
+  `);
 
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS cases (
       id TEXT PRIMARY KEY,
       title TEXT NOT NULL,
@@ -74,10 +84,12 @@ export function runSchema(): void {
       court_date TEXT NOT NULL DEFAULT '',
       ruling TEXT NOT NULL DEFAULT '',
       sentence TEXT NOT NULL DEFAULT '',
-      created_at TEXT NOT NULL DEFAULT (datetime('now')),
-      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
-    );
+      created_at TEXT NOT NULL DEFAULT NOW(),
+      updated_at TEXT NOT NULL DEFAULT NOW()
+    )
+  `);
 
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS documents (
       id TEXT PRIMARY KEY,
       file_name TEXT NOT NULL,
@@ -86,10 +98,12 @@ export function runSchema(): void {
       url TEXT NOT NULL DEFAULT '',
       case_id TEXT NOT NULL,
       uploaded_by TEXT NOT NULL,
-      uploaded_at TEXT NOT NULL DEFAULT (datetime('now')),
+      uploaded_at TEXT NOT NULL DEFAULT NOW(),
       version INTEGER NOT NULL DEFAULT 1
-    );
+    )
+  `);
 
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS deadlines (
       id TEXT PRIMARY KEY,
       title TEXT NOT NULL,
@@ -100,18 +114,20 @@ export function runSchema(): void {
       assigned_to TEXT NOT NULL DEFAULT '',
       status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'completed', 'overdue')),
       client_id TEXT NOT NULL DEFAULT '',
-      created_at TEXT NOT NULL DEFAULT (datetime('now')),
-      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
-    );
+      created_at TEXT NOT NULL DEFAULT NOW(),
+      updated_at TEXT NOT NULL DEFAULT NOW()
+    )
+  `);
 
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS team_members (
       id TEXT PRIMARY KEY,
       user_id TEXT NOT NULL,
       name TEXT NOT NULL,
       email TEXT NOT NULL,
       role TEXT NOT NULL CHECK(role IN ('client', 'lawyer', 'legal-official')),
-      joined_at TEXT NOT NULL DEFAULT (datetime('now'))
-    );
+      joined_at TEXT NOT NULL DEFAULT NOW()
+    )
   `);
 
   console.log('Database schema initialized');

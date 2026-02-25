@@ -18,7 +18,7 @@ declare global {
   }
 }
 
-export function authenticate(req: Request, res: Response, next: NextFunction): void {
+export async function authenticate(req: Request, res: Response, next: NextFunction): Promise<void> {
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith('Bearer ')) {
     res.status(401).json({ success: false, error: 'No token provided' });
@@ -29,8 +29,8 @@ export function authenticate(req: Request, res: Response, next: NextFunction): v
 
   try {
     const decoded = jwt.verify(token, config.jwtSecret) as AuthUser;
-    // Verify user still exists
-    const user = getDb().prepare('SELECT id, name, email, role FROM users WHERE id = ?').get(decoded.id) as AuthUser | undefined;
+    const result = await getDb().query('SELECT id, name, email, role FROM users WHERE id = $1', [decoded.id]);
+    const user = result.rows[0] as AuthUser | undefined;
     if (!user) {
       res.status(401).json({ success: false, error: 'User not found' });
       return;
@@ -42,7 +42,7 @@ export function authenticate(req: Request, res: Response, next: NextFunction): v
   }
 }
 
-export function optionalAuth(req: Request, _res: Response, next: NextFunction): void {
+export async function optionalAuth(req: Request, _res: Response, next: NextFunction): Promise<void> {
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith('Bearer ')) {
     next();
@@ -53,7 +53,8 @@ export function optionalAuth(req: Request, _res: Response, next: NextFunction): 
 
   try {
     const decoded = jwt.verify(token, config.jwtSecret) as AuthUser;
-    const user = getDb().prepare('SELECT id, name, email, role FROM users WHERE id = ?').get(decoded.id) as AuthUser | undefined;
+    const result = await getDb().query('SELECT id, name, email, role FROM users WHERE id = $1', [decoded.id]);
+    const user = result.rows[0] as AuthUser | undefined;
     if (user) {
       req.user = user;
     }

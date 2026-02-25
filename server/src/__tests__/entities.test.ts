@@ -4,7 +4,7 @@ import { setupTestDb, getTestDb, closeTestDb } from './helpers.js';
 
 vi.mock('../db/connection.js', () => ({
   getDb: () => getTestDb(),
-  initDb: () => {},
+  initDb: async () => {},
 }));
 
 import { app } from '../app.js';
@@ -18,7 +18,7 @@ async function request(path: string) {
 
 describe('Entity routes', () => {
   beforeAll(async () => {
-    setupTestDb();
+    await setupTestDb();
 
     server = http.createServer(app);
     await new Promise<void>((resolve) => {
@@ -30,7 +30,7 @@ describe('Entity routes', () => {
 
   afterAll(async () => {
     await new Promise<void>((resolve) => server.close(() => resolve()));
-    closeTestDb();
+    await closeTestDb();
   });
 
   describe('GET /api/attorneys', () => {

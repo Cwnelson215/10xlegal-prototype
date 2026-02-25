@@ -1,24 +1,29 @@
-import Database from 'better-sqlite3';
-import fs from 'fs';
-import path from 'path';
+import pg from 'pg';
 import { config } from '../config.js';
 
-let db: Database.Database;
+const { Pool } = pg;
 
-export function initDb(): void {
-  const dir = path.dirname(config.dbPath);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
+let pool: pg.Pool;
 
-  db = new Database(config.dbPath);
-  db.pragma('journal_mode = WAL');
-  db.pragma('foreign_keys = ON');
+export async function initDb(): Promise<void> {
+  pool = new Pool({
+    connectionString: config.databaseUrl,
+  });
+
+  // Verify connectivity
+  const client = await pool.connect();
+  client.release();
 }
 
-export function getDb(): Database.Database {
-  if (!db) {
+export function getDb(): pg.Pool {
+  if (!pool) {
     throw new Error('Database not initialized. Call initDb() first.');
   }
-  return db;
+  return pool;
+}
+
+export async function closeDb(): Promise<void> {
+  if (pool) {
+    await pool.end();
+  }
 }

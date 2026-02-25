@@ -52,27 +52,38 @@ function toDocumentResponse(row: DocumentRow) {
 }
 
 // GET /documents
-router.get('/', authenticate, (req, res) => {
+router.get('/', authenticate, async (req, res) => {
   const { page, pageSize } = parsePagination(req.query as Record<string, unknown>);
   const offset = (page - 1) * pageSize;
   const caseId = req.query.caseId as string | undefined;
+  const db = getDb();
 
   let whereClause = '';
-  const params: unknown[] = [];
+  const countParams: unknown[] = [];
+  const rowParams: unknown[] = [];
+  let paramIdx = 1;
 
   if (caseId) {
-    whereClause = 'WHERE case_id = ?';
-    params.push(caseId);
+    whereClause = `WHERE case_id = $${paramIdx++}`;
+    countParams.push(caseId);
+    rowParams.push(caseId);
   }
 
-  const countRow = getDb().prepare(`SELECT COUNT(*) as count FROM documents ${whereClause}`).get(...params) as { count: number };
-  const rows = getDb().prepare(`SELECT * FROM documents ${whereClause} ORDER BY uploaded_at DESC LIMIT ? OFFSET ?`).all(...params, pageSize, offset) as DocumentRow[];
+  const countResult = await db.query(`SELECT COUNT(*)::int as count FROM documents ${whereClause}`, countParams);
+  const total = countResult.rows[0]!.count as number;
 
-  paginatedResponse(res, rows.map(toDocumentResponse), countRow.count, page, pageSize);
+  rowParams.push(pageSize, offset);
+  const rowsResult = await db.query(
+    `SELECT * FROM documents ${whereClause} ORDER BY uploaded_at DESC LIMIT $${paramIdx++} OFFSET $${paramIdx}`,
+    rowParams
+  );
+  const rows = rowsResult.rows as DocumentRow[];
+
+  paginatedResponse(res, rows.map(toDocumentResponse), total, page, pageSize);
 });
 
 // POST /documents/upload
-router.post('/upload', authenticate, upload.single('file'), (req, res) => {
+router.post('/upload', authenticate, upload.single('file'), async (req, res) => {
   if (!req.file) {
     apiError(res, 'No file provided');
     return;
@@ -84,22 +95,25 @@ router.post('/upload', authenticate, upload.single('file'), (req, res) => {
     return;
   }
 
+  const db = getDb();
   const id = uuidv4();
   const now = new Date().toISOString();
   const fileName = req.body.fileName || req.file.originalname;
 
-  getDb().prepare(`
+  await db.query(`
     INSERT INTO documents (id, file_name, file_size, file_type, url, case_id, uploaded_by, uploaded_at, version)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)
-  `).run(id, fileName, req.file.size, req.file.mimetype, req.file.filename, caseId, req.user!.id, now);
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 1)
+  `, [id, fileName, req.file.size, req.file.mimetype, req.file.filename, caseId, req.user!.id, now]);
 
-  const row = getDb().prepare('SELECT * FROM documents WHERE id = ?').get(id) as DocumentRow;
+  const result = await db.query('SELECT * FROM documents WHERE id = $1', [id]);
+  const row = result.rows[0] as DocumentRow;
   apiResponse(res, toDocumentResponse(row), 201);
 });
 
 // GET /documents/:id
-router.get('/:id', authenticate, (req, res) => {
-  const row = getDb().prepare('SELECT * FROM documents WHERE id = ?').get(req.params.id) as DocumentRow | undefined;
+router.get('/:id', authenticate, async (req, res) => {
+  const result = await getDb().query('SELECT * FROM documents WHERE id = $1', [req.params.id]);
+  const row = result.rows[0] as DocumentRow | undefined;
   if (!row) {
     apiError(res, 'Document not found', 404);
     return;
@@ -108,8 +122,9 @@ router.get('/:id', authenticate, (req, res) => {
 });
 
 // GET /documents/:id/download
-router.get('/:id/download', authenticate, (req, res) => {
-  const row = getDb().prepare('SELECT * FROM documents WHERE id = ?').get(req.params.id) as DocumentRow | undefined;
+router.get('/:id/download', authenticate, async (req, res) => {
+  const result = await getDb().query('SELECT * FROM documents WHERE id = $1', [req.params.id]);
+  const row = result.rows[0] as DocumentRow | undefined;
   if (!row) {
     apiError(res, 'Document not found', 404);
     return;
@@ -128,8 +143,10 @@ router.get('/:id/download', authenticate, (req, res) => {
 });
 
 // DELETE /documents/:id
-router.delete('/:id', authenticate, (req, res) => {
-  const row = getDb().prepare('SELECT * FROM documents WHERE id = ?').get(req.params.id) as DocumentRow | undefined;
+router.delete('/:id', authenticate, async (req, res) => {
+  const db = getDb();
+  const result = await db.query('SELECT * FROM documents WHERE id = $1', [req.params.id]);
+  const row = result.rows[0] as DocumentRow | undefined;
   if (!row) {
     apiError(res, 'Document not found', 404);
     return;
@@ -141,7 +158,7 @@ router.delete('/:id', authenticate, (req, res) => {
     fs.unlinkSync(filePath);
   }
 
-  getDb().prepare('DELETE FROM documents WHERE id = ?').run(req.params.id);
+  await db.query('DELETE FROM documents WHERE id = $1', [req.params.id]);
   apiResponse(res, null);
 });
 

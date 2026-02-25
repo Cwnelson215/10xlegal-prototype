@@ -1,18 +1,32 @@
-import Database, { type Database as DatabaseType } from 'better-sqlite3';
+import pg from 'pg';
 import bcryptjs from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 import { config } from '../config.js';
 
-let testDb: DatabaseType;
+const { Pool } = pg;
 
-export function setupTestDb(): DatabaseType {
-  testDb = new Database(':memory:');
-  testDb.pragma('journal_mode = WAL');
-  testDb.pragma('foreign_keys = ON');
+let testPool: pg.Pool;
 
-  // Create schema
-  testDb.exec(`
+const testDbUrl = process.env.TEST_DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/10xlegal_test';
+
+export async function setupTestDb(): Promise<pg.Pool> {
+  testPool = new Pool({ connectionString: testDbUrl });
+
+  // Drop and recreate all tables for a clean slate
+  await testPool.query(`
+    DROP TABLE IF EXISTS team_members CASCADE;
+    DROP TABLE IF EXISTS documents CASCADE;
+    DROP TABLE IF EXISTS deadlines CASCADE;
+    DROP TABLE IF EXISTS cases CASCADE;
+    DROP TABLE IF EXISTS attorneys CASCADE;
+    DROP TABLE IF EXISTS law_firms CASCADE;
+    DROP TABLE IF EXISTS judges CASCADE;
+    DROP TABLE IF EXISTS refresh_tokens CASCADE;
+    DROP TABLE IF EXISTS users CASCADE;
+  `);
+
+  await testPool.query(`
     CREATE TABLE users (
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL,
@@ -24,8 +38,8 @@ export function setupTestDb(): DatabaseType {
       official_agency TEXT,
       official_id TEXT,
       verification_status TEXT DEFAULT 'pending',
-      created_at TEXT NOT NULL DEFAULT (datetime('now')),
-      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      created_at TEXT NOT NULL DEFAULT NOW(),
+      updated_at TEXT NOT NULL DEFAULT NOW()
     );
 
     CREATE TABLE refresh_tokens (
@@ -33,22 +47,22 @@ export function setupTestDb(): DatabaseType {
       user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
       token TEXT NOT NULL UNIQUE,
       expires_at TEXT NOT NULL,
-      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      created_at TEXT NOT NULL DEFAULT NOW()
     );
 
     CREATE TABLE judges (
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL UNIQUE,
-      created_at TEXT NOT NULL DEFAULT (datetime('now')),
-      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      created_at TEXT NOT NULL DEFAULT NOW(),
+      updated_at TEXT NOT NULL DEFAULT NOW()
     );
 
     CREATE TABLE law_firms (
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL UNIQUE,
       type TEXT NOT NULL DEFAULT '',
-      created_at TEXT NOT NULL DEFAULT (datetime('now')),
-      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      created_at TEXT NOT NULL DEFAULT NOW(),
+      updated_at TEXT NOT NULL DEFAULT NOW()
     );
 
     CREATE TABLE attorneys (
@@ -56,8 +70,8 @@ export function setupTestDb(): DatabaseType {
       name TEXT NOT NULL,
       type TEXT NOT NULL CHECK(type IN ('prosecution', 'defense')),
       firm_id TEXT REFERENCES law_firms(id),
-      created_at TEXT NOT NULL DEFAULT (datetime('now')),
-      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      created_at TEXT NOT NULL DEFAULT NOW(),
+      updated_at TEXT NOT NULL DEFAULT NOW()
     );
 
     CREATE TABLE cases (
@@ -83,8 +97,8 @@ export function setupTestDb(): DatabaseType {
       court_date TEXT NOT NULL DEFAULT '',
       ruling TEXT NOT NULL DEFAULT '',
       sentence TEXT NOT NULL DEFAULT '',
-      created_at TEXT NOT NULL DEFAULT (datetime('now')),
-      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      created_at TEXT NOT NULL DEFAULT NOW(),
+      updated_at TEXT NOT NULL DEFAULT NOW()
     );
 
     CREATE TABLE documents (
@@ -95,7 +109,7 @@ export function setupTestDb(): DatabaseType {
       url TEXT NOT NULL DEFAULT '',
       case_id TEXT NOT NULL,
       uploaded_by TEXT NOT NULL,
-      uploaded_at TEXT NOT NULL DEFAULT (datetime('now')),
+      uploaded_at TEXT NOT NULL DEFAULT NOW(),
       version INTEGER NOT NULL DEFAULT 1
     );
 
@@ -109,8 +123,8 @@ export function setupTestDb(): DatabaseType {
       assigned_to TEXT NOT NULL DEFAULT '',
       status TEXT NOT NULL DEFAULT 'pending',
       client_id TEXT NOT NULL DEFAULT '',
-      created_at TEXT NOT NULL DEFAULT (datetime('now')),
-      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      created_at TEXT NOT NULL DEFAULT NOW(),
+      updated_at TEXT NOT NULL DEFAULT NOW()
     );
 
     CREATE TABLE team_members (
@@ -119,29 +133,29 @@ export function setupTestDb(): DatabaseType {
       name TEXT NOT NULL,
       email TEXT NOT NULL,
       role TEXT NOT NULL,
-      joined_at TEXT NOT NULL DEFAULT (datetime('now'))
+      joined_at TEXT NOT NULL DEFAULT NOW()
     );
   `);
 
-  return testDb;
+  return testPool;
 }
 
-export function getTestDb(): DatabaseType {
-  return testDb;
+export function getTestDb(): pg.Pool {
+  return testPool;
 }
 
-export function closeTestDb() {
-  if (testDb) testDb.close();
+export async function closeTestDb() {
+  if (testPool) await testPool.end();
 }
 
-export function seedTestUser(role: string = 'legal-official') {
+export async function seedTestUser(role: string = 'legal-official') {
   const id = uuidv4();
   const hashedPassword = bcryptjs.hashSync('password123', 10);
   const now = new Date().toISOString();
-  testDb.prepare(`
+  await testPool.query(`
     INSERT INTO users (id, name, email, password, role, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-  `).run(id, `Test ${role}`, `${role}@test.com`, hashedPassword, role, now, now);
+    VALUES ($1, $2, $3, $4, $5, $6, $7)
+  `, [id, `Test ${role}`, `${role}@test.com`, hashedPassword, role, now, now]);
   return { id, email: `${role}@test.com`, name: `Test ${role}`, role };
 }
 
@@ -153,13 +167,12 @@ export function generateToken(user: { id: string; name: string; email: string; r
   );
 }
 
-export function seedTestCase(judgeId?: string) {
+export async function seedTestCase(judgeId?: string) {
   const id = uuidv4();
   const now = new Date().toISOString();
-  testDb.prepare(`
+  await testPool.query(`
     INSERT INTO cases (id, title, description, status, case_number, client_id, county, judge, judge_id, charge, court_date, ruling, sentence, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(id, 'Test Case', 'Description', 'active', `21-CR-${Math.floor(Math.random() * 99999)}`, 'client-1', 'Salt Lake', 'Hon. Test Judge', judgeId ?? null, 'Test Charge', '2026-06-15', 'Pending', '', now, now);
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+  `, [id, 'Test Case', 'Description', 'active', `21-CR-${Math.floor(Math.random() * 99999)}`, 'client-1', 'Salt Lake', 'Hon. Test Judge', judgeId ?? null, 'Test Charge', '2026-06-15', 'Pending', '', now, now]);
   return id;
 }
-

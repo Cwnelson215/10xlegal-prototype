@@ -14,15 +14,19 @@ interface AttorneyRow {
   updated_at: string;
 }
 
-function toAttorneyResponse(row: AttorneyRow) {
+async function toAttorneyResponse(row: AttorneyRow) {
+  const db = getDb();
+
   let firmName: string | null = null;
   if (row.firm_id) {
-    const firm = getDb().prepare('SELECT name FROM law_firms WHERE id = ?').get(row.firm_id) as { name: string } | undefined;
+    const firmResult = await db.query('SELECT name FROM law_firms WHERE id = $1', [row.firm_id]);
+    const firm = firmResult.rows[0] as { name: string } | undefined;
     firmName = firm?.name ?? null;
   }
 
   const countCol = row.type === 'prosecution' ? 'prosecution_attorney_id' : 'defense_attorney_id';
-  const caseCount = (getDb().prepare(`SELECT COUNT(*) as count FROM cases WHERE ${countCol} = ?`).get(row.id) as { count: number }).count;
+  const caseCountResult = await db.query(`SELECT COUNT(*)::int as count FROM cases WHERE ${countCol} = $1`, [row.id]);
+  const caseCount = caseCountResult.rows[0]!.count as number;
 
   return {
     id: row.id,
@@ -37,32 +41,46 @@ function toAttorneyResponse(row: AttorneyRow) {
 }
 
 // GET /attorneys
-router.get('/', optionalAuth, (req, res) => {
+router.get('/', optionalAuth, async (req, res) => {
   const { page, pageSize } = parsePagination(req.query as Record<string, unknown>);
   const offset = (page - 1) * pageSize;
   const type = req.query.type as string | undefined;
+  const db = getDb();
 
   let whereClause = '';
-  const params: unknown[] = [];
+  const countParams: unknown[] = [];
+  const rowParams: unknown[] = [];
+  let paramIdx = 1;
+
   if (type === 'prosecution' || type === 'defense') {
-    whereClause = 'WHERE type = ?';
-    params.push(type);
+    whereClause = `WHERE type = $${paramIdx++}`;
+    countParams.push(type);
+    rowParams.push(type);
   }
 
-  const total = (getDb().prepare(`SELECT COUNT(*) as count FROM attorneys ${whereClause}`).get(...params) as { count: number }).count;
-  const rows = getDb().prepare(`SELECT * FROM attorneys ${whereClause} ORDER BY name ASC LIMIT ? OFFSET ?`).all(...params, pageSize, offset) as AttorneyRow[];
+  const countResult = await db.query(`SELECT COUNT(*)::int as count FROM attorneys ${whereClause}`, countParams);
+  const total = countResult.rows[0]!.count as number;
 
-  paginatedResponse(res, rows.map(toAttorneyResponse), total, page, pageSize);
+  rowParams.push(pageSize, offset);
+  const rowsResult = await db.query(
+    `SELECT * FROM attorneys ${whereClause} ORDER BY name ASC LIMIT $${paramIdx++} OFFSET $${paramIdx}`,
+    rowParams
+  );
+  const rows = rowsResult.rows as AttorneyRow[];
+
+  const data = await Promise.all(rows.map((r) => toAttorneyResponse(r)));
+  paginatedResponse(res, data, total, page, pageSize);
 });
 
 // GET /attorneys/:id
-router.get('/:id', optionalAuth, (req, res) => {
-  const row = getDb().prepare('SELECT * FROM attorneys WHERE id = ?').get(req.params.id) as AttorneyRow | undefined;
+router.get('/:id', optionalAuth, async (req, res) => {
+  const result = await getDb().query('SELECT * FROM attorneys WHERE id = $1', [req.params.id]);
+  const row = result.rows[0] as AttorneyRow | undefined;
   if (!row) {
     apiError(res, 'Attorney not found', 404);
     return;
   }
-  apiResponse(res, toAttorneyResponse(row));
+  apiResponse(res, await toAttorneyResponse(row));
 });
 
 export { router as attorneysRoutes };

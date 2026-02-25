@@ -4,7 +4,7 @@ import { setupTestDb, getTestDb, closeTestDb, seedTestUser, generateToken, seedT
 
 vi.mock('../db/connection.js', () => ({
   getDb: () => getTestDb(),
-  initDb: () => {},
+  initDb: async () => {},
 }));
 
 import { app } from '../app.js';
@@ -20,8 +20,8 @@ describe('Cases routes', () => {
   let authToken: string;
 
   beforeAll(async () => {
-    setupTestDb();
-    const user = seedTestUser('legal-official');
+    await setupTestDb();
+    const user = await seedTestUser('legal-official');
     authToken = generateToken(user);
 
     server = http.createServer(app);
@@ -34,7 +34,7 @@ describe('Cases routes', () => {
 
   afterAll(async () => {
     await new Promise<void>((resolve) => server.close(() => resolve()));
-    closeTestDb();
+    await closeTestDb();
   });
 
   describe('GET /api/cases', () => {
@@ -47,8 +47,8 @@ describe('Cases routes', () => {
     });
 
     it('returns paginated response', async () => {
-      seedTestCase();
-      seedTestCase();
+      await seedTestCase();
+      await seedTestCase();
 
       const res = await request('/api/cases?page=1&pageSize=10');
       expect(res.status).toBe(200);
@@ -97,7 +97,7 @@ describe('Cases routes', () => {
 
   describe('GET /api/cases/:id', () => {
     it('returns a single case', async () => {
-      const caseId = seedTestCase();
+      const caseId = await seedTestCase();
 
       const res = await request(`/api/cases/${caseId}`);
       expect(res.status).toBe(200);

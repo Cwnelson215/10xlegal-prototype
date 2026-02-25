@@ -5,10 +5,10 @@ import { runSchema } from './db/schema.js';
 import { seedDatabase } from './db/seed.js';
 import { logger } from './utils/logger.js';
 
-const start = () => {
-  initDb();
-  runSchema();
-  seedDatabase();
+const start = async () => {
+  await initDb();
+  await runSchema();
+  await seedDatabase();
 
   app.listen(config.port, () => {
     logger.info(`Server running on http://localhost:${config.port}`);
@@ -16,4 +16,7 @@ const start = () => {
   });
 };
 
-start();
+start().catch((err) => {
+  logger.error(err, 'Failed to start server');
+  process.exit(1);
+});

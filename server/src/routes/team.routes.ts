@@ -27,45 +27,51 @@ function toTeamMemberResponse(row: TeamMemberRow) {
 }
 
 // GET /team
-router.get('/', authenticate, (req, res) => {
+router.get('/', authenticate, async (req, res) => {
   const { page, pageSize } = parsePagination(req.query as Record<string, unknown>);
   const offset = (page - 1) * pageSize;
+  const db = getDb();
 
-  const total = (getDb().prepare('SELECT COUNT(*) as count FROM team_members').get() as { count: number }).count;
-  const rows = getDb().prepare('SELECT * FROM team_members ORDER BY joined_at DESC LIMIT ? OFFSET ?').all(pageSize, offset) as TeamMemberRow[];
+  const countResult = await db.query('SELECT COUNT(*)::int as count FROM team_members');
+  const total = countResult.rows[0]!.count as number;
+  const rowsResult = await db.query('SELECT * FROM team_members ORDER BY joined_at DESC LIMIT $1 OFFSET $2', [pageSize, offset]);
+  const rows = rowsResult.rows as TeamMemberRow[];
 
   paginatedResponse(res, rows.map(toTeamMemberResponse), total, page, pageSize);
 });
 
 // POST /team/members
-router.post('/members', authenticate, (req, res) => {
+router.post('/members', authenticate, async (req, res) => {
   const { email, role } = req.body;
+  const db = getDb();
 
   if (!email || !role) {
     apiError(res, 'Email and role are required');
     return;
   }
 
-  // Look up user by email
-  const user = getDb().prepare('SELECT id, name, email, role FROM users WHERE email = ?').get(email) as { id: string; name: string; email: string; role: string } | undefined;
+  const userResult = await db.query('SELECT id, name, email, role FROM users WHERE email = $1', [email]);
+  const user = userResult.rows[0] as { id: string; name: string; email: string; role: string } | undefined;
 
   const id = uuidv4();
   const now = new Date().toISOString();
   const name = user?.name || email.split('@')[0]!;
   const userId = user?.id || uuidv4();
 
-  getDb().prepare(`
+  await db.query(`
     INSERT INTO team_members (id, user_id, name, email, role, joined_at)
-    VALUES (?, ?, ?, ?, ?, ?)
-  `).run(id, userId, name, email, role, now);
+    VALUES ($1, $2, $3, $4, $5, $6)
+  `, [id, userId, name, email, role, now]);
 
-  const row = getDb().prepare('SELECT * FROM team_members WHERE id = ?').get(id) as TeamMemberRow;
+  const result = await db.query('SELECT * FROM team_members WHERE id = $1', [id]);
+  const row = result.rows[0] as TeamMemberRow;
   apiResponse(res, toTeamMemberResponse(row), 201);
 });
 
 // GET /team/members/:id
-router.get('/members/:id', authenticate, (req, res) => {
-  const row = getDb().prepare('SELECT * FROM team_members WHERE id = ?').get(req.params.id) as TeamMemberRow | undefined;
+router.get('/members/:id', authenticate, async (req, res) => {
+  const result = await getDb().query('SELECT * FROM team_members WHERE id = $1', [req.params.id]);
+  const row = result.rows[0] as TeamMemberRow | undefined;
   if (!row) {
     apiError(res, 'Team member not found', 404);
     return;
@@ -74,8 +80,10 @@ router.get('/members/:id', authenticate, (req, res) => {
 });
 
 // PUT /team/members/:id
-router.put('/members/:id', authenticate, (req, res) => {
-  const existing = getDb().prepare('SELECT * FROM team_members WHERE id = ?').get(req.params.id) as TeamMemberRow | undefined;
+router.put('/members/:id', authenticate, async (req, res) => {
+  const db = getDb();
+  const existingResult = await db.query('SELECT * FROM team_members WHERE id = $1', [req.params.id]);
+  const existing = existingResult.rows[0] as TeamMemberRow | undefined;
   if (!existing) {
     apiError(res, 'Team member not found', 404);
     return;
@@ -83,22 +91,24 @@ router.put('/members/:id', authenticate, (req, res) => {
 
   const { role } = req.body;
   if (role) {
-    getDb().prepare('UPDATE team_members SET role = ? WHERE id = ?').run(role, req.params.id);
+    await db.query('UPDATE team_members SET role = $1 WHERE id = $2', [role, req.params.id]);
   }
 
-  const row = getDb().prepare('SELECT * FROM team_members WHERE id = ?').get(req.params.id) as TeamMemberRow;
+  const result = await db.query('SELECT * FROM team_members WHERE id = $1', [req.params.id]);
+  const row = result.rows[0] as TeamMemberRow;
   apiResponse(res, toTeamMemberResponse(row));
 });
 
 // DELETE /team/members/:id
-router.delete('/members/:id', authenticate, (req, res) => {
-  const existing = getDb().prepare('SELECT id FROM team_members WHERE id = ?').get(req.params.id);
-  if (!existing) {
+router.delete('/members/:id', authenticate, async (req, res) => {
+  const db = getDb();
+  const existingResult = await db.query('SELECT id FROM team_members WHERE id = $1', [req.params.id]);
+  if (!existingResult.rows[0]) {
     apiError(res, 'Team member not found', 404);
     return;
   }
 
-  getDb().prepare('DELETE FROM team_members WHERE id = ?').run(req.params.id);
+  await db.query('DELETE FROM team_members WHERE id = $1', [req.params.id]);
   apiResponse(res, null);
 });
 

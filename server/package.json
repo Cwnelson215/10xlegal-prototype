@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
-    "better-sqlite3": "^11.9.1",
+    "pg": "^8.13.1",
     "cors": "^2.8.5",
     "express": "^5.1.0",
     "express-rate-limit": "^8.2.1",
@@ -21,7 +21,7 @@
   },
   "devDependencies": {
     "@types/bcryptjs": "^3.0.0",
-    "@types/better-sqlite3": "^7.6.13",
+    "@types/pg": "^8.11.10",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.2",
     "@types/jsonwebtoken": "^9.0.9",

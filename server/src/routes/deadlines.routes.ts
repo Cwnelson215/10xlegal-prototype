@@ -39,44 +39,58 @@ function toDeadlineResponse(row: DeadlineRow) {
 }
 
 // GET /deadlines
-router.get('/', optionalAuth, (req, res) => {
+router.get('/', optionalAuth, async (req, res) => {
   const { page, pageSize } = parsePagination(req.query as Record<string, unknown>);
   const offset = (page - 1) * pageSize;
   const caseId = req.query.caseId as string | undefined;
+  const db = getDb();
 
   let whereClause = '';
-  const params: unknown[] = [];
+  const countParams: unknown[] = [];
+  const rowParams: unknown[] = [];
+  let paramIdx = 1;
 
   if (caseId) {
-    whereClause = 'WHERE case_id = ?';
-    params.push(caseId);
+    whereClause = `WHERE case_id = $${paramIdx++}`;
+    countParams.push(caseId);
+    rowParams.push(caseId);
   }
 
-  const countRow = getDb().prepare(`SELECT COUNT(*) as count FROM deadlines ${whereClause}`).get(...params) as { count: number };
-  const rows = getDb().prepare(`SELECT * FROM deadlines ${whereClause} ORDER BY due_date ASC LIMIT ? OFFSET ?`).all(...params, pageSize, offset) as DeadlineRow[];
+  const countResult = await db.query(`SELECT COUNT(*)::int as count FROM deadlines ${whereClause}`, countParams);
+  const total = countResult.rows[0]!.count as number;
 
-  paginatedResponse(res, rows.map(toDeadlineResponse), countRow.count, page, pageSize);
+  rowParams.push(pageSize, offset);
+  const rowsResult = await db.query(
+    `SELECT * FROM deadlines ${whereClause} ORDER BY due_date ASC LIMIT $${paramIdx++} OFFSET $${paramIdx}`,
+    rowParams
+  );
+  const rows = rowsResult.rows as DeadlineRow[];
+
+  paginatedResponse(res, rows.map(toDeadlineResponse), total, page, pageSize);
 });
 
 // POST /deadlines
-router.post('/', authenticate, validate(createDeadlineSchema), (req, res) => {
+router.post('/', authenticate, validate(createDeadlineSchema), async (req, res) => {
   const { title, description, dueDate, caseId, assignedTo } = req.body;
+  const db = getDb();
 
   const id = uuidv4();
   const now = new Date().toISOString();
 
-  getDb().prepare(`
+  await db.query(`
     INSERT INTO deadlines (id, title, description, due_date, case_id, assigned_to, status, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, 'pending', ?, ?)
-  `).run(id, title, description || '', dueDate, caseId, assignedTo || '', now, now);
+    VALUES ($1, $2, $3, $4, $5, $6, 'pending', $7, $8)
+  `, [id, title, description || '', dueDate, caseId, assignedTo || '', now, now]);
 
-  const row = getDb().prepare('SELECT * FROM deadlines WHERE id = ?').get(id) as DeadlineRow;
+  const result = await db.query('SELECT * FROM deadlines WHERE id = $1', [id]);
+  const row = result.rows[0] as DeadlineRow;
   apiResponse(res, toDeadlineResponse(row), 201);
 });
 
 // GET /deadlines/:id
-router.get('/:id', optionalAuth, (req, res) => {
-  const row = getDb().prepare('SELECT * FROM deadlines WHERE id = ?').get(req.params.id) as DeadlineRow | undefined;
+router.get('/:id', optionalAuth, async (req, res) => {
+  const result = await getDb().query('SELECT * FROM deadlines WHERE id = $1', [req.params.id]);
+  const row = result.rows[0] as DeadlineRow | undefined;
   if (!row) {
     apiError(res, 'Deadline not found', 404);
     return;
@@ -85,8 +99,10 @@ router.get('/:id', optionalAuth, (req, res) => {
 });
 
 // PUT /deadlines/:id
-router.put('/:id', authenticate, validate(updateDeadlineSchema), (req, res) => {
-  const existing = getDb().prepare('SELECT * FROM deadlines WHERE id = ?').get(req.params.id) as DeadlineRow | undefined;
+router.put('/:id', authenticate, validate(updateDeadlineSchema), async (req, res) => {
+  const db = getDb();
+  const existingResult = await db.query('SELECT * FROM deadlines WHERE id = $1', [req.params.id]);
+  const existing = existingResult.rows[0] as DeadlineRow | undefined;
   if (!existing) {
     apiError(res, 'Deadline not found', 404);
     return;
@@ -96,37 +112,40 @@ router.put('/:id', authenticate, validate(updateDeadlineSchema), (req, res) => {
   const now = new Date().toISOString();
   const updates: string[] = [];
   const values: unknown[] = [];
+  let paramIdx = 1;
 
-  if (title !== undefined) { updates.push('title = ?'); values.push(title); }
-  if (description !== undefined) { updates.push('description = ?'); values.push(description); }
-  if (dueDate !== undefined) { updates.push('due_date = ?'); values.push(dueDate); }
-  if (status !== undefined) { updates.push('status = ?'); values.push(status); }
-  if (assignedTo !== undefined) { updates.push('assigned_to = ?'); values.push(assignedTo); }
+  if (title !== undefined) { updates.push(`title = $${paramIdx++}`); values.push(title); }
+  if (description !== undefined) { updates.push(`description = $${paramIdx++}`); values.push(description); }
+  if (dueDate !== undefined) { updates.push(`due_date = $${paramIdx++}`); values.push(dueDate); }
+  if (status !== undefined) { updates.push(`status = $${paramIdx++}`); values.push(status); }
+  if (assignedTo !== undefined) { updates.push(`assigned_to = $${paramIdx++}`); values.push(assignedTo); }
 
   if (updates.length === 0) {
     apiResponse(res, toDeadlineResponse(existing));
     return;
   }
 
-  updates.push('updated_at = ?');
+  updates.push(`updated_at = $${paramIdx++}`);
   values.push(now);
   values.push(req.params.id);
 
-  getDb().prepare(`UPDATE deadlines SET ${updates.join(', ')} WHERE id = ?`).run(...values);
+  await db.query(`UPDATE deadlines SET ${updates.join(', ')} WHERE id = $${paramIdx}`, values);
 
-  const row = getDb().prepare('SELECT * FROM deadlines WHERE id = ?').get(req.params.id) as DeadlineRow;
+  const result = await db.query('SELECT * FROM deadlines WHERE id = $1', [req.params.id]);
+  const row = result.rows[0] as DeadlineRow;
   apiResponse(res, toDeadlineResponse(row));
 });
 
 // DELETE /deadlines/:id
-router.delete('/:id', authenticate, (req, res) => {
-  const existing = getDb().prepare('SELECT id FROM deadlines WHERE id = ?').get(req.params.id);
-  if (!existing) {
+router.delete('/:id', authenticate, async (req, res) => {
+  const db = getDb();
+  const existingResult = await db.query('SELECT id FROM deadlines WHERE id = $1', [req.params.id]);
+  if (!existingResult.rows[0]) {
     apiError(res, 'Deadline not found', 404);
     return;
   }
 
-  getDb().prepare('DELETE FROM deadlines WHERE id = ?').run(req.params.id);
+  await db.query('DELETE FROM deadlines WHERE id = $1', [req.params.id]);
   apiResponse(res, null);
 });
 
