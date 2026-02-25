@@ -40,9 +40,9 @@ describe('Home dashboard', () => {
         const caseLink = screen.getByText('21-CR-10001').closest('a');
         expect(caseLink).toHaveAttribute('href', '/cases/case-1');
 
-        // Judge name should be a link
-        const judgeLink = screen.getByText('Hon. Test Judge').closest('a');
-        expect(judgeLink).toHaveAttribute('href', '/judges/judge-1');
+        // Prosecutor name should be a link
+        const prosecutorLink = screen.getByText('Test Prosecutor').closest('a');
+        expect(prosecutorLink).toHaveAttribute('href', '/attorneys/att-1');
     });
 
     it('renders filter inputs', async () => {
@@ -55,7 +55,6 @@ describe('Home dashboard', () => {
         expect(screen.getByLabelText('Case Number Sequence')).toBeInTheDocument();
         expect(screen.getByLabelText('Attorney Name')).toBeInTheDocument();
         expect(screen.getByLabelText('Firm Name')).toBeInTheDocument();
-        expect(screen.getByLabelText('Judge Name')).toBeInTheDocument();
         expect(screen.getByLabelText('County')).toBeInTheDocument();
     });
 });
