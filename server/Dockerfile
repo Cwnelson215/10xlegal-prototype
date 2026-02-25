@@ -14,7 +14,9 @@ RUN apk add --no-cache curl
 RUN addgroup --system --gid 1001 appgroup && \
     adduser --system --uid 1001 appuser
 COPY --from=builder /app/server/package.json /app/server/package-lock.json ./
-RUN npm ci --omit=dev
+RUN apk add --no-cache python3 make g++ && \
+    npm ci --omit=dev && \
+    apk del python3 make g++
 COPY --from=builder /app/server/dist ./dist
 COPY --from=builder /app/src/data /src/data
 RUN mkdir -p /app/data /app/uploads && chown -R appuser:appgroup /app/data /app/uploads
