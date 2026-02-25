@@ -1,6 +1,7 @@
 import './app.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Link, useNavigate, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
 import type { JSX } from 'react';
 import { Home } from './home/home';
 import { Landing } from './landing/landing';
@@ -54,6 +55,16 @@ function DynamicHeader(): JSX.Element {
 }
 
 function AppContent() {
+    const { isAuthenticated } = useAuth();
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    useEffect(() => {
+        if (!isAuthenticated && location.pathname !== '/') {
+            navigate('/', { replace: true });
+        }
+    }, [isAuthenticated, navigate, location.pathname]);
+
     return (
         <div className="app-container">
             <DynamicHeader />
