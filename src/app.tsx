@@ -1,7 +1,6 @@
 import './app.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { BrowserRouter as Router, Route, Routes, useNavigate, Link } from 'react-router-dom';
-import { useState } from 'react';
+import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import type { JSX } from 'react';
 import { Home } from './home/home';
 import { Landing } from './landing/landing';
@@ -13,26 +12,9 @@ import { FirmProfile } from './profiles/FirmProfile';
 import { AttorneysList } from './profiles/AttorneysList';
 import { FirmsList } from './profiles/FirmsList';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import type { UserRole } from './context/AuthContext';
 
 function DynamicHeader(): JSX.Element {
-    const { user, isAuthenticated, login, logout } = useAuth();
-    const navigate = useNavigate();
-    const [headerEmail, setHeaderEmail] = useState('');
-    const [headerPassword, setHeaderPassword] = useState('');
-    const [headerRole, setHeaderRole] = useState<UserRole>('client');
-
-    const handleHeaderLogin = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (headerEmail && headerPassword) {
-            try {
-                await login(headerEmail, headerPassword, headerRole);
-                navigate('/dashboard');
-            } catch {
-                // login failed — AuthContext already sets the error state
-            }
-        }
-    };
+    const { user, isAuthenticated, logout } = useAuth();
 
     return (
         <header className="app-header">
@@ -63,40 +45,7 @@ function DynamicHeader(): JSX.Element {
                     </>
                 ) : (
                     <div className="header-actions">
-                        <form className="header-login-form" onSubmit={handleHeaderLogin}>
-                            <input
-                                type="email"
-                                placeholder="Email"
-                                value={headerEmail}
-                                onChange={(e) => setHeaderEmail(e.target.value)}
-                                className="header-login-input"
-                                required
-                            />
-                            <input
-                                type="password"
-                                placeholder="Password"
-                                value={headerPassword}
-                                onChange={(e) => setHeaderPassword(e.target.value)}
-                                className="header-login-input"
-                                required
-                            />
-                            <select
-                                value={headerRole ?? 'client'}
-                                onChange={(e) => setHeaderRole(e.target.value as UserRole)}
-                                className="header-role-select"
-                            >
-                                <option value="client">Client</option>
-                                <option value="lawyer">Lawyer</option>
-                                <option value="legal-official">Legal Official</option>
-                            </select>
-                            <button type="submit" className="header-signin-btn">Sign In</button>
-                        </form>
-                        <button
-                            className="header-register-btn"
-                            onClick={() => navigate('/?register=true')}
-                        >
-                            Register
-                        </button>
+                        <Link to="/" className="nav-link">Sign In</Link>
                     </div>
                 )}
             </div>
