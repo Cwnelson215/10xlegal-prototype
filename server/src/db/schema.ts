@@ -86,6 +86,10 @@ export async function runSchema(): Promise<void> {
       sentence TEXT NOT NULL DEFAULT '',
       conviction_outcome TEXT NOT NULL DEFAULT '',
       conviction_date TEXT NOT NULL DEFAULT '',
+      court_district TEXT NOT NULL DEFAULT '',
+      court_location TEXT NOT NULL DEFAULT '',
+      filing_date TEXT NOT NULL DEFAULT '',
+      disposition_date TEXT NOT NULL DEFAULT '',
       created_at TEXT NOT NULL DEFAULT NOW(),
       updated_at TEXT NOT NULL DEFAULT NOW()
     )
@@ -132,12 +136,24 @@ export async function runSchema(): Promise<void> {
     )
   `);
 
-  // Migrate: add conviction columns if missing (for existing databases)
+  // Migrate: add columns if missing (for existing databases)
   await pool.query(`
     ALTER TABLE cases ADD COLUMN IF NOT EXISTS conviction_outcome TEXT NOT NULL DEFAULT ''
   `);
   await pool.query(`
     ALTER TABLE cases ADD COLUMN IF NOT EXISTS conviction_date TEXT NOT NULL DEFAULT ''
+  `);
+  await pool.query(`
+    ALTER TABLE cases ADD COLUMN IF NOT EXISTS court_district TEXT NOT NULL DEFAULT ''
+  `);
+  await pool.query(`
+    ALTER TABLE cases ADD COLUMN IF NOT EXISTS court_location TEXT NOT NULL DEFAULT ''
+  `);
+  await pool.query(`
+    ALTER TABLE cases ADD COLUMN IF NOT EXISTS filing_date TEXT NOT NULL DEFAULT ''
+  `);
+  await pool.query(`
+    ALTER TABLE cases ADD COLUMN IF NOT EXISTS disposition_date TEXT NOT NULL DEFAULT ''
   `);
 
   console.log('Database schema initialized');

@@ -29,6 +29,10 @@ interface FakeCase {
   sentence: string;
   convictionOutcome: string;
   convictionDate: string;
+  courtDistrict: string;
+  courtLocation: string;
+  filingDate: string;
+  dispositionDate: string;
   clientId: string;
 }
 
@@ -64,19 +68,28 @@ export async function seedDatabase(): Promise<void> {
 
   const userCountResult = await pool.query('SELECT COUNT(*)::int as count FROM users');
   if (userCountResult.rows[0]!.count > 0) {
-    // Backfill conviction fields for existing databases
+    // Backfill fields for existing databases
     const casesPath = path.join(dataDir, 'fake-cases.json');
     const existingCases: FakeCase[] = JSON.parse(fs.readFileSync(casesPath, 'utf-8'));
     for (const c of existingCases) {
-      if (c.convictionOutcome || c.convictionDate) {
-        await pool.query(
-          `UPDATE cases SET conviction_outcome = $1, conviction_date = $2
-           WHERE case_number = $3 AND (conviction_outcome = '' OR conviction_outcome IS NULL)`,
-          [c.convictionOutcome || '', c.convictionDate || '', c.caseNumber]
-        );
-      }
+      await pool.query(
+        `UPDATE cases SET
+           conviction_outcome = CASE WHEN conviction_outcome = '' OR conviction_outcome IS NULL THEN $1 ELSE conviction_outcome END,
+           conviction_date = CASE WHEN conviction_date = '' OR conviction_date IS NULL THEN $2 ELSE conviction_date END,
+           court_district = CASE WHEN court_district = '' OR court_district IS NULL THEN $3 ELSE court_district END,
+           court_location = CASE WHEN court_location = '' OR court_location IS NULL THEN $4 ELSE court_location END,
+           filing_date = CASE WHEN filing_date = '' OR filing_date IS NULL THEN $5 ELSE filing_date END,
+           disposition_date = CASE WHEN disposition_date = '' OR disposition_date IS NULL THEN $6 ELSE disposition_date END
+         WHERE case_number = $7`,
+        [
+          c.convictionOutcome || '', c.convictionDate || '',
+          c.courtDistrict || '', c.courtLocation || '',
+          c.filingDate || '', c.dispositionDate || '',
+          c.caseNumber
+        ]
+      );
     }
-    console.log('Database already seeded, backfilled conviction fields');
+    console.log('Database already seeded, backfilled missing fields');
     return;
   }
 
@@ -202,8 +215,9 @@ export async function seedDatabase(): Promise<void> {
           county, judge, judge_id, prosecution_attorney, prosecution_attorney_id,
           prosecution_firm, prosecution_firm_id, defense_attorney, defense_attorney_id,
           defense_firm, defense_firm_id, charge, court_date, ruling, sentence,
-          conviction_outcome, conviction_date, created_at, updated_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26)`,
+          conviction_outcome, conviction_date, court_district, court_location,
+          filing_date, disposition_date, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30)`,
         [
           id, title, description, status, c.caseNumber, c.clientId, '',
           c.county, c.judge, judgeId,
@@ -212,7 +226,9 @@ export async function seedDatabase(): Promise<void> {
           c.defenseAttorney, defAttId,
           c.defenseFirm, defFirmId,
           c.charge, c.courtDate, c.ruling, c.sentence,
-          c.convictionOutcome || '', c.convictionDate || '', now, now,
+          c.convictionOutcome || '', c.convictionDate || '',
+          c.courtDistrict || '', c.courtLocation || '',
+          c.filingDate || '', c.dispositionDate || '', now, now,
         ]
       );
     }
