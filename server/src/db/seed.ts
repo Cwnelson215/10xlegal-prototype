@@ -71,10 +71,10 @@ export async function seedDatabase(): Promise<void> {
   const forceReseed = process.env.FORCE_RESEED === 'true';
 
   if (usersExist && !forceReseed) {
-    // Check if cases need reseeding: stale data (empty conviction fields) OR no cases at all
+    // Check if cases need reseeding: stale data (empty/invalid conviction fields) OR no cases at all
     const caseCheck = await pool.query(
       `SELECT COUNT(*)::int as total,
-              COUNT(*) FILTER (WHERE conviction_outcome = '' OR conviction_outcome IS NULL)::int as stale
+              COUNT(*) FILTER (WHERE conviction_outcome NOT IN ('Guilty', 'Not Guilty'))::int as stale
        FROM cases`
     );
     const { total, stale } = caseCheck.rows[0]!;
