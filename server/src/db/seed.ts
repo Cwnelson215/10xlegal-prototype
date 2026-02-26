@@ -68,7 +68,9 @@ export async function seedDatabase(): Promise<void> {
   const userCountResult = await pool.query('SELECT COUNT(*)::int as count FROM users');
   const usersExist = userCountResult.rows[0]!.count > 0;
 
-  if (usersExist) {
+  const forceReseed = process.env.FORCE_RESEED === 'true';
+
+  if (usersExist && !forceReseed) {
     // Check if cases need reseeding: stale data (empty conviction fields) OR no cases at all
     const caseCheck = await pool.query(
       `SELECT COUNT(*)::int as total,
@@ -83,6 +85,8 @@ export async function seedDatabase(): Promise<void> {
       console.log('Database already seeded with current data');
       return;
     }
+  } else if (forceReseed) {
+    console.log('FORCE_RESEED enabled, reseeding database...');
   }
 
   console.log('Seeding database...');
