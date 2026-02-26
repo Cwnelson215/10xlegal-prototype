@@ -169,21 +169,6 @@ export interface LawFirm {
     updatedAt: string;
 }
 
-// Team Types
-export interface TeamMember {
-    id: string;
-    userId: string;
-    name: string;
-    email: string;
-    role: UserRole;
-    joinedAt: string;
-}
-
-export interface AddTeamMemberRequest {
-    email: string;
-    role: UserRole;
-}
-
 // API Response Types
 export interface ApiResponse<T> {
     success: boolean;

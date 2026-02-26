@@ -4,7 +4,6 @@ import { usersRoutes } from './users.routes.js';
 import { casesRoutes } from './cases.routes.js';
 import { deadlinesRoutes } from './deadlines.routes.js';
 import { documentsRoutes } from './documents.routes.js';
-import { teamRoutes } from './team.routes.js';
 import { attorneysRoutes } from './attorneys.routes.js';
 import { firmsRoutes } from './firms.routes.js';
 import { getDb } from '../db/connection.js';
@@ -34,7 +33,6 @@ router.use('/users', usersRoutes);
 router.use('/cases', casesRoutes);
 router.use('/deadlines', deadlinesRoutes);
 router.use('/documents', documentsRoutes);
-router.use('/team', teamRoutes);
 router.use('/attorneys', attorneysRoutes);
 router.use('/firms', firmsRoutes);
 

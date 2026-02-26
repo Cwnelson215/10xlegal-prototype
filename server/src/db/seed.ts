@@ -105,7 +105,7 @@ export async function seedDatabase(): Promise<void> {
       await client.query('DELETE FROM law_firms');
     }
 
-    // Seed users and team members only on fresh database
+    // Seed users only on fresh database
     if (!usersExist) {
       const hashedPassword = bcryptjs.hashSync('password123', 10);
       const usersPath = path.join(dataDir, 'fake-users.json');
@@ -119,15 +119,6 @@ export async function seedDatabase(): Promise<void> {
         );
       }
       console.log(`  Seeded ${users.length} users`);
-
-      for (const u of users) {
-        await client.query(
-          `INSERT INTO team_members (id, user_id, name, email, role, joined_at)
-           VALUES ($1, $2, $3, $4, $5, $6)`,
-          [uuidv4(), u.id, u.name, u.email, u.role, now]
-        );
-      }
-      console.log(`  Seeded ${users.length} team members`);
     }
 
     // Load cases to extract entities

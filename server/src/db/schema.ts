@@ -114,17 +114,6 @@ export async function runSchema(): Promise<void> {
     )
   `);
 
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS team_members (
-      id TEXT PRIMARY KEY,
-      user_id TEXT NOT NULL,
-      name TEXT NOT NULL,
-      email TEXT NOT NULL,
-      role TEXT NOT NULL CHECK(role IN ('client', 'lawyer', 'legal-official')),
-      joined_at TEXT NOT NULL DEFAULT NOW()
-    )
-  `);
-
   // Migrate: add columns if missing (for existing databases)
   await pool.query(`
     ALTER TABLE cases ADD COLUMN IF NOT EXISTS conviction_outcome TEXT NOT NULL DEFAULT ''
@@ -149,6 +138,7 @@ export async function runSchema(): Promise<void> {
   await pool.query(`ALTER TABLE cases DROP COLUMN IF EXISTS judge`);
   await pool.query(`ALTER TABLE cases DROP COLUMN IF EXISTS judge_id`);
   await pool.query(`DROP TABLE IF EXISTS judges`);
+  await pool.query(`DROP TABLE IF EXISTS team_members`);
 
   console.log('Database schema initialized');
 }

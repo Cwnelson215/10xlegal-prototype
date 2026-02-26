@@ -128,15 +128,7 @@ export async function setupTestDb(): Promise<pg.Pool> {
       updated_at TEXT NOT NULL DEFAULT NOW()
     );
 
-    CREATE TABLE team_members (
-      id TEXT PRIMARY KEY,
-      user_id TEXT NOT NULL,
-      name TEXT NOT NULL,
-      email TEXT NOT NULL,
-      role TEXT NOT NULL,
-      joined_at TEXT NOT NULL DEFAULT NOW()
-    );
-  `);
+`);
 
   return testPool;
 }

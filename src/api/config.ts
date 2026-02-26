@@ -60,12 +60,4 @@ export const API_ENDPOINTS = {
         GET: (id: string) => `/firms/${id}`,
     },
 
-    // Team endpoints
-    TEAM: {
-        LIST: '/team',
-        ADD_MEMBER: '/team/members',
-        GET_MEMBER: (id: string) => `/team/members/${id}`,
-        UPDATE_MEMBER: (id: string) => `/team/members/${id}`,
-        REMOVE_MEMBER: (id: string) => `/team/members/${id}`,
-    },
 };
