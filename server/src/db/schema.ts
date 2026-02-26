@@ -145,5 +145,10 @@ export async function runSchema(): Promise<void> {
     ALTER TABLE cases ADD COLUMN IF NOT EXISTS disposition_date TEXT NOT NULL DEFAULT ''
   `);
 
+  // Migrate: drop judge remnants from existing databases
+  await pool.query(`ALTER TABLE cases DROP COLUMN IF EXISTS judge`);
+  await pool.query(`ALTER TABLE cases DROP COLUMN IF EXISTS judge_id`);
+  await pool.query(`DROP TABLE IF EXISTS judges`);
+
   console.log('Database schema initialized');
 }

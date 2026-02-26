@@ -66,52 +66,58 @@ export async function seedDatabase(): Promise<void> {
   const pool = getDb();
 
   const userCountResult = await pool.query('SELECT COUNT(*)::int as count FROM users');
-  if (userCountResult.rows[0]!.count > 0) {
-    // Backfill fields for existing databases
-    const casesPath = path.join(dataDir, 'fake-cases.json');
-    const existingCases: FakeCase[] = JSON.parse(fs.readFileSync(casesPath, 'utf-8'));
-    for (const c of existingCases) {
-      await pool.query(
-        `UPDATE cases SET
-           conviction_outcome = CASE WHEN conviction_outcome = '' OR conviction_outcome IS NULL THEN $1 ELSE conviction_outcome END,
-           conviction_date = CASE WHEN conviction_date = '' OR conviction_date IS NULL THEN $2 ELSE conviction_date END,
-           court_district = CASE WHEN court_district = '' OR court_district IS NULL THEN $3 ELSE court_district END,
-           court_location = CASE WHEN court_location = '' OR court_location IS NULL THEN $4 ELSE court_location END,
-           filing_date = CASE WHEN filing_date = '' OR filing_date IS NULL THEN $5 ELSE filing_date END,
-           disposition_date = CASE WHEN disposition_date = '' OR disposition_date IS NULL THEN $6 ELSE disposition_date END
-         WHERE case_number = $7`,
-        [
-          c.convictionOutcome || '', c.convictionDate || '',
-          c.courtDistrict || '', c.courtLocation || '',
-          c.filingDate || '', c.dispositionDate || '',
-          c.caseNumber
-        ]
-      );
+  const usersExist = userCountResult.rows[0]!.count > 0;
+
+  if (usersExist) {
+    // Check if cases need reseeding (conviction fields empty = stale data)
+    const staleCheck = await pool.query(
+      `SELECT COUNT(*)::int as count FROM cases WHERE conviction_outcome = '' OR conviction_outcome IS NULL`
+    );
+    if (staleCheck.rows[0]!.count > 0) {
+      console.log('Detected stale case data, reseeding...');
+      await pool.query('DELETE FROM deadlines');
+      await pool.query('DELETE FROM cases');
+      await pool.query('DELETE FROM attorneys');
+      await pool.query('DELETE FROM law_firms');
+      // Fall through to case seeding below
+    } else {
+      console.log('Database already seeded with current data');
+      return;
     }
-    console.log('Database already seeded, backfilled missing fields');
-    return;
   }
 
   console.log('Seeding database...');
-  const hashedPassword = bcryptjs.hashSync('password123', 10);
 
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
 
-    // Seed users
-    const usersPath = path.join(dataDir, 'fake-users.json');
-    const users: FakeUser[] = JSON.parse(fs.readFileSync(usersPath, 'utf-8'));
     const now = new Date().toISOString();
 
-    for (const u of users) {
-      await client.query(
-        `INSERT INTO users (id, name, email, password, role, created_at, updated_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-        [u.id, u.name, u.email, hashedPassword, u.role, now, now]
-      );
+    // Seed users and team members only on fresh database
+    if (!usersExist) {
+      const hashedPassword = bcryptjs.hashSync('password123', 10);
+      const usersPath = path.join(dataDir, 'fake-users.json');
+      const users: FakeUser[] = JSON.parse(fs.readFileSync(usersPath, 'utf-8'));
+
+      for (const u of users) {
+        await client.query(
+          `INSERT INTO users (id, name, email, password, role, created_at, updated_at)
+           VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+          [u.id, u.name, u.email, hashedPassword, u.role, now, now]
+        );
+      }
+      console.log(`  Seeded ${users.length} users`);
+
+      for (const u of users) {
+        await client.query(
+          `INSERT INTO team_members (id, user_id, name, email, role, joined_at)
+           VALUES ($1, $2, $3, $4, $5, $6)`,
+          [uuidv4(), u.id, u.name, u.email, u.role, now]
+        );
+      }
+      console.log(`  Seeded ${users.length} team members`);
     }
-    console.log(`  Seeded ${users.length} users`);
 
     // Load cases to extract entities
     const casesPath = path.join(dataDir, 'fake-cases.json');
@@ -229,16 +235,6 @@ export async function seedDatabase(): Promise<void> {
       );
     }
     console.log(`  Seeded ${deadlines.length} deadlines`);
-
-    // Seed team members from users
-    for (const u of users) {
-      await client.query(
-        `INSERT INTO team_members (id, user_id, name, email, role, joined_at)
-         VALUES ($1, $2, $3, $4, $5, $6)`,
-        [uuidv4(), u.id, u.name, u.email, u.role, now]
-      );
-    }
-    console.log(`  Seeded ${users.length} team members`);
 
     await client.query('COMMIT');
   } catch (err) {
