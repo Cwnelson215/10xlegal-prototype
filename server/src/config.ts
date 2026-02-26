@@ -21,6 +21,7 @@ function buildDatabaseConfig(): pg.PoolConfig {
     database: process.env.DB_NAME || '10xlegal',
     user: process.env.DB_USER || 'postgres',
     password: process.env.DB_PASSWORD || 'postgres',
+    ssl: isProduction ? { rejectUnauthorized: false } : false,
   };
 }
 
