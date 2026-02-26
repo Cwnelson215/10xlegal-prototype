@@ -116,15 +116,6 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Deploy Infrastructure
-        uses: pulumi/actions@v5
-        with:
-          command: up
-          stack-name: 10xlegal-server-dev
-          work-dir: .
-        env:
-          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-
       - name: Get ECR Repository URL
         id: ecr-url
         env:
@@ -143,12 +134,13 @@ jobs:
           docker push $ECR_URL:$IMAGE_TAG
           docker push $ECR_URL:latest
 
-      - name: Force ECS Service Update
-        run: |
-          aws ecs update-service \
-            --cluster portfolio-dev-cluster \
-            --service 10xlegal-server \
-            --force-new-deployment
+      - name: Deploy Infrastructure
+        uses: pulumi/actions@v5
+        with:
+          command: up
+          stack-name: 10xlegal-server-dev
+          work-dir: .
+          config-map: '{"10xlegal-server-dev:imageTag":{"value":"${{ github.sha }}"}}'
 
       - name: Output App URL
         env:

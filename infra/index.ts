@@ -14,6 +14,7 @@ const cpu = parseInt(config.get("cpu") || "256");
 const memory = parseInt(config.get("memory") || "512");
 const desiredCount = parseInt(config.get("desiredCount") || "1");
 const containerPort = parseInt(config.get("containerPort") || "3000");
+const imageTag = config.get("imageTag") || "latest";
 const useFargateSpot = config.getBoolean("useFargateSpot") ?? true;
 
 // App-specific secrets
@@ -185,7 +186,7 @@ const taskDefinition = new aws.ecs.TaskDefinition(`${appName}-task`, {
 
       return JSON.stringify([{
         name: appName,
-        image: `${repoUrl}:latest`,
+        image: `${repoUrl}:${imageTag}`,
         essential: true,
         portMappings: [{ containerPort, protocol: "tcp" }],
         environment: env,
