@@ -11,7 +11,7 @@ const start = async () => {
   await seedDatabase();
 
   app.listen(config.port, () => {
-    logger.info(`Server running on http://localhost:${config.port}`);
+    logger.info(`Server running on port ${config.port}`);
     logger.info(`API available at http://localhost:${config.port}/api`);
   });
 };
