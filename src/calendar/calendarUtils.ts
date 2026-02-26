@@ -31,7 +31,7 @@ export function buildCalendarEvents(
             title: `Court: ${c.caseNumber}`,
             type: 'court-date',
             caseNumber: c.caseNumber,
-            detail: `${c.charge} — ${c.county} County — Judge ${c.judge}`,
+            detail: `${c.charge} — ${c.county} County`,
         });
 
         if (c.filingDate) {

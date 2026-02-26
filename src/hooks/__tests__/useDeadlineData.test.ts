@@ -32,8 +32,14 @@ describe('useDeadlineData', () => {
         });
 
         const first = result.current.allDeadlines[0]!;
+        expect(first.id).toBe('dl-1');
         expect(first.title).toBe('Filing Deadline');
+        expect(first.description).toBe('File motion');
+        expect(first.dueDate).toBe('2026-07-01');
+        expect(first.caseId).toBe('case-1');
         expect(first.caseNumber).toBe('21-CR-10001');
+        expect(first.assignedTo).toBe('Test Defender');
         expect(first.status).toBe('pending');
+        expect(first.clientId).toBe('client-1');
     });
 });

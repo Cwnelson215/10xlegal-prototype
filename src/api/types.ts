@@ -59,7 +59,6 @@ export interface Case {
     clientId: string;
     lawyerId: string;
     county: string;
-    judge: string;
     prosecutionAttorney: string;
     prosecutionFirm: string;
     defenseAttorney: string;
@@ -74,7 +73,6 @@ export interface Case {
     convictionDate: string;
     ruling: string;
     sentence: string;
-    judgeId?: string;
     prosecutionAttorneyId?: string;
     defenseAttorneyId?: string;
     prosecutionFirmId?: string;

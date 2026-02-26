@@ -33,19 +33,6 @@ const counties = [
   'Weber',
 ];
 
-const judges = [
-  'Hon. Amelia Grant',
-  'Hon. Marcus Keller',
-  'Hon. Natalie Rowe',
-  'Hon. Daniel Rivas',
-  'Hon. Priya Desai',
-  'Hon. Benjamin Holt',
-  'Hon. Elise Ward',
-  'Hon. Peter Caldwell',
-  'Hon. Tessa Nguyen',
-  'Hon. Julian Park',
-];
-
 const prosecutionAttorneys = [
   'Alexandra Pierce',
   'Jordan Hayes',
@@ -220,7 +207,6 @@ const generateCase = (usedNumbers, usedSequences) => {
     county,
     courtDistrict: districtInfo.district,
     courtLocation: districtInfo.location,
-    judge: randomFrom(judges),
     prosecutionAttorney: randomFrom(prosecutionAttorneys),
     prosecutionFirm: randomFrom(prosecutionFirms),
     defenseAttorney: randomFrom(defenseAttorneys),

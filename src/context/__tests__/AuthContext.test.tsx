@@ -36,7 +36,9 @@ describe('AuthContext', () => {
         });
 
         expect(result.current.isAuthenticated).toBe(true);
+        expect(result.current.user?.id).toBe('user-1');
         expect(result.current.user?.name).toBe('Test User');
+        expect(result.current.user?.email).toBe('test@example.com');
         expect(result.current.user?.role).toBe('legal-official');
     });
 

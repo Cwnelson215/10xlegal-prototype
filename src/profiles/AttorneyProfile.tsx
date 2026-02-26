@@ -68,7 +68,6 @@ export function AttorneyProfile() {
                                     <th>County</th>
                                     <th>Court Date</th>
                                     <th>Ruling</th>
-                                    <th>Judge</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -79,11 +78,6 @@ export function AttorneyProfile() {
                                         <td>{c.county}</td>
                                         <td>{c.courtDate}</td>
                                         <td>{c.ruling}</td>
-                                        <td>
-                                            {c.judgeId
-                                                ? <Link to={`/judges/${c.judgeId}`}>{c.judge}</Link>
-                                                : c.judge}
-                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
