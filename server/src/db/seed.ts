@@ -69,17 +69,16 @@ export async function seedDatabase(): Promise<void> {
   const usersExist = userCountResult.rows[0]!.count > 0;
 
   if (usersExist) {
-    // Check if cases need reseeding (conviction fields empty = stale data)
-    const staleCheck = await pool.query(
-      `SELECT COUNT(*)::int as count FROM cases WHERE conviction_outcome = '' OR conviction_outcome IS NULL`
+    // Check if cases need reseeding: stale data (empty conviction fields) OR no cases at all
+    const caseCheck = await pool.query(
+      `SELECT COUNT(*)::int as total,
+              COUNT(*) FILTER (WHERE conviction_outcome = '' OR conviction_outcome IS NULL)::int as stale
+       FROM cases`
     );
-    if (staleCheck.rows[0]!.count > 0) {
-      console.log('Detected stale case data, reseeding...');
-      await pool.query('DELETE FROM deadlines');
-      await pool.query('DELETE FROM cases');
-      await pool.query('DELETE FROM attorneys');
-      await pool.query('DELETE FROM law_firms');
-      // Fall through to case seeding below
+    const { total, stale } = caseCheck.rows[0]!;
+    if (total === 0 || stale > 0) {
+      console.log('Detected stale/missing case data, reseeding...');
+      // DELETEs happen inside the transaction below
     } else {
       console.log('Database already seeded with current data');
       return;
@@ -93,6 +92,14 @@ export async function seedDatabase(): Promise<void> {
     await client.query('BEGIN');
 
     const now = new Date().toISOString();
+
+    if (usersExist) {
+      // Clean out stale data inside the transaction so rollback is safe
+      await client.query('DELETE FROM deadlines');
+      await client.query('DELETE FROM cases');
+      await client.query('DELETE FROM attorneys');
+      await client.query('DELETE FROM law_firms');
+    }
 
     // Seed users and team members only on fresh database
     if (!usersExist) {
