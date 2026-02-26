@@ -31,6 +31,8 @@ interface CaseRow {
   court_date: string;
   ruling: string;
   sentence: string;
+  conviction_outcome: string;
+  conviction_date: string;
   created_at: string;
   updated_at: string;
 }
@@ -59,6 +61,8 @@ function toCaseResponse(row: CaseRow) {
     courtDate: row.court_date,
     ruling: row.ruling,
     sentence: row.sentence,
+    convictionOutcome: row.conviction_outcome,
+    convictionDate: row.conviction_date,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };

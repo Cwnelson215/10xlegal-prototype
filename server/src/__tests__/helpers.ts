@@ -96,6 +96,8 @@ export async function setupTestDb(): Promise<pg.Pool> {
       court_date TEXT NOT NULL DEFAULT '',
       ruling TEXT NOT NULL DEFAULT '',
       sentence TEXT NOT NULL DEFAULT '',
+      conviction_outcome TEXT NOT NULL DEFAULT '',
+      conviction_date TEXT NOT NULL DEFAULT '',
       created_at TEXT NOT NULL DEFAULT NOW(),
       updated_at TEXT NOT NULL DEFAULT NOW()
     );
@@ -173,8 +175,8 @@ export async function seedTestCase(judgeId?: string) {
   const id = uuidv4();
   const now = new Date().toISOString();
   await testPool.query(`
-    INSERT INTO cases (id, title, description, status, case_number, client_id, county, judge, judge_id, charge, court_date, ruling, sentence, created_at, updated_at)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
-  `, [id, 'Test Case', 'Description', 'active', `21-CR-${Math.floor(Math.random() * 99999)}`, 'client-1', 'Salt Lake', 'Hon. Test Judge', judgeId ?? null, 'Test Charge', '2026-06-15', 'Pending', '', now, now]);
+    INSERT INTO cases (id, title, description, status, case_number, client_id, county, judge, judge_id, charge, court_date, ruling, sentence, conviction_outcome, conviction_date, created_at, updated_at)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+  `, [id, 'Test Case', 'Description', 'active', `21-CR-${Math.floor(Math.random() * 99999)}`, 'client-1', 'Salt Lake', 'Hon. Test Judge', judgeId ?? null, 'Test Charge', '2026-06-15', 'Pending', '', 'Guilty', '2026-06-20', now, now]);
   return id;
 }

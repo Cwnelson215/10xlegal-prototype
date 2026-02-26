@@ -84,6 +84,8 @@ export async function runSchema(): Promise<void> {
       court_date TEXT NOT NULL DEFAULT '',
       ruling TEXT NOT NULL DEFAULT '',
       sentence TEXT NOT NULL DEFAULT '',
+      conviction_outcome TEXT NOT NULL DEFAULT '',
+      conviction_date TEXT NOT NULL DEFAULT '',
       created_at TEXT NOT NULL DEFAULT NOW(),
       updated_at TEXT NOT NULL DEFAULT NOW()
     )
@@ -128,6 +130,14 @@ export async function runSchema(): Promise<void> {
       role TEXT NOT NULL CHECK(role IN ('client', 'lawyer', 'legal-official')),
       joined_at TEXT NOT NULL DEFAULT NOW()
     )
+  `);
+
+  // Migrate: add conviction columns if missing (for existing databases)
+  await pool.query(`
+    ALTER TABLE cases ADD COLUMN IF NOT EXISTS conviction_outcome TEXT NOT NULL DEFAULT ''
+  `);
+  await pool.query(`
+    ALTER TABLE cases ADD COLUMN IF NOT EXISTS conviction_date TEXT NOT NULL DEFAULT ''
   `);
 
   console.log('Database schema initialized');

@@ -27,6 +27,8 @@ interface FakeCase {
   courtDate: string;
   ruling: string;
   sentence: string;
+  convictionOutcome: string;
+  convictionDate: string;
   clientId: string;
 }
 
@@ -62,7 +64,19 @@ export async function seedDatabase(): Promise<void> {
 
   const userCountResult = await pool.query('SELECT COUNT(*)::int as count FROM users');
   if (userCountResult.rows[0]!.count > 0) {
-    console.log('Database already seeded, skipping');
+    // Backfill conviction fields for existing databases
+    const casesPath = path.join(dataDir, 'fake-cases.json');
+    const existingCases: FakeCase[] = JSON.parse(fs.readFileSync(casesPath, 'utf-8'));
+    for (const c of existingCases) {
+      if (c.convictionOutcome || c.convictionDate) {
+        await pool.query(
+          `UPDATE cases SET conviction_outcome = $1, conviction_date = $2
+           WHERE case_number = $3 AND conviction_outcome = ''`,
+          [c.convictionOutcome || '', c.convictionDate || '', c.caseNumber]
+        );
+      }
+    }
+    console.log('Database already seeded, backfilled conviction fields');
     return;
   }
 
@@ -187,8 +201,9 @@ export async function seedDatabase(): Promise<void> {
         `INSERT INTO cases (id, title, description, status, case_number, client_id, lawyer_id,
           county, judge, judge_id, prosecution_attorney, prosecution_attorney_id,
           prosecution_firm, prosecution_firm_id, defense_attorney, defense_attorney_id,
-          defense_firm, defense_firm_id, charge, court_date, ruling, sentence, created_at, updated_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24)`,
+          defense_firm, defense_firm_id, charge, court_date, ruling, sentence,
+          conviction_outcome, conviction_date, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26)`,
         [
           id, title, description, status, c.caseNumber, c.clientId, '',
           c.county, c.judge, judgeId,
@@ -196,7 +211,8 @@ export async function seedDatabase(): Promise<void> {
           c.prosecutionFirm, prosFirmId,
           c.defenseAttorney, defAttId,
           c.defenseFirm, defFirmId,
-          c.charge, c.courtDate, c.ruling, c.sentence, now, now,
+          c.charge, c.courtDate, c.ruling, c.sentence,
+          c.convictionOutcome || '', c.convictionDate || '', now, now,
         ]
       );
     }

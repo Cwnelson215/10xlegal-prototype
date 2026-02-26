@@ -104,6 +104,8 @@ describe('Cases routes', () => {
       const body = await res.json() as any;
       expect(body.success).toBe(true);
       expect(body.data.id).toBe(caseId);
+      expect(body.data.convictionOutcome).toBe('Guilty');
+      expect(body.data.convictionDate).toBe('2026-06-20');
     });
 
     it('returns 404 for nonexistent case', async () => {
