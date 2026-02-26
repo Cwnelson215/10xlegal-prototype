@@ -199,7 +199,7 @@ const generateCase = (usedNumbers, usedSequences) => {
     : null;
 
   const isConvicted = ['Guilty', 'Plea Deal'].includes(ruling);
-  const convictionOutcome = isConvicted ? 'Guilty' : 'N/A';
+  const convictionOutcome = isConvicted ? 'Guilty' : ruling === 'Not Guilty' ? 'Not Guilty' : 'N/A';
   const convictionDate = isConvicted && dispositionDate ? dispositionDate : null;
 
   return {
