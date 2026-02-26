@@ -156,6 +156,7 @@ const containerEnv = [
   { name: "NODE_ENV", value: "production" },
   { name: "PORT", value: containerPort.toString() },
   { name: "FRONTEND_URL", value: "https://10x.cwnel.com" },
+  { name: "IMAGE_TAG", value: imageTag },
 ];
 
 const taskDefinition = new aws.ecs.TaskDefinition(`${appName}-task`, {

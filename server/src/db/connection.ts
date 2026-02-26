@@ -6,9 +6,7 @@ const { Pool } = pg;
 let pool: pg.Pool;
 
 export async function initDb(): Promise<void> {
-  pool = new Pool({
-    connectionString: config.databaseUrl,
-  });
+  pool = new Pool(config.databaseConfig);
 
   // Verify connectivity
   const client = await pool.connect();

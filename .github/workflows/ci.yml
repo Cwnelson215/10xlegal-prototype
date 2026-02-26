@@ -140,7 +140,14 @@ jobs:
           command: up
           stack-name: 10xlegal-server-dev
           work-dir: .
-          config-map: '{"10xlegal-server-dev:imageTag":{"value":"${{ github.sha }}"}}'
+          config-map: '{"10xlegal-server:imageTag":{"value":"${{ github.sha }}"}}'
+
+      - name: Force ECS Service Update
+        run: |
+          aws ecs update-service \
+            --cluster portfolio-dev-cluster \
+            --service 10xlegal-server \
+            --force-new-deployment
 
       - name: Output App URL
         env:
