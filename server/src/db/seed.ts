@@ -71,7 +71,7 @@ export async function seedDatabase(): Promise<void> {
       if (c.convictionOutcome || c.convictionDate) {
         await pool.query(
           `UPDATE cases SET conviction_outcome = $1, conviction_date = $2
-           WHERE case_number = $3 AND conviction_outcome = ''`,
+           WHERE case_number = $3 AND (conviction_outcome = '' OR conviction_outcome IS NULL)`,
           [c.convictionOutcome || '', c.convictionDate || '', c.caseNumber]
         );
       }
