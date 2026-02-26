@@ -22,6 +22,18 @@ const users = [
     email: 'maria.gonzalez@example.com',
     role: 'client',
   },
+  {
+    id: 'client-4',
+    name: 'David Park',
+    email: 'david.park@example.com',
+    role: 'client',
+  },
+  {
+    id: 'client-5',
+    name: 'Angela Torres',
+    email: 'angela.torres@example.com',
+    role: 'client',
+  },
   // Lawyers (5) — names match defense/prosecution attorneys in fake-cases.json
   {
     id: 'lawyer-1',

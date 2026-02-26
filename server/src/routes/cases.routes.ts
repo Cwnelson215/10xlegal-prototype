@@ -17,8 +17,6 @@ interface CaseRow {
   client_id: string;
   lawyer_id: string;
   county: string;
-  judge: string;
-  judge_id: string | null;
   prosecution_attorney: string;
   prosecution_attorney_id: string | null;
   prosecution_firm: string;
@@ -51,8 +49,6 @@ function toCaseResponse(row: CaseRow) {
     clientId: row.client_id,
     lawyerId: row.lawyer_id,
     county: row.county,
-    judge: row.judge,
-    judgeId: row.judge_id,
     prosecutionAttorney: row.prosecution_attorney,
     prosecutionAttorneyId: row.prosecution_attorney_id,
     prosecutionFirm: row.prosecution_firm,

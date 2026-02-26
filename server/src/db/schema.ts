@@ -31,15 +31,6 @@ export async function runSchema(): Promise<void> {
   `);
 
   await pool.query(`
-    CREATE TABLE IF NOT EXISTS judges (
-      id TEXT PRIMARY KEY,
-      name TEXT NOT NULL UNIQUE,
-      created_at TEXT NOT NULL DEFAULT NOW(),
-      updated_at TEXT NOT NULL DEFAULT NOW()
-    )
-  `);
-
-  await pool.query(`
     CREATE TABLE IF NOT EXISTS law_firms (
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL UNIQUE,
@@ -70,8 +61,6 @@ export async function runSchema(): Promise<void> {
       client_id TEXT NOT NULL,
       lawyer_id TEXT NOT NULL DEFAULT '',
       county TEXT NOT NULL DEFAULT '',
-      judge TEXT NOT NULL DEFAULT '',
-      judge_id TEXT REFERENCES judges(id),
       prosecution_attorney TEXT NOT NULL DEFAULT '',
       prosecution_attorney_id TEXT REFERENCES attorneys(id),
       prosecution_firm TEXT NOT NULL DEFAULT '',

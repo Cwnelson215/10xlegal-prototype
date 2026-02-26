@@ -18,7 +18,6 @@ interface FakeUser {
 interface FakeCase {
   caseNumber: string;
   county: string;
-  judge: string;
   prosecutionAttorney: string;
   prosecutionFirm: string;
   defenseAttorney: string;
@@ -118,22 +117,6 @@ export async function seedDatabase(): Promise<void> {
     const casesPath = path.join(dataDir, 'fake-cases.json');
     const cases: FakeCase[] = JSON.parse(fs.readFileSync(casesPath, 'utf-8'));
 
-    // Extract unique judges
-    const judgeNames = new Set<string>();
-    for (const c of cases) {
-      if (c.judge) judgeNames.add(c.judge);
-    }
-    const judgeNameToId = new Map<string, string>();
-    for (const name of judgeNames) {
-      const id = uuidv4();
-      judgeNameToId.set(name, id);
-      await client.query(
-        `INSERT INTO judges (id, name, created_at, updated_at) VALUES ($1, $2, $3, $4)`,
-        [id, name, now, now]
-      );
-    }
-    console.log(`  Seeded ${judgeNames.size} judges`);
-
     // Extract unique firms (track which side they appear on)
     const firmSides = new Map<string, Set<string>>();
     for (const c of cases) {
@@ -204,7 +187,6 @@ export async function seedDatabase(): Promise<void> {
 
       caseNumberToId.set(c.caseNumber, id);
 
-      const judgeId = judgeNameToId.get(c.judge) ?? null;
       const prosAttId = attorneyKeyToId.get(`prosecution:${c.prosecutionAttorney}`) ?? null;
       const defAttId = attorneyKeyToId.get(`defense:${c.defenseAttorney}`) ?? null;
       const prosFirmId = firmNameToId.get(c.prosecutionFirm) ?? null;
@@ -212,15 +194,15 @@ export async function seedDatabase(): Promise<void> {
 
       await client.query(
         `INSERT INTO cases (id, title, description, status, case_number, client_id, lawyer_id,
-          county, judge, judge_id, prosecution_attorney, prosecution_attorney_id,
+          county, prosecution_attorney, prosecution_attorney_id,
           prosecution_firm, prosecution_firm_id, defense_attorney, defense_attorney_id,
           defense_firm, defense_firm_id, charge, court_date, ruling, sentence,
           conviction_outcome, conviction_date, court_district, court_location,
           filing_date, disposition_date, created_at, updated_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30)`,
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28)`,
         [
           id, title, description, status, c.caseNumber, c.clientId, '',
-          c.county, c.judge, judgeId,
+          c.county,
           c.prosecutionAttorney, prosAttId,
           c.prosecutionFirm, prosFirmId,
           c.defenseAttorney, defAttId,

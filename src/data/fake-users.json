@@ -18,6 +18,18 @@
     "role": "client"
   },
   {
+    "id": "client-4",
+    "name": "David Park",
+    "email": "david.park@example.com",
+    "role": "client"
+  },
+  {
+    "id": "client-5",
+    "name": "Angela Torres",
+    "email": "angela.torres@example.com",
+    "role": "client"
+  },
+  {
     "id": "lawyer-1",
     "name": "Elliot Shaw",
     "email": "elliot.shaw@example.com",
