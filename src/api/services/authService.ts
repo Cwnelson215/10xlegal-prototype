@@ -5,6 +5,7 @@
 
 import apiClient from '../client';
 import { API_ENDPOINTS } from '../config';
+import { mockAuth } from './mockAuth';
 import type {
     LoginRequest,
     RegisterRequest,
@@ -15,35 +16,51 @@ import type {
 
 export const authService = {
     /**
-     * Login user
+     * Login user — falls back to mock auth when backend is unavailable
      */
     async login(credentials: LoginRequest): Promise<AuthResponse> {
-        const response = await apiClient.post<ApiResponse<AuthResponse>>(
-            API_ENDPOINTS.AUTH.LOGIN,
-            credentials
-        );
-        
-        if (response.data?.token) {
-            apiClient.setToken(response.data.token);
+        try {
+            const response = await apiClient.post<ApiResponse<AuthResponse>>(
+                API_ENDPOINTS.AUTH.LOGIN,
+                credentials
+            );
+
+            if (response.data?.token) {
+                apiClient.setToken(response.data.token);
+            }
+
+            return response.data!;
+        } catch {
+            // Backend unavailable — use mock auth
+            const result = mockAuth.login(credentials);
+            apiClient.setToken(result.token);
+            mockAuth.saveUser(result.user);
+            return result;
         }
-        
-        return response.data!;
     },
 
     /**
-     * Register new user
+     * Register new user — falls back to mock auth when backend is unavailable
      */
     async register(data: RegisterRequest): Promise<AuthResponse> {
-        const response = await apiClient.post<ApiResponse<AuthResponse>>(
-            API_ENDPOINTS.AUTH.REGISTER,
-            data
-        );
-        
-        if (response.data?.token) {
-            apiClient.setToken(response.data.token);
+        try {
+            const response = await apiClient.post<ApiResponse<AuthResponse>>(
+                API_ENDPOINTS.AUTH.REGISTER,
+                data
+            );
+
+            if (response.data?.token) {
+                apiClient.setToken(response.data.token);
+            }
+
+            return response.data!;
+        } catch {
+            // Backend unavailable — use mock auth
+            const result = mockAuth.register(data);
+            apiClient.setToken(result.token);
+            mockAuth.saveUser(result.user);
+            return result;
         }
-        
-        return response.data!;
     },
 
     /**
@@ -55,8 +72,11 @@ export const authService = {
                 API_ENDPOINTS.AUTH.LOGOUT,
                 {}
             );
+        } catch {
+            // Backend unavailable — clear locally
         } finally {
             apiClient.clearToken();
+            mockAuth.clearUser();
         }
     },
 
@@ -68,23 +88,28 @@ export const authService = {
             API_ENDPOINTS.AUTH.REFRESH_TOKEN,
             { refreshToken }
         );
-        
+
         if (response.data?.token) {
             apiClient.setToken(response.data.token);
         }
-        
+
         return response.data!;
     },
 
     /**
-     * Verify current token
+     * Verify current token — falls back to mock stored user
      */
     async verifyToken(): Promise<User> {
-        const response = await apiClient.get<ApiResponse<User>>(
-            API_ENDPOINTS.AUTH.VERIFY_TOKEN
-        );
-        
-        return response.data!;
+        try {
+            const response = await apiClient.get<ApiResponse<User>>(
+                API_ENDPOINTS.AUTH.VERIFY_TOKEN
+            );
+            return response.data!;
+        } catch {
+            const user = mockAuth.verifyToken();
+            if (user) return user;
+            throw new Error('No valid session');
+        }
     },
 
     /**
@@ -92,6 +117,7 @@ export const authService = {
      */
     clearToken(): void {
         apiClient.clearToken();
+        mockAuth.clearUser();
     },
 
     /**

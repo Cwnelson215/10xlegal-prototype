@@ -3,7 +3,7 @@
  * TypeScript interfaces for API requests and responses
  */
 
-export type UserRole = 'client' | 'lawyer' | 'legal-official';
+export type UserRole = 'client' | 'lawyer' | 'legal-official' | 'admin';
 
 // Authentication Types
 export interface LoginRequest {
@@ -246,3 +246,57 @@ export const US_STATES = [
     { abbreviation: 'WI', name: 'Wisconsin' },
     { abbreviation: 'WY', name: 'Wyoming' },
 ] as const;
+
+// Admin Types
+export type DataType = 'cases' | 'deadlines' | 'users' | 'attorneys' | 'firms';
+export type ImportFormat = 'json' | 'csv' | 'xlsx';
+
+export interface DataImportResponse {
+    importId: string;
+    dataType: DataType;
+    format: ImportFormat;
+    totalRows: number;
+    importedRows: number;
+    failedRows: number;
+    errors: ImportError[];
+    createdAt: string;
+}
+
+export interface DataImportRecord {
+    id: string;
+    dataType: DataType;
+    format: ImportFormat;
+    fileName: string;
+    totalRows: number;
+    importedRows: number;
+    failedRows: number;
+    status: 'completed' | 'partial' | 'failed';
+    errors: ImportError[];
+    importedBy: string;
+    createdAt: string;
+}
+
+export interface ImportError {
+    row: number;
+    field: string;
+    message: string;
+}
+
+export interface SystemStats {
+    totalCases: number;
+    totalUsers: number;
+    totalAttorneys: number;
+    totalFirms: number;
+    totalDeadlines: number;
+    casesByStatus: Record<string, number>;
+    usersByRole: Record<string, number>;
+}
+
+export interface AuditLogEntry {
+    id: string;
+    action: string;
+    userId: string;
+    userName: string;
+    details: string;
+    createdAt: string;
+}

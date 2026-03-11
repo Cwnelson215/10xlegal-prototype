@@ -60,4 +60,15 @@ export const API_ENDPOINTS = {
         GET: (id: string) => `/firms/${id}`,
     },
 
+
+    // Admin endpoints
+    ADMIN: {
+        UPLOAD_DATA: '/admin/upload',
+        IMPORT_HISTORY: '/admin/imports',
+        USERS: '/admin/users',
+        UPDATE_USER_ROLE: (id: string) => `/admin/users/${id}/role`,
+        SYSTEM_STATS: '/admin/stats',
+        EXPORT_DATA: '/admin/export',
+        AUDIT_LOG: '/admin/audit-log',
+    },
 };

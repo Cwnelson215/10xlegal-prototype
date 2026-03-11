@@ -12,6 +12,8 @@ import { AttorneyProfile } from './profiles/AttorneyProfile';
 import { FirmProfile } from './profiles/FirmProfile';
 import { AttorneysList } from './profiles/AttorneysList';
 import { FirmsList } from './profiles/FirmsList';
+import { Admin } from './admin/admin';
+import { AdminLogin } from './admin/AdminLogin';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 function DynamicHeader(): JSX.Element {
@@ -31,6 +33,7 @@ function DynamicHeader(): JSX.Element {
                             <Link to="/firms" className="nav-link">Firms</Link>
                             <Link to="/analytics" className="nav-link">Analytics</Link>
                             <Link to="/calendar" className="nav-link">Calendar</Link>
+                            {user?.role === 'admin' && <Link to="/admin" className="nav-link">Admin</Link>}
                         </nav>
                         <div className="header-actions">
                             <button className="btn-icon">Notifications</button>
@@ -38,7 +41,7 @@ function DynamicHeader(): JSX.Element {
                                 <button className="btn-icon">Account</button>
                                 <div className="user-dropdown">
                                     <p className="user-name">{user?.name}</p>
-                                    <p className="user-role">{user?.role === 'legal-official' ? 'Legal Official' : user?.role?.charAt(0).toUpperCase()}{user?.role && user.role.length > 1 ? user.role.slice(1) : ''}</p>
+                                    <p className="user-role">{user?.role === 'legal-official' ? 'Legal Official' : user?.role === 'admin' ? 'Admin' : user?.role?.charAt(0).toUpperCase()}{user?.role && user.role !== 'legal-official' && user.role !== 'admin' && user.role.length > 1 ? user.role.slice(1) : ''}</p>
                                     <button className="logout-btn" onClick={logout}>Sign Out</button>
                                 </div>
                             </div>
@@ -54,13 +57,30 @@ function DynamicHeader(): JSX.Element {
     )
 }
 
+function AdminGuard({ children }: { children: React.ReactNode }) {
+    const { user, isAuthenticated } = useAuth();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!isAuthenticated || user?.role !== 'admin') {
+            navigate('/dashboard', { replace: true });
+        }
+    }, [isAuthenticated, user, navigate]);
+
+    if (!isAuthenticated || user?.role !== 'admin') {
+        return null;
+    }
+
+    return <>{children}</>;
+}
+
 function AppContent() {
     const { isAuthenticated } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
 
     useEffect(() => {
-        if (!isAuthenticated && location.pathname !== '/') {
+        if (!isAuthenticated && location.pathname !== '/' && location.pathname !== '/admin-login') {
             navigate('/', { replace: true });
         }
     }, [isAuthenticated, navigate, location.pathname]);
@@ -78,6 +98,8 @@ function AppContent() {
                 <Route path="/attorneys/:id" element={<AttorneyProfile />} />
                 <Route path="/firms" element={<FirmsList />} />
                 <Route path="/firms/:id" element={<FirmProfile />} />
+                <Route path="/admin-login" element={<AdminLogin />} />
+                <Route path="/admin" element={<AdminGuard><Admin /></AdminGuard>} />
             </Routes>
         </div>
     );

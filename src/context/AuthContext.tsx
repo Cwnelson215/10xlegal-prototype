@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useCallback, useEffect } fr
 import { authService } from '../api/services/authService';
 import type { LoginRequest, RegisterRequest, User } from '../api/types';
 
-export type UserRole = 'client' | 'lawyer' | 'legal-official' | null;
+export type UserRole = 'client' | 'lawyer' | 'legal-official' | 'admin' | null;
 
 interface AuthContextType {
     user: User | null;
@@ -55,7 +55,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const credentials: LoginRequest = {
                 email,
                 password,
-                role: role as 'client' | 'lawyer' | 'legal-official',
+                role: role as 'client' | 'lawyer' | 'legal-official' | 'admin',
             };
 
             const response = await authService.login(credentials);

@@ -70,5 +70,11 @@
     "name": "Patricia Dawson",
     "email": "patricia.dawson@example.com",
     "role": "legal-official"
+  },
+  {
+    "id": "admin-1",
+    "name": "Alex Administrator",
+    "email": "admin@example.com",
+    "role": "admin"
   }
 ]

@@ -2,7 +2,7 @@ config:
   aws:region: us-east-1
   10xlegal-server:appName: 10xlegal-server
   10xlegal-server:subdomain: 10x-api
-  10xlegal-server:platformStack: Cwnelson215-org/portfolio-platform/dev
+  10xlegal-server:platformStack: Cwnelson215/portfolio-platform/dev
   10xlegal-server:cpu: "256"
   10xlegal-server:memory: "512"
   10xlegal-server:desiredCount: "1"
