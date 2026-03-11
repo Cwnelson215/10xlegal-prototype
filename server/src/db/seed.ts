@@ -62,8 +62,33 @@ function rulingToStatus(ruling: string): string {
   }
 }
 
+async function ensureAdminUser(): Promise<void> {
+  const pool = getDb();
+
+  // Migrate role constraint to allow 'admin'
+  await pool.query('ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_check');
+  await pool.query(
+    "ALTER TABLE users ADD CONSTRAINT users_role_check CHECK(role IN ('client', 'lawyer', 'legal-official', 'admin'))"
+  );
+
+  const existing = await pool.query("SELECT id FROM users WHERE email = 'admin@example.com'");
+  if (existing.rows.length > 0) {
+    return;
+  }
+
+  const hashedPassword = bcryptjs.hashSync('admin123', 10);
+  await pool.query(
+    `INSERT INTO users (id, name, email, password, role, created_at, updated_at)
+     VALUES ($1, $2, $3, $4, $5, NOW()::text, NOW()::text)`,
+    ['admin-1', 'Alex Administrator', 'admin@example.com', hashedPassword, 'admin']
+  );
+  console.log('  Seeded admin user');
+}
+
 export async function seedDatabase(): Promise<void> {
   const pool = getDb();
+
+  await ensureAdminUser();
 
   const userCountResult = await pool.query('SELECT COUNT(*)::int as count FROM users');
   const usersExist = userCountResult.rows[0]!.count > 0;
