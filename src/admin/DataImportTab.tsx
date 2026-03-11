@@ -88,19 +88,19 @@ export function DataImportTab() {
     }, []);
 
     const handleImport = useCallback(async () => {
-        if (!file || !format) return;
+        if (!file || !format || !preview) return;
         setImporting(true);
         setError(null);
 
         try {
-            const response = await adminService.uploadData(file, format, dataType);
+            const response = await adminService.uploadData(preview.rows, format, dataType, file.name);
             setResult(response);
         } catch (err) {
             setError(`Import failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
         } finally {
             setImporting(false);
         }
-    }, [file, format, dataType]);
+    }, [file, format, dataType, preview]);
 
     const previewRows = preview?.rows.slice(0, 10) ?? [];
 

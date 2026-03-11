@@ -114,6 +114,33 @@ export async function runSchema(): Promise<void> {
     )
   `);
 
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS import_history (
+      id TEXT PRIMARY KEY,
+      data_type TEXT NOT NULL,
+      format TEXT NOT NULL,
+      file_name TEXT NOT NULL DEFAULT '',
+      total_rows INTEGER NOT NULL DEFAULT 0,
+      imported_rows INTEGER NOT NULL DEFAULT 0,
+      failed_rows INTEGER NOT NULL DEFAULT 0,
+      status TEXT NOT NULL DEFAULT 'completed' CHECK(status IN ('completed', 'partial', 'failed')),
+      errors TEXT NOT NULL DEFAULT '[]',
+      imported_by TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT NOW()
+    )
+  `);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS audit_log (
+      id TEXT PRIMARY KEY,
+      action TEXT NOT NULL,
+      user_id TEXT NOT NULL,
+      user_name TEXT NOT NULL,
+      details TEXT NOT NULL DEFAULT '',
+      created_at TEXT NOT NULL DEFAULT NOW()
+    )
+  `);
+
   // Migrate: add columns if missing (for existing databases)
   await pool.query(`
     ALTER TABLE cases ADD COLUMN IF NOT EXISTS conviction_outcome TEXT NOT NULL DEFAULT ''

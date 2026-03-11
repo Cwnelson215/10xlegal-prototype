@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { SystemStats } from '../api/types';
+import type { SystemStats, ApiResponse } from '../api/types';
 import { adminService } from '../api/services/adminService';
 
 export function SystemOverviewTab() {

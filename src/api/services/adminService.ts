@@ -14,17 +14,12 @@ import type {
 } from '../types';
 
 export const adminService = {
-    async uploadData(file: File, format: ImportFormat, dataType: DataType): Promise<DataImportResponse> {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('format', format);
-        formData.append('dataType', dataType);
-
-        return apiClient.post<DataImportResponse>(
+    async uploadData(data: Record<string, unknown>[], format: ImportFormat, dataType: DataType, fileName: string): Promise<DataImportResponse> {
+        const response = await apiClient.post<ApiResponse<DataImportResponse>>(
             API_ENDPOINTS.ADMIN.UPLOAD_DATA,
-            formData,
-            true
+            { data, format, dataType, fileName }
         );
+        return response.data!;
     },
 
     async getImportHistory(page = 1, pageSize = 10): Promise<PaginatedResponse<DataImportRecord>> {
@@ -47,16 +42,17 @@ export const adminService = {
         return response.data!;
     },
 
-    async getSystemStats(): Promise<SystemStats> {
-        return apiClient.get<SystemStats>(API_ENDPOINTS.ADMIN.SYSTEM_STATS);
-    },
-
-    async exportData(dataType: DataType, format: 'json' | 'csv'): Promise<Blob> {
+    async getDataExport(dataType: DataType, format: 'json' | 'csv'): Promise<Blob> {
         const response = await fetch(
             `${API_ENDPOINTS.ADMIN.EXPORT_DATA}?dataType=${dataType}&format=${format}`,
             { method: 'GET' }
         );
         return response.blob();
+    },
+
+    async getSystemStats(): Promise<SystemStats> {
+        const response = await apiClient.get<ApiResponse<SystemStats>>(API_ENDPOINTS.ADMIN.SYSTEM_STATS);
+        return response.data!;
     },
 
     async getAuditLog(page = 1, pageSize = 10): Promise<PaginatedResponse<AuditLogEntry>> {

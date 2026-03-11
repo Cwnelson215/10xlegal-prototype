@@ -6,6 +6,7 @@ import { deadlinesRoutes } from './deadlines.routes.js';
 import { documentsRoutes } from './documents.routes.js';
 import { attorneysRoutes } from './attorneys.routes.js';
 import { firmsRoutes } from './firms.routes.js';
+import { adminRoutes } from './admin.routes.js';
 import { getDb } from '../db/connection.js';
 
 const router = Router();
@@ -35,5 +36,6 @@ router.use('/deadlines', deadlinesRoutes);
 router.use('/documents', documentsRoutes);
 router.use('/attorneys', attorneysRoutes);
 router.use('/firms', firmsRoutes);
+router.use('/admin', adminRoutes);
 
 export { router as routes };
