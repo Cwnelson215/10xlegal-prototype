@@ -121,7 +121,7 @@ jobs:
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
         run: |
-          ECR_URL=$(pulumi stack output ecrRepositoryUrl --stack 10xlegal-server-dev)
+          ECR_URL=$(pulumi stack output ecrRepositoryUrl --stack Cwnelson215/10xlegal-server-dev)
           echo "ecr-url=$ECR_URL" >> $GITHUB_OUTPUT
 
       - name: Build and Push Docker Image
@@ -138,7 +138,7 @@ jobs:
         uses: pulumi/actions@v5
         with:
           command: up
-          stack-name: 10xlegal-server-dev
+          stack-name: Cwnelson215/10xlegal-server-dev
           work-dir: .
           config-map: '{"10xlegal-server:imageTag":{"value":"${{ github.sha }}"}}'
 
@@ -153,7 +153,7 @@ jobs:
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
         run: |
-          APP_URL=$(pulumi stack output appUrl --stack 10xlegal-server-dev)
+          APP_URL=$(pulumi stack output appUrl --stack Cwnelson215/10xlegal-server-dev)
           echo "### Backend Deployment Complete! :rocket:" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**App URL:** $APP_URL" >> $GITHUB_STEP_SUMMARY
