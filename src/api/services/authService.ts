@@ -30,12 +30,15 @@ export const authService = {
             }
 
             return response.data!;
-        } catch {
-            // Backend unavailable — use mock auth
-            const result = mockAuth.login(credentials);
-            apiClient.setToken(result.token);
-            mockAuth.saveUser(result.user);
-            return result;
+        } catch (err) {
+            // Only fall back to mock auth on network errors (backend unavailable)
+            if (err instanceof Error && err.message.startsWith('Network error')) {
+                const result = mockAuth.login(credentials);
+                apiClient.setToken(result.token);
+                mockAuth.saveUser(result.user);
+                return result;
+            }
+            throw err;
         }
     },
 
@@ -54,12 +57,15 @@ export const authService = {
             }
 
             return response.data!;
-        } catch {
-            // Backend unavailable — use mock auth
-            const result = mockAuth.register(data);
-            apiClient.setToken(result.token);
-            mockAuth.saveUser(result.user);
-            return result;
+        } catch (err) {
+            // Only fall back to mock auth on network errors (backend unavailable)
+            if (err instanceof Error && err.message.startsWith('Network error')) {
+                const result = mockAuth.register(data);
+                apiClient.setToken(result.token);
+                mockAuth.saveUser(result.user);
+                return result;
+            }
+            throw err;
         }
     },
 
@@ -105,10 +111,13 @@ export const authService = {
                 API_ENDPOINTS.AUTH.VERIFY_TOKEN
             );
             return response.data!;
-        } catch {
-            const user = mockAuth.verifyToken();
-            if (user) return user;
-            throw new Error('No valid session');
+        } catch (err) {
+            // Only fall back to mock on network errors
+            if (err instanceof Error && err.message.startsWith('Network error')) {
+                const user = mockAuth.verifyToken();
+                if (user) return user;
+            }
+            throw err;
         }
     },
 

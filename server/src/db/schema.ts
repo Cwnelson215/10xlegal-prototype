@@ -9,7 +9,7 @@ export async function runSchema(): Promise<void> {
       name TEXT NOT NULL,
       email TEXT NOT NULL UNIQUE,
       password TEXT NOT NULL,
-      role TEXT NOT NULL CHECK(role IN ('client', 'lawyer', 'legal-official')),
+      role TEXT NOT NULL CHECK(role IN ('client', 'lawyer', 'legal-official', 'admin')),
       lawyer_state_bar TEXT,
       lawyer_bar_number TEXT,
       official_agency TEXT,
