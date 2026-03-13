@@ -156,8 +156,10 @@ router.post('/upload', async (req, res) => {
             `INSERT INTO cases (id, title, description, status, case_number, client_id, county,
               prosecution_attorney, defense_attorney, prosecution_firm, defense_firm,
               charge, court_date, ruling, sentence, conviction_outcome, conviction_date,
-              court_district, court_location, filing_date, disposition_date, created_at, updated_at)
-             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23)
+              court_district, court_location, filing_date, disposition_date,
+              court_type, case_type, offense_code, sentence_date, charges,
+              created_at, updated_at)
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28)
              ON CONFLICT (case_number) DO NOTHING`,
             [
               uuidv4(), row.title || `${row.charge || 'Case'} - ${row.caseNumber || row.case_number || ''}`,
@@ -175,6 +177,11 @@ router.post('/upload', async (req, res) => {
               row.courtLocation || row.court_location || '',
               row.filingDate || row.filing_date || '',
               row.dispositionDate || row.disposition_date || '',
+              row.courtType || row.court_type || '',
+              row.caseType || row.case_type || '',
+              row.offenseCode || row.offense_code || '',
+              row.sentenceDate || row.sentence_date || '',
+              row.charges ? (Array.isArray(row.charges) ? JSON.stringify(row.charges) : row.charges) : '',
               now, now,
             ]
           );

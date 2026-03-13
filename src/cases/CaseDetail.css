@@ -113,3 +113,18 @@
 .error-state {
   color: #c0392b;
 }
+
+.offense-code {
+  color: #7f8c8d;
+  font-size: 13px;
+}
+
+.charges-list {
+  list-style: disc;
+  margin: 4px 0 0 18px;
+  padding: 0;
+}
+
+.charges-list li {
+  margin-bottom: 2px;
+}

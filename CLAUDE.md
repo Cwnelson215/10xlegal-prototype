@@ -22,7 +22,6 @@ src/
 ├── context/          # React Context providers (AuthContext)
 ├── home/             # Dashboard page (home.tsx, home.css)
 ├── landing/          # Login/register page (landing.tsx, landing.css)
-├── data/             # Fake case data for development
 ├── app.tsx           # Root component with routing
 └── index.tsx         # Entry point
 ```
@@ -30,7 +29,6 @@ src/
 ## Commands
 
 - `npm run dev` — Start Vite dev server (port 5173)
-- `npm run generate-data` — Regenerate fake case data (`scripts/generate-fake-cases.js`)
 
 ## Environment
 
@@ -55,4 +53,4 @@ src/
 
 ## Current State
 
-Frontend-only prototype using fake data (`src/data/fake-cases.json`). The API service layer is fully typed and structured but awaits a backend. Three user roles: client, lawyer, legal-official.
+Full-stack application with Express/SQLite backend. The API service layer is fully typed and structured. Three user roles: client, lawyer, legal-official.

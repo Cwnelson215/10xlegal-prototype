@@ -79,6 +79,11 @@ export async function runSchema(): Promise<void> {
       court_location TEXT NOT NULL DEFAULT '',
       filing_date TEXT NOT NULL DEFAULT '',
       disposition_date TEXT NOT NULL DEFAULT '',
+      court_type TEXT NOT NULL DEFAULT '',
+      case_type TEXT NOT NULL DEFAULT '',
+      offense_code TEXT NOT NULL DEFAULT '',
+      sentence_date TEXT NOT NULL DEFAULT '',
+      charges TEXT NOT NULL DEFAULT '',
       created_at TEXT NOT NULL DEFAULT NOW(),
       updated_at TEXT NOT NULL DEFAULT NOW()
     )
@@ -159,6 +164,21 @@ export async function runSchema(): Promise<void> {
   `);
   await pool.query(`
     ALTER TABLE cases ADD COLUMN IF NOT EXISTS disposition_date TEXT NOT NULL DEFAULT ''
+  `);
+  await pool.query(`
+    ALTER TABLE cases ADD COLUMN IF NOT EXISTS court_type TEXT NOT NULL DEFAULT ''
+  `);
+  await pool.query(`
+    ALTER TABLE cases ADD COLUMN IF NOT EXISTS case_type TEXT NOT NULL DEFAULT ''
+  `);
+  await pool.query(`
+    ALTER TABLE cases ADD COLUMN IF NOT EXISTS offense_code TEXT NOT NULL DEFAULT ''
+  `);
+  await pool.query(`
+    ALTER TABLE cases ADD COLUMN IF NOT EXISTS sentence_date TEXT NOT NULL DEFAULT ''
+  `);
+  await pool.query(`
+    ALTER TABLE cases ADD COLUMN IF NOT EXISTS charges TEXT NOT NULL DEFAULT ''
   `);
 
   // Migrate: drop judge remnants from existing databases

@@ -5,7 +5,6 @@
 
 import apiClient from '../client';
 import { API_ENDPOINTS } from '../config';
-import { mockAuth } from './mockAuth';
 import type {
     LoginRequest,
     RegisterRequest,
@@ -16,57 +15,35 @@ import type {
 
 export const authService = {
     /**
-     * Login user — falls back to mock auth when backend is unavailable
+     * Login user
      */
     async login(credentials: LoginRequest): Promise<AuthResponse> {
-        try {
-            const response = await apiClient.post<ApiResponse<AuthResponse>>(
-                API_ENDPOINTS.AUTH.LOGIN,
-                credentials
-            );
+        const response = await apiClient.post<ApiResponse<AuthResponse>>(
+            API_ENDPOINTS.AUTH.LOGIN,
+            credentials
+        );
 
-            if (response.data?.token) {
-                apiClient.setToken(response.data.token);
-            }
-
-            return response.data!;
-        } catch (err) {
-            // Only fall back to mock auth on network errors (backend unavailable)
-            if (err instanceof Error && err.message.startsWith('Network error')) {
-                const result = mockAuth.login(credentials);
-                apiClient.setToken(result.token);
-                mockAuth.saveUser(result.user);
-                return result;
-            }
-            throw err;
+        if (response.data?.token) {
+            apiClient.setToken(response.data.token);
         }
+
+        return response.data!;
     },
 
     /**
-     * Register new user — falls back to mock auth when backend is unavailable
+     * Register new user
      */
     async register(data: RegisterRequest): Promise<AuthResponse> {
-        try {
-            const response = await apiClient.post<ApiResponse<AuthResponse>>(
-                API_ENDPOINTS.AUTH.REGISTER,
-                data
-            );
+        const response = await apiClient.post<ApiResponse<AuthResponse>>(
+            API_ENDPOINTS.AUTH.REGISTER,
+            data
+        );
 
-            if (response.data?.token) {
-                apiClient.setToken(response.data.token);
-            }
-
-            return response.data!;
-        } catch (err) {
-            // Only fall back to mock auth on network errors (backend unavailable)
-            if (err instanceof Error && err.message.startsWith('Network error')) {
-                const result = mockAuth.register(data);
-                apiClient.setToken(result.token);
-                mockAuth.saveUser(result.user);
-                return result;
-            }
-            throw err;
+        if (response.data?.token) {
+            apiClient.setToken(response.data.token);
         }
+
+        return response.data!;
     },
 
     /**
@@ -82,7 +59,6 @@ export const authService = {
             // Backend unavailable — clear locally
         } finally {
             apiClient.clearToken();
-            mockAuth.clearUser();
         }
     },
 
@@ -103,22 +79,13 @@ export const authService = {
     },
 
     /**
-     * Verify current token — falls back to mock stored user
+     * Verify current token
      */
     async verifyToken(): Promise<User> {
-        try {
-            const response = await apiClient.get<ApiResponse<User>>(
-                API_ENDPOINTS.AUTH.VERIFY_TOKEN
-            );
-            return response.data!;
-        } catch (err) {
-            // Only fall back to mock on network errors
-            if (err instanceof Error && err.message.startsWith('Network error')) {
-                const user = mockAuth.verifyToken();
-                if (user) return user;
-            }
-            throw err;
-        }
+        const response = await apiClient.get<ApiResponse<User>>(
+            API_ENDPOINTS.AUTH.VERIFY_TOKEN
+        );
+        return response.data!;
     },
 
     /**
@@ -126,7 +93,6 @@ export const authService = {
      */
     clearToken(): void {
         apiClient.clearToken();
-        mockAuth.clearUser();
     },
 
     /**

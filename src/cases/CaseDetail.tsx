@@ -46,12 +46,33 @@ export function CaseDetail() {
                             <dd><span className={`status-pill status-${caseData.status}`}>{caseData.status}</span></dd>
                             <dt>County</dt>
                             <dd>{caseData.county}</dd>
+                            {caseData.courtType && <>
+                                <dt>Court Type</dt>
+                                <dd>{caseData.courtType}</dd>
+                            </>}
+                            {caseData.caseType && <>
+                                <dt>Case Type</dt>
+                                <dd>{caseData.caseType}</dd>
+                            </>}
                             <dt>Court District</dt>
                             <dd>{caseData.courtDistrict}</dd>
                             <dt>Court Location</dt>
                             <dd>{caseData.courtLocation}</dd>
                             <dt>Charge</dt>
-                            <dd>{caseData.charge}</dd>
+                            <dd>
+                                {caseData.charge}
+                                {caseData.offenseCode && <span className="offense-code"> ({caseData.offenseCode})</span>}
+                            </dd>
+                            {caseData.charges && caseData.charges.length > 1 && <>
+                                <dt>All Charges</dt>
+                                <dd>
+                                    <ul className="charges-list">
+                                        {caseData.charges.map((charge, i) => (
+                                            <li key={i}>{charge}</li>
+                                        ))}
+                                    </ul>
+                                </dd>
+                            </>}
                             <dt>Filing Date</dt>
                             <dd>{caseData.filingDate}</dd>
                             <dt>Court Date</dt>
@@ -64,6 +85,10 @@ export function CaseDetail() {
                             <dd>{caseData.convictionDate}</dd>
                             <dt>Sentence</dt>
                             <dd>{caseData.sentence || 'N/A'}</dd>
+                            {caseData.sentenceDate && <>
+                                <dt>Sentence Date</dt>
+                                <dd>{caseData.sentenceDate}</dd>
+                            </>}
                         </dl>
                     </div>
 

@@ -35,6 +35,11 @@ interface CaseRow {
   court_location: string;
   filing_date: string;
   disposition_date: string;
+  court_type: string;
+  case_type: string;
+  offense_code: string;
+  sentence_date: string;
+  charges: string;
   created_at: string;
   updated_at: string;
 }
@@ -67,6 +72,11 @@ function toCaseResponse(row: CaseRow) {
     courtLocation: row.court_location,
     filingDate: row.filing_date,
     dispositionDate: row.disposition_date,
+    courtType: row.court_type,
+    caseType: row.case_type,
+    offenseCode: row.offense_code,
+    sentenceDate: row.sentence_date,
+    charges: row.charges ? (() => { try { return JSON.parse(row.charges); } catch { return []; } })() : [],
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };

@@ -41,7 +41,7 @@ export function DataImportTab() {
 
         const detected = detectFormat(selectedFile.name);
         if (!detected) {
-            setError('Unsupported file type. Please use .json, .csv, or .xlsx files.');
+            setError('Unsupported file type. Please use Excel files (.xlsx, .xls).');
             return;
         }
 
@@ -49,7 +49,7 @@ export function DataImportTab() {
         setFormat(detected);
 
         try {
-            const parsed = await parseFile(selectedFile, detected);
+            const parsed = await parseFile(selectedFile);
             setPreview(parsed);
         } catch (err) {
             setError(`Failed to parse file: ${err instanceof Error ? err.message : 'Unknown error'}`);
@@ -132,12 +132,12 @@ export function DataImportTab() {
                     onClick={() => fileInputRef.current?.click()}
                 >
                     <h4>Drop your file here or click to browse</h4>
-                    <p>Supports JSON, CSV, and XLSX formats (max 10MB)</p>
+                    <p>Supports Excel files only (.xlsx, .xls) (max 10MB)</p>
                 </div>
                 <input
                     ref={fileInputRef}
                     type="file"
-                    accept=".json,.csv,.xlsx,.xls"
+                    accept=".xlsx,.xls"
                     onChange={handleFileInput}
                     style={{ display: 'none' }}
                 />

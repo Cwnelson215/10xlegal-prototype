@@ -73,6 +73,11 @@ export interface Case {
     convictionDate: string;
     ruling: string;
     sentence: string;
+    courtType: string;
+    caseType: string;
+    offenseCode: string;
+    sentenceDate: string;
+    charges: string[];
     prosecutionAttorneyId?: string;
     defenseAttorneyId?: string;
     prosecutionFirmId?: string;
@@ -249,7 +254,7 @@ export const US_STATES = [
 
 // Admin Types
 export type DataType = 'cases' | 'deadlines' | 'users' | 'attorneys' | 'firms';
-export type ImportFormat = 'json' | 'csv' | 'xlsx';
+export type ImportFormat = 'xlsx';
 
 export interface DataImportResponse {
     importId: string;
