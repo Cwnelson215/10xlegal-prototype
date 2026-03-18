@@ -6,6 +6,10 @@ export function SystemOverviewTab() {
     const [stats, setStats] = useState<SystemStats | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [showConfirm, setShowConfirm] = useState(false);
+    const [truncating, setTruncating] = useState(false);
+    const [truncateMessage, setTruncateMessage] = useState<string | null>(null);
+
     const loadStats = async () => {
         try {
             const data = await adminService.getSystemStats();
@@ -81,6 +85,66 @@ export function SystemOverviewTab() {
                                 ))}
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            </div>
+
+            <div className="mt-4">
+                <h3 className="text-danger">Danger Zone</h3>
+                <div className="card border-danger">
+                    <div className="card-body">
+                        <h5 className="card-title">Truncate All Data</h5>
+                        <p className="card-text text-muted">
+                            Remove all cases, attorneys, firms, deadlines, documents, and import history. User accounts are preserved.
+                        </p>
+
+                        {truncateMessage && (
+                            <div className="alert alert-success mb-3">{truncateMessage}</div>
+                        )}
+
+                        {!showConfirm ? (
+                            <button
+                                className="btn btn-outline-danger"
+                                onClick={() => { setShowConfirm(true); setTruncateMessage(null); }}
+                            >
+                                Truncate All Data
+                            </button>
+                        ) : (
+                            <div className="d-flex align-items-center gap-2">
+                                <span className="text-danger fw-bold">Are you sure? This cannot be undone.</span>
+                                <button
+                                    className="btn btn-danger"
+                                    disabled={truncating}
+                                    onClick={async () => {
+                                        setTruncating(true);
+                                        try {
+                                            const result = await adminService.truncateData();
+                                            setTruncateMessage(result.message);
+                                            setShowConfirm(false);
+                                            setLoading(true);
+                                            await loadStats();
+                                        } catch (err) {
+                                            setTruncateMessage(err instanceof Error ? err.message : 'Truncation failed');
+                                        } finally {
+                                            setTruncating(false);
+                                        }
+                                    }}
+                                >
+                                    {truncating ? (
+                                        <><span className="spinner-border spinner-border-sm me-1"></span>Truncating...</>
+                                    ) : (
+                                        'Yes, Truncate Everything'
+                                    )}
+                                </button>
+                                <button
+                                    className="btn btn-secondary"
+                                    disabled={truncating}
+                                    onClick={() => setShowConfirm(false)}
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

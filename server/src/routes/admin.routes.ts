@@ -513,4 +513,30 @@ router.get('/audit-log', async (req, res) => {
   paginatedResponse(res, entries, total, page, pageSize);
 });
 
+// ─── POST /admin/truncate ───────────────────────────────────────────────────
+
+router.post('/truncate', async (req, res) => {
+  const db = getDb();
+  const logger = req.log ?? console;
+
+  try {
+    logger.info({ userId: req.user?.id }, 'Admin initiated data truncation');
+
+    await db.query(
+      'TRUNCATE TABLE documents, deadlines, cases, attorneys, law_firms, import_history, audit_log CASCADE'
+    );
+
+    const tablesCleared = ['documents', 'deadlines', 'cases', 'attorneys', 'law_firms', 'import_history', 'audit_log'];
+
+    apiResponse(res, {
+      message: 'All data tables truncated successfully',
+      tablesCleared,
+      truncatedAt: new Date().toISOString(),
+    });
+  } catch (err) {
+    logger.error({ err }, 'Failed to truncate data');
+    apiError(res, 'Failed to truncate data', 500);
+  }
+});
+
 export { router as adminRoutes };

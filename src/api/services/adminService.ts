@@ -7,6 +7,7 @@ import type {
     ImportFormat,
     SystemStats,
     AuditLogEntry,
+    TruncateResponse,
     User,
     UserRole,
     ApiResponse,
@@ -60,5 +61,13 @@ export const adminService = {
         return apiClient.get<PaginatedResponse<AuditLogEntry>>(
             `${API_ENDPOINTS.ADMIN.AUDIT_LOG}?page=${page}&pageSize=${pageSize}`
         );
+    },
+
+    async truncateData(): Promise<TruncateResponse> {
+        const response = await apiClient.post<ApiResponse<TruncateResponse>>(
+            API_ENDPOINTS.ADMIN.TRUNCATE_DATA,
+            {}
+        );
+        return response.data!;
     },
 };

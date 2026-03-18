@@ -313,3 +313,9 @@ export interface AuditLogEntry {
     details: string;
     createdAt: string;
 }
+
+export interface TruncateResponse {
+    message: string;
+    tablesCleared: string[];
+    truncatedAt: string;
+}
