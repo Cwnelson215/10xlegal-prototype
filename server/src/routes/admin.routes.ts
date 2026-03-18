@@ -319,6 +319,14 @@ router.get('/export', async (req, res) => {
   }
 });
 
+// ─── POST /admin/reset-db ────────────────────────────────────────────────────
+
+router.post('/reset-db', async (_req, res) => {
+  const db = getDb();
+  await db.query('TRUNCATE TABLE audit_log, import_history, deadlines, documents, cases, attorneys, law_firms, refresh_tokens CASCADE');
+  apiResponse(res, { message: 'All tables truncated' });
+});
+
 // ─── GET /admin/audit-log ────────────────────────────────────────────────────
 
 router.get('/audit-log', async (req, res) => {
