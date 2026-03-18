@@ -48,9 +48,6 @@ describe('Home dashboard', () => {
         const defenseLink = screen.getByText('Test Defender').closest('a');
         expect(defenseLink).toHaveAttribute('href', '/attorneys/att-2');
 
-        // Prosecution firm should be a link
-        const firmLinks = screen.getAllByText('Test Prosecution Firm');
-        expect(firmLinks[0]!.closest('a')).toHaveAttribute('href', '/firms/firm-1');
     });
 
     it('renders case data columns correctly', async () => {
@@ -66,8 +63,8 @@ describe('Home dashboard', () => {
         const headers = table.querySelectorAll('th');
         const headerTexts = Array.from(headers).map((th) => th.textContent);
         expect(headerTexts).toEqual([
-            'Case Number', 'County', 'Prosecuting Attorney', 'Prosecuting Firm',
-            'Defense Attorney', 'Defense Firm', 'Charge', 'Court Date',
+            'Case Number', 'County', 'Prosecuting Attorney',
+            'Defense Attorney', 'Charge', 'Court Date',
             'Conviction', 'Sentence',
         ]);
 
@@ -78,13 +75,13 @@ describe('Home dashboard', () => {
         const firstRowCells = rows[0]!.querySelectorAll('td');
         expect(firstRowCells[0]!.textContent).toBe('21-CR-10001');
         expect(firstRowCells[1]!.textContent).toBe('Salt Lake');
-        expect(firstRowCells[6]!.textContent).toBe('Test Charge');
+        expect(firstRowCells[4]!.textContent).toBe('Test Charge');
 
         const secondRowCells = rows[1]!.querySelectorAll('td');
         expect(secondRowCells[0]!.textContent).toBe('21-CR-10002');
         expect(secondRowCells[1]!.textContent).toBe('Utah');
-        expect(secondRowCells[6]!.textContent).toBe('Another Charge');
-        expect(secondRowCells[9]!.textContent).toBe('30 days');
+        expect(secondRowCells[4]!.textContent).toBe('Another Charge');
+        expect(secondRowCells[7]!.textContent).toBe('30 days');
     });
 
     it('renders filter inputs', async () => {
@@ -96,7 +93,7 @@ describe('Home dashboard', () => {
 
         expect(screen.getByLabelText('Case Number Sequence')).toBeInTheDocument();
         expect(screen.getByLabelText('Attorney Name')).toBeInTheDocument();
-        expect(screen.getByLabelText('Firm Name')).toBeInTheDocument();
+
         expect(screen.getByLabelText('County')).toBeInTheDocument();
     });
 });
