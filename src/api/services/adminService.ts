@@ -13,11 +13,12 @@ import type {
     PaginatedResponse,
 } from '../types';
 
+
 export const adminService = {
-    async uploadData(data: Record<string, unknown>[], format: ImportFormat, dataType: DataType, fileName: string): Promise<DataImportResponse> {
+    async uploadData(sheets: Partial<Record<DataType, Record<string, unknown>[]>>, format: ImportFormat, fileName: string): Promise<DataImportResponse> {
         const response = await apiClient.post<ApiResponse<DataImportResponse>>(
             API_ENDPOINTS.ADMIN.UPLOAD_DATA,
-            { data, format, dataType, fileName }
+            { sheets, format, fileName }
         );
         return response.data!;
     },

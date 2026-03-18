@@ -1,15 +1,15 @@
 import { useState, useRef, useCallback } from 'react';
 import type { DataType, ImportFormat, DataImportResponse } from '../api/types';
 import { adminService } from '../api/services/adminService';
-import { parseFile, detectFormat, type ParseResult } from './parseFile';
+import { parseFile, detectFormat, type MultiSheetResult } from './parseFile';
 
-const DATA_TYPES: { value: DataType; label: string }[] = [
-    { value: 'cases', label: 'Cases' },
-    { value: 'deadlines', label: 'Deadlines' },
-    { value: 'users', label: 'Users' },
-    { value: 'attorneys', label: 'Attorneys' },
-    { value: 'firms', label: 'Firms' },
-];
+const DATA_TYPE_LABELS: Record<DataType, string> = {
+    cases: 'Cases',
+    deadlines: 'Deadlines',
+    users: 'Users',
+    attorneys: 'Attorneys',
+    firms: 'Firms',
+};
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
@@ -20,10 +20,9 @@ function formatFileSize(bytes: number): string {
 }
 
 export function DataImportTab() {
-    const [dataType, setDataType] = useState<DataType>('cases');
     const [file, setFile] = useState<File | null>(null);
     const [format, setFormat] = useState<ImportFormat | null>(null);
-    const [preview, setPreview] = useState<ParseResult | null>(null);
+    const [preview, setPreview] = useState<MultiSheetResult | null>(null);
     const [dragOver, setDragOver] = useState(false);
     const [importing, setImporting] = useState(false);
     const [result, setResult] = useState<DataImportResponse | null>(null);
@@ -50,6 +49,13 @@ export function DataImportTab() {
 
         try {
             const parsed = await parseFile(selectedFile);
+            if (Object.keys(parsed).length === 0) {
+                setError('No recognized sheets found. Name sheets: Cases, Deadlines, Users, Attorneys, or Firms.');
+                setFile(null);
+                setFormat(null);
+                setPreview(null);
+                return;
+            }
             setPreview(parsed);
         } catch (err) {
             setError(`Failed to parse file: ${err instanceof Error ? err.message : 'Unknown error'}`);
@@ -93,37 +99,33 @@ export function DataImportTab() {
         setError(null);
 
         try {
-            const response = await adminService.uploadData(preview.rows, format, dataType, file.name);
+            const sheets: Partial<Record<DataType, Record<string, unknown>[]>> = {};
+            for (const [dt, parsed] of Object.entries(preview)) {
+                sheets[dt as DataType] = parsed.rows;
+            }
+            const response = await adminService.uploadData(sheets, format, file.name);
             setResult(response);
         } catch (err) {
             setError(`Import failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
         } finally {
             setImporting(false);
         }
-    }, [file, format, dataType, preview]);
+    }, [file, format, preview]);
 
-    const previewRows = preview?.rows.slice(0, 10) ?? [];
+    const totalRows = preview
+        ? Object.values(preview).reduce((sum, p) => sum + p.rows.length, 0)
+        : 0;
+
+    const sheetEntries = preview ? Object.entries(preview) as [DataType, { headers: string[]; rows: Record<string, unknown>[] }][] : [];
 
     return (
         <div>
             <div className="admin-card">
-                <h3>Data Type</h3>
-                <div className="btn-group" role="group">
-                    {DATA_TYPES.map(dt => (
-                        <button
-                            key={dt.value}
-                            type="button"
-                            className={`btn ${dataType === dt.value ? 'btn-dark' : 'btn-outline-secondary'}`}
-                            onClick={() => setDataType(dt.value)}
-                        >
-                            {dt.label}
-                        </button>
-                    ))}
-                </div>
-            </div>
-
-            <div className="admin-card">
                 <h3>Upload File</h3>
+                <p className="text-muted mb-3">
+                    Upload an Excel file with sheets named: Cases, Deadlines, Users, Attorneys, Firms.
+                    Each sheet will be imported into its corresponding table.
+                </p>
                 <div
                     className={`drop-zone ${dragOver ? 'drag-over' : ''}`}
                     onDrop={handleDrop}
@@ -158,34 +160,46 @@ export function DataImportTab() {
                 <div className="alert alert-danger" role="alert">{error}</div>
             )}
 
-            {preview && preview.rows.length > 0 && (
+            {preview && sheetEntries.length > 0 && (
                 <div className="admin-card">
-                    <h3>Preview ({preview.rows.length} rows total, showing first {Math.min(10, preview.rows.length)})</h3>
-                    <div className="preview-table-wrapper">
-                        <table className="table preview-table">
-                            <thead>
-                                <tr>
-                                    {preview.headers.map(h => <th key={h}>{h}</th>)}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {previewRows.map((row, i) => (
-                                    <tr key={i}>
-                                        {preview.headers.map(h => (
-                                            <td key={h}>{String(row[h] ?? '')}</td>
-                                        ))}
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                    <h3>Preview ({sheetEntries.length} sheet{sheetEntries.length > 1 ? 's' : ''}, {totalRows} rows total)</h3>
+
+                    {sheetEntries.map(([dt, parsed]) => {
+                        const previewRows = parsed.rows.slice(0, 5);
+                        return (
+                            <div key={dt} className="mb-4">
+                                <h5>{DATA_TYPE_LABELS[dt]} ({parsed.rows.length} rows)</h5>
+                                <div className="preview-table-wrapper">
+                                    <table className="table preview-table">
+                                        <thead>
+                                            <tr>
+                                                {parsed.headers.map(h => <th key={h}>{h}</th>)}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {previewRows.map((row, i) => (
+                                                <tr key={i}>
+                                                    {parsed.headers.map(h => (
+                                                        <td key={h}>{String(row[h] ?? '')}</td>
+                                                    ))}
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                {parsed.rows.length > 5 && (
+                                    <p className="text-muted">...and {parsed.rows.length - 5} more rows</p>
+                                )}
+                            </div>
+                        );
+                    })}
 
                     <button
                         className="btn btn-primary mt-3"
                         onClick={handleImport}
                         disabled={importing}
                     >
-                        {importing ? 'Importing...' : `Import ${preview.rows.length} rows as ${dataType}`}
+                        {importing ? 'Importing...' : `Import ${totalRows} rows across ${sheetEntries.length} type${sheetEntries.length > 1 ? 's' : ''}`}
                     </button>
                 </div>
             )}
@@ -194,6 +208,18 @@ export function DataImportTab() {
                 <div className={`import-result ${result.failedRows === 0 ? 'success' : result.importedRows > 0 ? 'partial' : 'error'}`}>
                     <h4>Import Complete</h4>
                     <p><strong>{result.importedRows}</strong> rows imported, <strong>{result.failedRows}</strong> failed.</p>
+                    {result.results.length > 0 && (
+                        <div className="mt-2">
+                            <strong>Breakdown:</strong>
+                            <ul className="mb-2 mt-1">
+                                {result.results.map(r => (
+                                    <li key={r.dataType}>
+                                        {DATA_TYPE_LABELS[r.dataType]}: {r.importedRows} imported, {r.failedRows} failed
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
                     {result.errors.length > 0 && (
                         <div className="mt-2">
                             <strong>Errors:</strong>

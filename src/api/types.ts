@@ -256,14 +256,22 @@ export const US_STATES = [
 export type DataType = 'cases' | 'deadlines' | 'users' | 'attorneys' | 'firms';
 export type ImportFormat = 'xlsx';
 
+export interface DataTypeResult {
+    dataType: DataType;
+    totalRows: number;
+    importedRows: number;
+    failedRows: number;
+    errors: ImportError[];
+}
+
 export interface DataImportResponse {
     importId: string;
-    dataType: DataType;
     format: ImportFormat;
     totalRows: number;
     importedRows: number;
     failedRows: number;
     errors: ImportError[];
+    results: DataTypeResult[];
     createdAt: string;
 }
 

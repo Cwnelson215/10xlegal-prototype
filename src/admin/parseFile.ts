@@ -1,9 +1,25 @@
 import * as XLSX from 'xlsx';
+import type { DataType } from '../api/types';
 
 export interface ParseResult {
     headers: string[];
     rows: Record<string, unknown>[];
 }
+
+export type MultiSheetResult = Partial<Record<DataType, ParseResult>>;
+
+const SHEET_NAME_MAP: Record<string, DataType> = {
+    cases: 'cases',
+    case: 'cases',
+    deadlines: 'deadlines',
+    deadline: 'deadlines',
+    users: 'users',
+    user: 'users',
+    attorneys: 'attorneys',
+    attorney: 'attorneys',
+    firms: 'firms',
+    firm: 'firms',
+};
 
 export function detectFormat(fileName: string): 'xlsx' | null {
     const ext = fileName.split('.').pop()?.toLowerCase();
@@ -11,20 +27,23 @@ export function detectFormat(fileName: string): 'xlsx' | null {
     return null;
 }
 
-export async function parseFile(file: File): Promise<ParseResult> {
+export async function parseFile(file: File): Promise<MultiSheetResult> {
     const buffer = await file.arrayBuffer();
     const workbook = XLSX.read(buffer);
-    const firstSheet = workbook.SheetNames[0];
-    if (!firstSheet) {
-        return { headers: [], rows: [] };
-    }
-    const worksheet = workbook.Sheets[firstSheet]!;
-    const data = XLSX.utils.sheet_to_json<Record<string, unknown>>(worksheet);
+    const result: MultiSheetResult = {};
 
-    if (data.length === 0) {
-        return { headers: [], rows: [] };
+    for (const sheetName of workbook.SheetNames) {
+        const dataType = SHEET_NAME_MAP[sheetName.toLowerCase().trim()];
+        if (!dataType) continue;
+
+        const worksheet = workbook.Sheets[sheetName]!;
+        const data = XLSX.utils.sheet_to_json<Record<string, unknown>>(worksheet);
+
+        if (data.length === 0) continue;
+
+        const headers = Object.keys(data[0]!);
+        result[dataType] = { headers, rows: data };
     }
 
-    const headers = Object.keys(data[0]!);
-    return { headers, rows: data };
+    return result;
 }

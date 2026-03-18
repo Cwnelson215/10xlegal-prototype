@@ -130,151 +130,170 @@ router.patch('/users/:id/role', async (req, res) => {
 // ─── POST /admin/upload ──────────────────────────────────────────────────────
 
 router.post('/upload', async (req, res) => {
-  const { dataType, data } = req.body;
+  const { sheets } = req.body;
   const db = getDb();
   const now = new Date().toISOString();
   const importId = uuidv4();
 
-  if (!dataType || !data || !Array.isArray(data)) {
-    apiError(res, 'dataType and data array are required');
+  if (!sheets || typeof sheets !== 'object') {
+    apiError(res, 'sheets object is required');
     return;
   }
 
-  let importedRows = 0;
-  let failedRows = 0;
-  const errors: { row: number; field: string; message: string }[] = [];
+  const validTypes = ['cases', 'deadlines', 'users', 'attorneys', 'firms'];
+  let totalImported = 0;
+  let totalFailed = 0;
+  const allErrors: { row: number; field: string; message: string }[] = [];
+  const results: { dataType: string; totalRows: number; importedRows: number; failedRows: number; errors: { row: number; field: string; message: string }[] }[] = [];
 
-  // Process based on data type
-  for (let i = 0; i < data.length; i++) {
-    try {
-      const row = data[i];
-      switch (dataType) {
-        case 'cases':
-          await db.query(
-            `INSERT INTO cases (id, title, description, status, case_number, client_id, county,
-              prosecution_attorney, defense_attorney, prosecution_firm, defense_firm,
-              charge, court_date, ruling, sentence, conviction_outcome, conviction_date,
-              court_district, court_location, filing_date, disposition_date,
-              court_type, case_type, offense_code, sentence_date, charges,
-              created_at, updated_at)
-             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28)
-             ON CONFLICT (case_number) DO NOTHING`,
-            [
-              uuidv4(), row.title || `${row.charge || 'Case'} - ${row.caseNumber || row.case_number || ''}`,
-              row.description || '', row.status || 'active',
-              row.caseNumber || row.case_number || '', row.clientId || row.client_id || '',
-              row.county || '', row.prosecutionAttorney || row.prosecution_attorney || '',
-              row.defenseAttorney || row.defense_attorney || '',
-              row.prosecutionFirm || row.prosecution_firm || '',
-              row.defenseFirm || row.defense_firm || '',
-              row.charge || '', row.courtDate || row.court_date || '',
-              row.ruling || '', row.sentence || '',
-              row.convictionOutcome || row.conviction_outcome || '',
-              row.convictionDate || row.conviction_date || '',
-              row.courtDistrict || row.court_district || '',
-              row.courtLocation || row.court_location || '',
-              row.filingDate || row.filing_date || '',
-              row.dispositionDate || row.disposition_date || '',
-              row.courtType || row.court_type || '',
-              row.caseType || row.case_type || '',
-              row.offenseCode || row.offense_code || '',
-              row.sentenceDate || row.sentence_date || '',
-              row.charges ? (Array.isArray(row.charges) ? JSON.stringify(row.charges) : row.charges) : '',
-              now, now,
-            ]
-          );
-          importedRows++;
-          break;
-        case 'deadlines':
-          await db.query(
-            `INSERT INTO deadlines (id, title, description, due_date, case_id, case_number, assigned_to, status, client_id, created_at, updated_at)
-             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
-            [
-              uuidv4(), row.title || '', row.description || '',
-              row.dueDate || row.due_date || '', row.caseId || row.case_id || '',
-              row.caseNumber || row.case_number || '', row.assignedTo || row.assigned_to || '',
-              row.status || 'pending', row.clientId || row.client_id || '',
-              now, now,
-            ]
-          );
-          importedRows++;
-          break;
-        case 'users':
-          await db.query(
-            `INSERT INTO users (id, name, email, password, role, verification_status, created_at, updated_at)
-             VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
-             ON CONFLICT (email) DO NOTHING`,
-            [
-              uuidv4(), row.name || '', row.email || '',
-              row.password || 'changeme', row.role || 'client',
-              row.verificationStatus || row.verification_status || 'pending',
-              now, now,
-            ]
-          );
-          importedRows++;
-          break;
-        case 'attorneys':
-          await db.query(
-            `INSERT INTO attorneys (id, name, type, firm_id, created_at, updated_at)
-             VALUES ($1,$2,$3,$4,$5,$6)`,
-            [
-              uuidv4(), row.name || '',
-              row.type || 'defense', row.firmId || row.firm_id || null,
-              now, now,
-            ]
-          );
-          importedRows++;
-          break;
-        case 'firms':
-          await db.query(
-            `INSERT INTO law_firms (id, name, type, created_at, updated_at)
-             VALUES ($1,$2,$3,$4,$5)
-             ON CONFLICT (name) DO NOTHING`,
-            [
-              uuidv4(), row.name || '',
-              row.type || '', now, now,
-            ]
-          );
-          importedRows++;
-          break;
-        default:
-          errors.push({ row: i + 1, field: 'dataType', message: `Unsupported data type: ${dataType}` });
-          failedRows++;
+  for (const [dataType, data] of Object.entries(sheets)) {
+    if (!validTypes.includes(dataType) || !Array.isArray(data)) continue;
+
+    let importedRows = 0;
+    let failedRows = 0;
+    const errors: { row: number; field: string; message: string }[] = [];
+
+    for (let i = 0; i < data.length; i++) {
+      try {
+        const row = data[i];
+        switch (dataType) {
+          case 'cases':
+            await db.query(
+              `INSERT INTO cases (id, title, description, status, case_number, client_id, county,
+                prosecution_attorney, defense_attorney, prosecution_firm, defense_firm,
+                charge, court_date, ruling, sentence, conviction_outcome, conviction_date,
+                court_district, court_location, filing_date, disposition_date,
+                court_type, case_type, offense_code, sentence_date, charges,
+                created_at, updated_at)
+               VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28)
+               ON CONFLICT (case_number) DO NOTHING`,
+              [
+                uuidv4(), row.title || `${row.charge || 'Case'} - ${row.caseNumber || row.case_number || ''}`,
+                row.description || '', row.status || 'active',
+                row.caseNumber || row.case_number || '', row.clientId || row.client_id || '',
+                row.county || '', row.prosecutionAttorney || row.prosecution_attorney || '',
+                row.defenseAttorney || row.defense_attorney || '',
+                row.prosecutionFirm || row.prosecution_firm || '',
+                row.defenseFirm || row.defense_firm || '',
+                row.charge || '', row.courtDate || row.court_date || '',
+                row.ruling || '', row.sentence || '',
+                row.convictionOutcome || row.conviction_outcome || '',
+                row.convictionDate || row.conviction_date || '',
+                row.courtDistrict || row.court_district || '',
+                row.courtLocation || row.court_location || '',
+                row.filingDate || row.filing_date || '',
+                row.dispositionDate || row.disposition_date || '',
+                row.courtType || row.court_type || '',
+                row.caseType || row.case_type || '',
+                row.offenseCode || row.offense_code || '',
+                row.sentenceDate || row.sentence_date || '',
+                row.charges ? (Array.isArray(row.charges) ? JSON.stringify(row.charges) : row.charges) : '',
+                now, now,
+              ]
+            );
+            importedRows++;
+            break;
+          case 'deadlines':
+            await db.query(
+              `INSERT INTO deadlines (id, title, description, due_date, case_id, case_number, assigned_to, status, client_id, created_at, updated_at)
+               VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
+              [
+                uuidv4(), row.title || '', row.description || '',
+                row.dueDate || row.due_date || '', row.caseId || row.case_id || '',
+                row.caseNumber || row.case_number || '', row.assignedTo || row.assigned_to || '',
+                row.status || 'pending', row.clientId || row.client_id || '',
+                now, now,
+              ]
+            );
+            importedRows++;
+            break;
+          case 'users':
+            await db.query(
+              `INSERT INTO users (id, name, email, password, role, verification_status, created_at, updated_at)
+               VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+               ON CONFLICT (email) DO NOTHING`,
+              [
+                uuidv4(), row.name || '', row.email || '',
+                row.password || 'changeme', row.role || 'client',
+                row.verificationStatus || row.verification_status || 'pending',
+                now, now,
+              ]
+            );
+            importedRows++;
+            break;
+          case 'attorneys':
+            await db.query(
+              `INSERT INTO attorneys (id, name, type, firm_id, created_at, updated_at)
+               VALUES ($1,$2,$3,$4,$5,$6)`,
+              [
+                uuidv4(), row.name || '',
+                row.type || 'defense', row.firmId || row.firm_id || null,
+                now, now,
+              ]
+            );
+            importedRows++;
+            break;
+          case 'firms':
+            await db.query(
+              `INSERT INTO law_firms (id, name, type, created_at, updated_at)
+               VALUES ($1,$2,$3,$4,$5)
+               ON CONFLICT (name) DO NOTHING`,
+              [
+                uuidv4(), row.name || '',
+                row.type || '', now, now,
+              ]
+            );
+            importedRows++;
+            break;
+        }
+      } catch (err) {
+        failedRows++;
+        errors.push({ row: i + 1, field: dataType, message: err instanceof Error ? err.message : 'Insert failed' });
       }
-    } catch (err) {
-      failedRows++;
-      errors.push({ row: i + 1, field: 'unknown', message: err instanceof Error ? err.message : 'Insert failed' });
+    }
+
+    totalImported += importedRows;
+    totalFailed += failedRows;
+    allErrors.push(...errors);
+    results.push({ dataType, totalRows: data.length, importedRows, failedRows, errors });
+
+    // Record import history per data type
+    try {
+      const status = failedRows === 0 ? 'completed' : importedRows > 0 ? 'partial' : 'failed';
+      await db.query(
+        `INSERT INTO import_history (id, data_type, format, file_name, total_rows, imported_rows, failed_rows, status, errors, imported_by, created_at)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
+        [uuidv4(), dataType, req.body.format || 'xlsx', req.body.fileName || 'upload',
+          data.length, importedRows, failedRows, status, JSON.stringify(errors), req.user!.id, now]
+      );
+    } catch (_logErr) {
+      // Don't fail the response if logging fails
     }
   }
 
-  // Record import history and audit log
+  // Audit log
   try {
-    const status = failedRows === 0 ? 'completed' : importedRows > 0 ? 'partial' : 'failed';
-    await db.query(
-      `INSERT INTO import_history (id, data_type, format, file_name, total_rows, imported_rows, failed_rows, status, errors, imported_by, created_at)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
-      [importId, dataType, req.body.format || 'json', req.body.fileName || 'upload',
-        data.length, importedRows, failedRows, status, JSON.stringify(errors), req.user!.id, now]
-    );
-
+    const typeSummary = results.map(r => `${r.importedRows} ${r.dataType}`).join(', ');
     await db.query(
       `INSERT INTO audit_log (id, action, user_id, user_name, details, created_at)
        VALUES ($1,$2,$3,$4,$5,$6)`,
       [uuidv4(), 'data_import', req.user!.id, req.user!.name,
-        `Imported ${importedRows} ${dataType} (${failedRows} failed)`, now]
+        `Imported ${typeSummary} (${totalFailed} total failed)`, now]
     );
-  } catch (logErr) {
+  } catch (_logErr) {
     // Don't fail the response if logging fails
   }
 
+  const totalRows = results.reduce((sum, r) => sum + r.totalRows, 0);
+
   apiResponse(res, {
     importId,
-    dataType,
-    format: req.body.format || 'json',
-    totalRows: data.length,
-    importedRows,
-    failedRows,
-    errors,
+    format: req.body.format || 'xlsx',
+    totalRows,
+    importedRows: totalImported,
+    failedRows: totalFailed,
+    errors: allErrors,
+    results,
     createdAt: now,
   });
 });
