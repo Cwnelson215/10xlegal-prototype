@@ -130,8 +130,6 @@ router.patch('/users/:id/role', async (req, res) => {
 // ─── POST /admin/upload ──────────────────────────────────────────────────────
 
 router.post('/upload', async (req, res) => {
-  // For now, return a mock response since file upload parsing needs multer
-  // The frontend does client-side parsing, so this endpoint receives the parsed data
   const { dataType, data } = req.body;
   const db = getDb();
   const now = new Date().toISOString();
@@ -201,6 +199,44 @@ router.post('/upload', async (req, res) => {
           );
           importedRows++;
           break;
+        case 'users':
+          await db.query(
+            `INSERT INTO users (id, name, email, password, role, verification_status, created_at, updated_at)
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+             ON CONFLICT (email) DO NOTHING`,
+            [
+              uuidv4(), row.name || '', row.email || '',
+              row.password || 'changeme', row.role || 'client',
+              row.verificationStatus || row.verification_status || 'pending',
+              now, now,
+            ]
+          );
+          importedRows++;
+          break;
+        case 'attorneys':
+          await db.query(
+            `INSERT INTO attorneys (id, name, type, firm_id, created_at, updated_at)
+             VALUES ($1,$2,$3,$4,$5,$6)`,
+            [
+              uuidv4(), row.name || '',
+              row.type || 'defense', row.firmId || row.firm_id || null,
+              now, now,
+            ]
+          );
+          importedRows++;
+          break;
+        case 'firms':
+          await db.query(
+            `INSERT INTO law_firms (id, name, type, created_at, updated_at)
+             VALUES ($1,$2,$3,$4,$5)
+             ON CONFLICT (name) DO NOTHING`,
+            [
+              uuidv4(), row.name || '',
+              row.type || '', now, now,
+            ]
+          );
+          importedRows++;
+          break;
         default:
           errors.push({ row: i + 1, field: 'dataType', message: `Unsupported data type: ${dataType}` });
           failedRows++;
@@ -211,22 +247,25 @@ router.post('/upload', async (req, res) => {
     }
   }
 
-  // Record import history
-  const status = failedRows === 0 ? 'completed' : importedRows > 0 ? 'partial' : 'failed';
-  await db.query(
-    `INSERT INTO import_history (id, data_type, format, file_name, total_rows, imported_rows, failed_rows, status, errors, imported_by, created_at)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
-    [importId, dataType, req.body.format || 'json', req.body.fileName || 'upload',
-      data.length, importedRows, failedRows, status, JSON.stringify(errors), req.user!.id, now]
-  );
+  // Record import history and audit log
+  try {
+    const status = failedRows === 0 ? 'completed' : importedRows > 0 ? 'partial' : 'failed';
+    await db.query(
+      `INSERT INTO import_history (id, data_type, format, file_name, total_rows, imported_rows, failed_rows, status, errors, imported_by, created_at)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
+      [importId, dataType, req.body.format || 'json', req.body.fileName || 'upload',
+        data.length, importedRows, failedRows, status, JSON.stringify(errors), req.user!.id, now]
+    );
 
-  // Audit log
-  await db.query(
-    `INSERT INTO audit_log (id, action, user_id, user_name, details, created_at)
-     VALUES ($1,$2,$3,$4,$5,$6)`,
-    [uuidv4(), 'data_import', req.user!.id, req.user!.name,
-      `Imported ${importedRows} ${dataType} (${failedRows} failed)`, now]
-  );
+    await db.query(
+      `INSERT INTO audit_log (id, action, user_id, user_name, details, created_at)
+       VALUES ($1,$2,$3,$4,$5,$6)`,
+      [uuidv4(), 'data_import', req.user!.id, req.user!.name,
+        `Imported ${importedRows} ${dataType} (${failedRows} failed)`, now]
+    );
+  } catch (logErr) {
+    // Don't fail the response if logging fails
+  }
 
   apiResponse(res, {
     importId,
@@ -317,14 +356,6 @@ router.get('/export', async (req, res) => {
     res.setHeader('Content-Disposition', `attachment; filename="${dataType}.json"`);
     res.json(result.rows);
   }
-});
-
-// ─── POST /admin/reset-db ────────────────────────────────────────────────────
-
-router.post('/reset-db', async (_req, res) => {
-  const db = getDb();
-  await db.query('TRUNCATE TABLE audit_log, import_history, deadlines, documents, cases, attorneys, law_firms, refresh_tokens CASCADE');
-  apiResponse(res, { message: 'All tables truncated' });
 });
 
 // ─── GET /admin/audit-log ────────────────────────────────────────────────────

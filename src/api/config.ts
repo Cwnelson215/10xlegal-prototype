@@ -70,6 +70,5 @@ export const API_ENDPOINTS = {
         SYSTEM_STATS: '/admin/stats',
         EXPORT_DATA: '/admin/export',
         AUDIT_LOG: '/admin/audit-log',
-        RESET_DB: '/admin/reset-db',
     },
 };

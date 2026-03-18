@@ -60,12 +60,4 @@ export const adminService = {
             `${API_ENDPOINTS.ADMIN.AUDIT_LOG}?page=${page}&pageSize=${pageSize}`
         );
     },
-
-    async resetDatabase(): Promise<{ message: string }> {
-        const response = await apiClient.post<ApiResponse<{ message: string }>>(
-            API_ENDPOINTS.ADMIN.RESET_DB,
-            {}
-        );
-        return response.data!;
-    },
 };

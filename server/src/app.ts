@@ -40,7 +40,7 @@ const authLimiter = rateLimit({
 });
 app.use('/api/auth', authLimiter);
 
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 
 app.use('/api', routes);
 
