@@ -4,5 +4,4 @@ export { documentsService } from './documentsService';
 export { deadlinesService } from './deadlinesService';
 export { userService } from './userService';
 export { attorneysService } from './attorneysService';
-export { firmsService } from './firmsService';
 export { adminService } from './adminService';

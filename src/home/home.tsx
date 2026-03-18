@@ -9,26 +9,24 @@ export function Home() {
     const { cases: roleCases, allCases, isLoading, errorMessage } = useCaseData();
     const [caseNumberQuery, setCaseNumberQuery] = useState('');
     const [attorneyQuery, setAttorneyQuery] = useState('');
-    const [firmQuery, setFirmQuery] = useState('');
+
     const [countyFilter, setCountyFilter] = useState('all');
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
 
     useEffect(() => {
         setPage(1);
-    }, [caseNumberQuery, attorneyQuery, firmQuery, countyFilter, pageSize]);
+    }, [caseNumberQuery, attorneyQuery, countyFilter, pageSize]);
 
     const hasSearchCriteria =
         caseNumberQuery.trim().length > 0 ||
         attorneyQuery.trim().length > 0 ||
-        firmQuery.trim().length > 0 ||
         countyFilter !== 'all';
 
     const filteredCases = useMemo(() => {
         const caseQuery = caseNumberQuery.trim().toLowerCase();
         const caseDigits = caseQuery.replace(/\D/g, '');
         const attorneyQueryLower = attorneyQuery.trim().toLowerCase();
-        const firmQueryLower = firmQuery.trim().toLowerCase();
         return roleCases.filter((caseItem) => {
             const sequentialDigits = caseItem.caseNumber.split('-')[2] ?? '';
             const matchesCaseNumber = caseDigits.length > 0
@@ -40,20 +38,14 @@ export function Home() {
                   caseItem.defenseAttorney.toLowerCase().includes(attorneyQueryLower)
                 : true;
 
-            const matchesFirm = firmQueryLower.length > 0
-                ? caseItem.prosecutionFirm.toLowerCase().includes(firmQueryLower) ||
-                  caseItem.defenseFirm.toLowerCase().includes(firmQueryLower)
-                : true;
-
             const matchesCounty = countyFilter === 'all' ? true : caseItem.county === countyFilter;
 
-            return matchesCaseNumber && matchesAttorney && matchesFirm && matchesCounty;
+            return matchesCaseNumber && matchesAttorney && matchesCounty;
         });
     }, [
         roleCases,
         caseNumberQuery,
         attorneyQuery,
-        firmQuery,
         countyFilter,
     ]);
 
@@ -103,10 +95,6 @@ export function Home() {
                     <h3>Attorneys</h3>
                     <p>Look up attorneys and their case records</p>
                 </Link>
-                <Link to="/firms" className="directory-card">
-                    <h3>Firms</h3>
-                    <p>Explore law firms and their associated cases</p>
-                </Link>
             </section>
             <section className="cases-dashboard-section">
                 <div className="section-header">
@@ -133,16 +121,6 @@ export function Home() {
                             placeholder="Prosecutor or defense"
                             value={attorneyQuery}
                             onChange={(event) => setAttorneyQuery(event.target.value)}
-                        />
-                    </div>
-                    <div className="filter-group">
-                        <label htmlFor="firm-search">Firm Name</label>
-                        <input
-                            id="firm-search"
-                            type="search"
-                            placeholder="Prosecutor or defense firm"
-                            value={firmQuery}
-                            onChange={(event) => setFirmQuery(event.target.value)}
                         />
                     </div>
                     <div className="filter-group">
@@ -178,9 +156,7 @@ export function Home() {
                                         <th>Case Number</th>
                                         <th>County</th>
                                         <th>Prosecuting Attorney</th>
-                                        <th>Prosecuting Firm</th>
                                         <th>Defense Attorney</th>
-                                        <th>Defense Firm</th>
                                         <th>Charge</th>
                                         <th>Court Date</th>
                                         <th>Conviction</th>
@@ -198,19 +174,9 @@ export function Home() {
                                                     : caseItem.prosecutionAttorney}
                                             </td>
                                             <td>
-                                                {caseItem.prosecutionFirmId
-                                                    ? <Link to={`/firms/${caseItem.prosecutionFirmId}`} className="entity-link">{caseItem.prosecutionFirm}</Link>
-                                                    : caseItem.prosecutionFirm}
-                                            </td>
-                                            <td>
                                                 {caseItem.defenseAttorneyId
                                                     ? <Link to={`/attorneys/${caseItem.defenseAttorneyId}`} className="entity-link">{caseItem.defenseAttorney}</Link>
                                                     : caseItem.defenseAttorney}
-                                            </td>
-                                            <td>
-                                                {caseItem.defenseFirmId
-                                                    ? <Link to={`/firms/${caseItem.defenseFirmId}`} className="entity-link">{caseItem.defenseFirm}</Link>
-                                                    : caseItem.defenseFirm}
                                             </td>
                                             <td>{caseItem.charge}</td>
                                             <td>{caseItem.courtDate}</td>

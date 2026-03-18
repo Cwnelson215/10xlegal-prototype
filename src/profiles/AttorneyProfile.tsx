@@ -47,9 +47,6 @@ export function AttorneyProfile() {
                     <p>
                         {attorney.type === 'prosecution' ? 'Prosecution' : 'Defense'} Attorney
                         &middot; {attorney.caseCount} cases
-                        {attorney.firmName && (
-                            <> &middot; <Link to={`/firms/${attorney.firmId}`} className="header-link">{attorney.firmName}</Link></>
-                        )}
                     </p>
                 </div>
             </header>

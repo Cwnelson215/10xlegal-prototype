@@ -101,12 +101,6 @@ export function CaseDetail() {
                                     ? <Link to={`/attorneys/${caseData.prosecutionAttorneyId}`}>{caseData.prosecutionAttorney}</Link>
                                     : caseData.prosecutionAttorney}
                             </dd>
-                            <dt>Firm</dt>
-                            <dd>
-                                {caseData.prosecutionFirmId
-                                    ? <Link to={`/firms/${caseData.prosecutionFirmId}`}>{caseData.prosecutionFirm}</Link>
-                                    : caseData.prosecutionFirm}
-                            </dd>
                         </dl>
                     </div>
 
@@ -118,12 +112,6 @@ export function CaseDetail() {
                                 {caseData.defenseAttorneyId
                                     ? <Link to={`/attorneys/${caseData.defenseAttorneyId}`}>{caseData.defenseAttorney}</Link>
                                     : caseData.defenseAttorney}
-                            </dd>
-                            <dt>Firm</dt>
-                            <dd>
-                                {caseData.defenseFirmId
-                                    ? <Link to={`/firms/${caseData.defenseFirmId}`}>{caseData.defenseFirm}</Link>
-                                    : caseData.defenseFirm}
                             </dd>
                         </dl>
                     </div>

@@ -9,9 +9,9 @@ import { Analytics } from './analytics/analytics';
 import { Calendar } from './calendar/calendar';
 import { CaseDetail } from './cases/CaseDetail';
 import { AttorneyProfile } from './profiles/AttorneyProfile';
-import { FirmProfile } from './profiles/FirmProfile';
+
 import { AttorneysList } from './profiles/AttorneysList';
-import { FirmsList } from './profiles/FirmsList';
+
 import { Admin } from './admin/admin';
 import { AdminLogin } from './admin/AdminLogin';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -30,7 +30,7 @@ function DynamicHeader(): JSX.Element {
                         <nav className="header-nav">
                             <Link to="/dashboard" className="nav-link">Dashboard</Link>
                             <Link to="/attorneys" className="nav-link">Attorneys</Link>
-                            <Link to="/firms" className="nav-link">Firms</Link>
+
                             <Link to="/analytics" className="nav-link">Analytics</Link>
                             <Link to="/calendar" className="nav-link">Calendar</Link>
                             {user?.role === 'admin' && <Link to="/admin" className="nav-link">Admin</Link>}
@@ -96,8 +96,6 @@ function AppContent() {
                 <Route path="/cases/:id" element={<CaseDetail />} />
                 <Route path="/attorneys" element={<AttorneysList />} />
                 <Route path="/attorneys/:id" element={<AttorneyProfile />} />
-                <Route path="/firms" element={<FirmsList />} />
-                <Route path="/firms/:id" element={<FirmProfile />} />
                 <Route path="/admin-login" element={<AdminLogin />} />
                 <Route path="/admin" element={<AdminGuard><Admin /></AdminGuard>} />
             </Routes>

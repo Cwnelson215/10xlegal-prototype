@@ -98,7 +98,6 @@ export function AttorneysList() {
                                 <tr>
                                     <th>Name</th>
                                     <th>Type</th>
-                                    <th>Firm</th>
                                     <th>Case Count</th>
                                 </tr>
                             </thead>
@@ -107,11 +106,6 @@ export function AttorneysList() {
                                     <tr key={attorney.id}>
                                         <td><Link to={`/attorneys/${attorney.id}`} className="entity-link">{attorney.name}</Link></td>
                                         <td style={{ textTransform: 'capitalize' }}>{attorney.type}</td>
-                                        <td>
-                                            {attorney.firmId
-                                                ? <Link to={`/firms/${attorney.firmId}`} className="entity-link">{attorney.firmName}</Link>
-                                                : (attorney.firmName ?? '—')}
-                                        </td>
                                         <td>{attorney.caseCount}</td>
                                     </tr>
                                 ))}
