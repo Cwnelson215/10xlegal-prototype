@@ -50,7 +50,7 @@ export function DataImportTab() {
         try {
             const parsed = await parseFile(selectedFile);
             if (Object.keys(parsed).length === 0) {
-                setError('No recognized sheets found. Name sheets: Cases, Deadlines, Users, Attorneys, or Firms.');
+                setError('No recognized sheets found. Use sheets named Cases, Deadlines, Users, Attorneys, Firms — or CSAM format (District Court Sentence Data, etc.).');
                 setFile(null);
                 setFormat(null);
                 setPreview(null);
@@ -123,8 +123,8 @@ export function DataImportTab() {
             <div className="admin-card">
                 <h3>Upload File</h3>
                 <p className="text-muted mb-3">
-                    Upload an Excel file with sheets named: Cases, Deadlines, Users, Attorneys, Firms.
-                    Each sheet will be imported into its corresponding table.
+                    Upload an Excel file. Supports generic format (sheets named Cases, Deadlines, Users, Attorneys, Firms)
+                    or CSAM data dump format (District Court Sentence Data, District Court Attorney Data, Justice Court Data).
                 </p>
                 <div
                     className={`drop-zone ${dragOver ? 'drag-over' : ''}`}

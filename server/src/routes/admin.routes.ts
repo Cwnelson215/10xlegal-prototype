@@ -157,42 +157,103 @@ router.post('/upload', async (req, res) => {
       try {
         const row = data[i];
         switch (dataType) {
-          case 'cases':
-            await db.query(
-              `INSERT INTO cases (id, title, description, status, case_number, client_id, county,
-                prosecution_attorney, defense_attorney, prosecution_firm, defense_firm,
-                charge, court_date, ruling, sentence, conviction_outcome, conviction_date,
-                court_district, court_location, filing_date, disposition_date,
-                court_type, case_type, offense_code, sentence_date, charges,
-                created_at, updated_at)
-               VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28)
-               ON CONFLICT (case_number) DO NOTHING`,
-              [
-                uuidv4(), row.title || `${row.charge || 'Case'} - ${row.caseNumber || row.case_number || ''}`,
-                row.description || '', row.status || 'active',
-                row.caseNumber || row.case_number || '', row.clientId || row.client_id || '',
-                row.county || '', row.prosecutionAttorney || row.prosecution_attorney || '',
-                row.defenseAttorney || row.defense_attorney || '',
-                row.prosecutionFirm || row.prosecution_firm || '',
-                row.defenseFirm || row.defense_firm || '',
-                row.charge || '', row.courtDate || row.court_date || '',
-                row.ruling || '', row.sentence || '',
-                row.convictionOutcome || row.conviction_outcome || '',
-                row.convictionDate || row.conviction_date || '',
-                row.courtDistrict || row.court_district || '',
-                row.courtLocation || row.court_location || '',
-                row.filingDate || row.filing_date || '',
-                row.dispositionDate || row.disposition_date || '',
-                row.courtType || row.court_type || '',
-                row.caseType || row.case_type || '',
-                row.offenseCode || row.offense_code || '',
-                row.sentenceDate || row.sentence_date || '',
-                row.charges ? (Array.isArray(row.charges) ? JSON.stringify(row.charges) : row.charges) : '',
-                now, now,
-              ]
-            );
-            importedRows++;
+          case 'cases': {
+            // Batch cases in groups of 100
+            const batch: any[] = [row];
+            while (i + 1 < data.length && batch.length < 100) {
+              i++;
+              batch.push(data[i]);
+            }
+            try {
+              const placeholders: string[] = [];
+              const values: any[] = [];
+              for (let b = 0; b < batch.length; b++) {
+                const r = batch[b];
+                const offset = b * 28;
+                placeholders.push(`(${Array.from({ length: 28 }, (_, k) => `$${offset + k + 1}`).join(',')})`);
+                values.push(
+                  uuidv4(), r.title || `${r.charge || 'Case'} - ${r.caseNumber || r.case_number || ''}`,
+                  r.description || '', r.status || 'active',
+                  r.caseNumber || r.case_number || '', r.clientId || r.client_id || '',
+                  r.county || '', r.prosecutionAttorney || r.prosecution_attorney || '',
+                  r.defenseAttorney || r.defense_attorney || '',
+                  r.prosecutionFirm || r.prosecution_firm || '',
+                  r.defenseFirm || r.defense_firm || '',
+                  r.charge || '', r.courtDate || r.court_date || '',
+                  r.ruling || '', r.sentence || '',
+                  r.convictionOutcome || r.conviction_outcome || '',
+                  r.convictionDate || r.conviction_date || '',
+                  r.courtDistrict || r.court_district || '',
+                  r.courtLocation || r.court_location || '',
+                  r.filingDate || r.filing_date || '',
+                  r.dispositionDate || r.disposition_date || '',
+                  r.courtType || r.court_type || '',
+                  r.caseType || r.case_type || '',
+                  r.offenseCode || r.offense_code || '',
+                  r.sentenceDate || r.sentence_date || '',
+                  r.charges ? (Array.isArray(r.charges) ? JSON.stringify(r.charges) : r.charges) : '',
+                  now, now,
+                );
+              }
+              await db.query(
+                `INSERT INTO cases (id, title, description, status, case_number, client_id, county,
+                  prosecution_attorney, defense_attorney, prosecution_firm, defense_firm,
+                  charge, court_date, ruling, sentence, conviction_outcome, conviction_date,
+                  court_district, court_location, filing_date, disposition_date,
+                  court_type, case_type, offense_code, sentence_date, charges,
+                  created_at, updated_at)
+                 VALUES ${placeholders.join(',')}
+                 ON CONFLICT (case_number) DO NOTHING`,
+                values
+              );
+              importedRows += batch.length;
+            } catch (_batchErr) {
+              // Fallback: insert row-by-row on batch failure
+              for (let b = 0; b < batch.length; b++) {
+                try {
+                  const r = batch[b];
+                  await db.query(
+                    `INSERT INTO cases (id, title, description, status, case_number, client_id, county,
+                      prosecution_attorney, defense_attorney, prosecution_firm, defense_firm,
+                      charge, court_date, ruling, sentence, conviction_outcome, conviction_date,
+                      court_district, court_location, filing_date, disposition_date,
+                      court_type, case_type, offense_code, sentence_date, charges,
+                      created_at, updated_at)
+                     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28)
+                     ON CONFLICT (case_number) DO NOTHING`,
+                    [
+                      uuidv4(), r.title || `${r.charge || 'Case'} - ${r.caseNumber || r.case_number || ''}`,
+                      r.description || '', r.status || 'active',
+                      r.caseNumber || r.case_number || '', r.clientId || r.client_id || '',
+                      r.county || '', r.prosecutionAttorney || r.prosecution_attorney || '',
+                      r.defenseAttorney || r.defense_attorney || '',
+                      r.prosecutionFirm || r.prosecution_firm || '',
+                      r.defenseFirm || r.defense_firm || '',
+                      r.charge || '', r.courtDate || r.court_date || '',
+                      r.ruling || '', r.sentence || '',
+                      r.convictionOutcome || r.conviction_outcome || '',
+                      r.convictionDate || r.conviction_date || '',
+                      r.courtDistrict || r.court_district || '',
+                      r.courtLocation || r.court_location || '',
+                      r.filingDate || r.filing_date || '',
+                      r.dispositionDate || r.disposition_date || '',
+                      r.courtType || r.court_type || '',
+                      r.caseType || r.case_type || '',
+                      r.offenseCode || r.offense_code || '',
+                      r.sentenceDate || r.sentence_date || '',
+                      r.charges ? (Array.isArray(r.charges) ? JSON.stringify(r.charges) : r.charges) : '',
+                      now, now,
+                    ]
+                  );
+                  importedRows++;
+                } catch (rowErr) {
+                  failedRows++;
+                  errors.push({ row: i - batch.length + b + 2, field: dataType, message: rowErr instanceof Error ? rowErr.message : 'Insert failed' });
+                }
+              }
+            }
             break;
+          }
           case 'deadlines':
             await db.query(
               `INSERT INTO deadlines (id, title, description, due_date, case_id, case_number, assigned_to, status, client_id, created_at, updated_at)

@@ -1,5 +1,6 @@
 import * as XLSX from 'xlsx';
 import type { DataType } from '../api/types';
+import { isCSAMFormat, transformCSAM } from './transformCSAM';
 
 export interface ParseResult {
     headers: string[];
@@ -30,6 +31,11 @@ export function detectFormat(fileName: string): 'xlsx' | null {
 export async function parseFile(file: File): Promise<MultiSheetResult> {
     const buffer = await file.arrayBuffer();
     const workbook = XLSX.read(buffer);
+
+    if (isCSAMFormat(workbook.SheetNames)) {
+        return transformCSAM(workbook);
+    }
+
     const result: MultiSheetResult = {};
 
     for (const sheetName of workbook.SheetNames) {
