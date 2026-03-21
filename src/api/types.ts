@@ -77,7 +77,7 @@ export interface Case {
     sentenceDate: string;
     judgmentDescription: string;
     sentenceDescription: string;
-    charges: string[];
+    charges: { offense_code: string; description: string; judgment: string; sentence: string; value: string; units: string; charge_sequence: string }[];
     prosecutionAttorneyId?: string;
     defenseAttorneyId?: string;
     prosecutionFirmId?: string;
