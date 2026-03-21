@@ -63,8 +63,13 @@ export function CaseDetail() {
                                 <dt>All Charges</dt>
                                 <dd>
                                     <ul className="charges-list">
-                                        {caseData.charges.map((charge, i) => (
-                                            <li key={i}>{charge}</li>
+                                        {caseData.charges.map((charge: { offense_code: string; description: string; judgment: string; sentence: string; value: string; units: string; charge_sequence: string }, i: number) => (
+                                            <li key={i}>
+                                                {charge.description}
+                                                {charge.offense_code && <span className="offense-code"> ({charge.offense_code})</span>}
+                                                {charge.judgment && <> — {charge.judgment}</>}
+                                                {charge.sentence && charge.value && charge.units && <> — {charge.sentence}: {charge.value} {charge.units}</>}
+                                            </li>
                                         ))}
                                     </ul>
                                 </dd>
