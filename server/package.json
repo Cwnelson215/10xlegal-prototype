@@ -5,8 +5,7 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "start": "node --import tsx src/index.ts",
-    "test": "vitest run",
-    "seed:admin": "tsx src/scripts/seed-admin.ts"
+    "test": "vitest run"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
