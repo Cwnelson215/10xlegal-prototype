@@ -169,13 +169,13 @@ router.post('/upload', async (req, res) => {
               const values: any[] = [];
               for (let b = 0; b < batch.length; b++) {
                 const r = batch[b];
-                const offset = b * 28;
-                placeholders.push(`(${Array.from({ length: 28 }, (_, k) => `$${offset + k + 1}`).join(',')})`);
+                const offset = b * 27;
+                placeholders.push(`(${Array.from({ length: 27 }, (_, k) => `$${offset + k + 1}`).join(',')})`);
                 values.push(
                   uuidv4(), r.title || `${r.charge || 'Case'} - ${r.caseNumber || r.case_number || ''}`,
                   r.description || '', r.status || 'active',
                   r.caseNumber || r.case_number || '', r.clientId || r.client_id || '',
-                  r.county || '', r.prosecutionAttorney || r.prosecution_attorney || '',
+                  r.court || '', r.prosecutionAttorney || r.prosecution_attorney || '',
                   r.defenseAttorney || r.defense_attorney || '',
                   r.prosecutionFirm || r.prosecution_firm || '',
                   r.defenseFirm || r.defense_firm || '',
@@ -183,34 +183,45 @@ router.post('/upload', async (req, res) => {
                   r.ruling || '', r.sentence || '',
                   r.convictionOutcome || r.conviction_outcome || '',
                   r.convictionDate || r.conviction_date || '',
-                  r.courtDistrict || r.court_district || '',
-                  r.courtLocation || r.court_location || '',
+                  r.districtNumber || r.district_number || '',
                   r.filingDate || r.filing_date || '',
                   r.dispositionDate || r.disposition_date || '',
-                  r.courtType || r.court_type || '',
                   r.caseType || r.case_type || '',
                   r.offenseCode || r.offense_code || '',
                   r.sentenceDate || r.sentence_date || '',
                   r.charges ? (Array.isArray(r.charges) ? JSON.stringify(r.charges) : r.charges) : '',
-                  now, now,
+                  r.judgmentDescription || r.judgment_description || '',
+                  r.sentenceDescription || r.sentence_description || '',
+                  now,
                 );
               }
               await db.query(
-                `INSERT INTO cases (id, title, description, status, case_number, client_id, county,
+                `INSERT INTO cases (id, title, description, status, case_number, client_id, court,
                   prosecution_attorney, defense_attorney, prosecution_firm, defense_firm,
                   charge, court_date, ruling, sentence, conviction_outcome, conviction_date,
-                  court_district, court_location, filing_date, disposition_date,
-                  court_type, case_type, offense_code, sentence_date, charges,
-                  created_at, updated_at)
+                  district_number, filing_date, disposition_date,
+                  case_type, offense_code, sentence_date, charges,
+                  judgment_description, sentence_description,
+                  updated_at)
                  VALUES ${placeholders.join(',')}
                  ON CONFLICT (case_number) DO UPDATE SET
                   title = CASE WHEN cases.title = '' THEN EXCLUDED.title ELSE cases.title END,
                   description = CASE WHEN cases.description = '' THEN EXCLUDED.description ELSE cases.description END,
                   status = CASE WHEN cases.status = 'active' THEN EXCLUDED.status ELSE cases.status END,
                   client_id = CASE WHEN cases.client_id = '' THEN EXCLUDED.client_id ELSE cases.client_id END,
-                  county = CASE WHEN cases.county = '' THEN EXCLUDED.county ELSE cases.county END,
-                  prosecution_attorney = CASE WHEN cases.prosecution_attorney = '' THEN EXCLUDED.prosecution_attorney ELSE cases.prosecution_attorney END,
-                  defense_attorney = CASE WHEN cases.defense_attorney = '' THEN EXCLUDED.defense_attorney ELSE cases.defense_attorney END,
+                  court = CASE WHEN cases.court = '' THEN EXCLUDED.court ELSE cases.court END,
+                  prosecution_attorney = CASE
+                    WHEN cases.prosecution_attorney = '' THEN EXCLUDED.prosecution_attorney
+                    WHEN EXCLUDED.prosecution_attorney = '' THEN cases.prosecution_attorney
+                    WHEN cases.prosecution_attorney LIKE '%' || EXCLUDED.prosecution_attorney || '%' THEN cases.prosecution_attorney
+                    ELSE cases.prosecution_attorney || '; ' || EXCLUDED.prosecution_attorney
+                  END,
+                  defense_attorney = CASE
+                    WHEN cases.defense_attorney = '' THEN EXCLUDED.defense_attorney
+                    WHEN EXCLUDED.defense_attorney = '' THEN cases.defense_attorney
+                    WHEN cases.defense_attorney LIKE '%' || EXCLUDED.defense_attorney || '%' THEN cases.defense_attorney
+                    ELSE cases.defense_attorney || '; ' || EXCLUDED.defense_attorney
+                  END,
                   prosecution_firm = CASE WHEN cases.prosecution_firm = '' THEN EXCLUDED.prosecution_firm ELSE cases.prosecution_firm END,
                   defense_firm = CASE WHEN cases.defense_firm = '' THEN EXCLUDED.defense_firm ELSE cases.defense_firm END,
                   charge = CASE WHEN cases.charge = '' THEN EXCLUDED.charge ELSE cases.charge END,
@@ -219,15 +230,15 @@ router.post('/upload', async (req, res) => {
                   sentence = CASE WHEN cases.sentence = '' THEN EXCLUDED.sentence ELSE cases.sentence END,
                   conviction_outcome = CASE WHEN cases.conviction_outcome = '' THEN EXCLUDED.conviction_outcome ELSE cases.conviction_outcome END,
                   conviction_date = CASE WHEN cases.conviction_date = '' THEN EXCLUDED.conviction_date ELSE cases.conviction_date END,
-                  court_district = CASE WHEN cases.court_district = '' THEN EXCLUDED.court_district ELSE cases.court_district END,
-                  court_location = CASE WHEN cases.court_location = '' THEN EXCLUDED.court_location ELSE cases.court_location END,
+                  district_number = CASE WHEN cases.district_number = '' THEN EXCLUDED.district_number ELSE cases.district_number END,
                   filing_date = CASE WHEN cases.filing_date = '' THEN EXCLUDED.filing_date ELSE cases.filing_date END,
                   disposition_date = CASE WHEN cases.disposition_date = '' THEN EXCLUDED.disposition_date ELSE cases.disposition_date END,
-                  court_type = CASE WHEN cases.court_type = '' THEN EXCLUDED.court_type ELSE cases.court_type END,
                   case_type = CASE WHEN cases.case_type = '' THEN EXCLUDED.case_type ELSE cases.case_type END,
                   offense_code = CASE WHEN cases.offense_code = '' THEN EXCLUDED.offense_code ELSE cases.offense_code END,
                   sentence_date = CASE WHEN cases.sentence_date = '' THEN EXCLUDED.sentence_date ELSE cases.sentence_date END,
                   charges = CASE WHEN cases.charges = '' THEN EXCLUDED.charges ELSE cases.charges END,
+                  judgment_description = CASE WHEN cases.judgment_description = '' THEN EXCLUDED.judgment_description ELSE cases.judgment_description END,
+                  sentence_description = CASE WHEN cases.sentence_description = '' THEN EXCLUDED.sentence_description ELSE cases.sentence_description END,
                   updated_at = EXCLUDED.updated_at`,
                 values
               );
@@ -238,21 +249,32 @@ router.post('/upload', async (req, res) => {
                 try {
                   const r = batch[b];
                   await db.query(
-                    `INSERT INTO cases (id, title, description, status, case_number, client_id, county,
+                    `INSERT INTO cases (id, title, description, status, case_number, client_id, court,
                       prosecution_attorney, defense_attorney, prosecution_firm, defense_firm,
                       charge, court_date, ruling, sentence, conviction_outcome, conviction_date,
-                      court_district, court_location, filing_date, disposition_date,
-                      court_type, case_type, offense_code, sentence_date, charges,
-                      created_at, updated_at)
-                     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28)
+                      district_number, filing_date, disposition_date,
+                      case_type, offense_code, sentence_date, charges,
+                      judgment_description, sentence_description,
+                      updated_at)
+                     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27)
                      ON CONFLICT (case_number) DO UPDATE SET
                       title = CASE WHEN cases.title = '' THEN EXCLUDED.title ELSE cases.title END,
                       description = CASE WHEN cases.description = '' THEN EXCLUDED.description ELSE cases.description END,
                       status = CASE WHEN cases.status = 'active' THEN EXCLUDED.status ELSE cases.status END,
                       client_id = CASE WHEN cases.client_id = '' THEN EXCLUDED.client_id ELSE cases.client_id END,
-                      county = CASE WHEN cases.county = '' THEN EXCLUDED.county ELSE cases.county END,
-                      prosecution_attorney = CASE WHEN cases.prosecution_attorney = '' THEN EXCLUDED.prosecution_attorney ELSE cases.prosecution_attorney END,
-                      defense_attorney = CASE WHEN cases.defense_attorney = '' THEN EXCLUDED.defense_attorney ELSE cases.defense_attorney END,
+                      court = CASE WHEN cases.court = '' THEN EXCLUDED.court ELSE cases.court END,
+                      prosecution_attorney = CASE
+                        WHEN cases.prosecution_attorney = '' THEN EXCLUDED.prosecution_attorney
+                        WHEN EXCLUDED.prosecution_attorney = '' THEN cases.prosecution_attorney
+                        WHEN cases.prosecution_attorney LIKE '%' || EXCLUDED.prosecution_attorney || '%' THEN cases.prosecution_attorney
+                        ELSE cases.prosecution_attorney || '; ' || EXCLUDED.prosecution_attorney
+                      END,
+                      defense_attorney = CASE
+                        WHEN cases.defense_attorney = '' THEN EXCLUDED.defense_attorney
+                        WHEN EXCLUDED.defense_attorney = '' THEN cases.defense_attorney
+                        WHEN cases.defense_attorney LIKE '%' || EXCLUDED.defense_attorney || '%' THEN cases.defense_attorney
+                        ELSE cases.defense_attorney || '; ' || EXCLUDED.defense_attorney
+                      END,
                       prosecution_firm = CASE WHEN cases.prosecution_firm = '' THEN EXCLUDED.prosecution_firm ELSE cases.prosecution_firm END,
                       defense_firm = CASE WHEN cases.defense_firm = '' THEN EXCLUDED.defense_firm ELSE cases.defense_firm END,
                       charge = CASE WHEN cases.charge = '' THEN EXCLUDED.charge ELSE cases.charge END,
@@ -261,21 +283,21 @@ router.post('/upload', async (req, res) => {
                       sentence = CASE WHEN cases.sentence = '' THEN EXCLUDED.sentence ELSE cases.sentence END,
                       conviction_outcome = CASE WHEN cases.conviction_outcome = '' THEN EXCLUDED.conviction_outcome ELSE cases.conviction_outcome END,
                       conviction_date = CASE WHEN cases.conviction_date = '' THEN EXCLUDED.conviction_date ELSE cases.conviction_date END,
-                      court_district = CASE WHEN cases.court_district = '' THEN EXCLUDED.court_district ELSE cases.court_district END,
-                      court_location = CASE WHEN cases.court_location = '' THEN EXCLUDED.court_location ELSE cases.court_location END,
+                      district_number = CASE WHEN cases.district_number = '' THEN EXCLUDED.district_number ELSE cases.district_number END,
                       filing_date = CASE WHEN cases.filing_date = '' THEN EXCLUDED.filing_date ELSE cases.filing_date END,
                       disposition_date = CASE WHEN cases.disposition_date = '' THEN EXCLUDED.disposition_date ELSE cases.disposition_date END,
-                      court_type = CASE WHEN cases.court_type = '' THEN EXCLUDED.court_type ELSE cases.court_type END,
                       case_type = CASE WHEN cases.case_type = '' THEN EXCLUDED.case_type ELSE cases.case_type END,
                       offense_code = CASE WHEN cases.offense_code = '' THEN EXCLUDED.offense_code ELSE cases.offense_code END,
                       sentence_date = CASE WHEN cases.sentence_date = '' THEN EXCLUDED.sentence_date ELSE cases.sentence_date END,
                       charges = CASE WHEN cases.charges = '' THEN EXCLUDED.charges ELSE cases.charges END,
+                      judgment_description = CASE WHEN cases.judgment_description = '' THEN EXCLUDED.judgment_description ELSE cases.judgment_description END,
+                      sentence_description = CASE WHEN cases.sentence_description = '' THEN EXCLUDED.sentence_description ELSE cases.sentence_description END,
                       updated_at = EXCLUDED.updated_at`,
                     [
                       uuidv4(), r.title || `${r.charge || 'Case'} - ${r.caseNumber || r.case_number || ''}`,
                       r.description || '', r.status || 'active',
                       r.caseNumber || r.case_number || '', r.clientId || r.client_id || '',
-                      r.county || '', r.prosecutionAttorney || r.prosecution_attorney || '',
+                      r.court || '', r.prosecutionAttorney || r.prosecution_attorney || '',
                       r.defenseAttorney || r.defense_attorney || '',
                       r.prosecutionFirm || r.prosecution_firm || '',
                       r.defenseFirm || r.defense_firm || '',
@@ -283,16 +305,16 @@ router.post('/upload', async (req, res) => {
                       r.ruling || '', r.sentence || '',
                       r.convictionOutcome || r.conviction_outcome || '',
                       r.convictionDate || r.conviction_date || '',
-                      r.courtDistrict || r.court_district || '',
-                      r.courtLocation || r.court_location || '',
+                      r.districtNumber || r.district_number || '',
                       r.filingDate || r.filing_date || '',
                       r.dispositionDate || r.disposition_date || '',
-                      r.courtType || r.court_type || '',
                       r.caseType || r.case_type || '',
                       r.offenseCode || r.offense_code || '',
                       r.sentenceDate || r.sentence_date || '',
                       r.charges ? (Array.isArray(r.charges) ? JSON.stringify(r.charges) : r.charges) : '',
-                      now, now,
+                      r.judgmentDescription || r.judgment_description || '',
+                      r.sentenceDescription || r.sentence_description || '',
+                      now,
                     ]
                   );
                   importedRows++;
@@ -517,7 +539,7 @@ router.get('/audit-log', async (req, res) => {
 
 router.post('/truncate', async (req, res) => {
   const db = getDb();
-  const logger = req.log ?? console;
+  const logger = (req as any).log ?? console;
 
   try {
     logger.info({ userId: req.user?.id }, 'Admin initiated data truncation');

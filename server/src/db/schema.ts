@@ -60,7 +60,7 @@ export async function runSchema(): Promise<void> {
       case_number TEXT NOT NULL UNIQUE,
       client_id TEXT NOT NULL,
       lawyer_id TEXT NOT NULL DEFAULT '',
-      county TEXT NOT NULL DEFAULT '',
+      court TEXT NOT NULL DEFAULT '',
       prosecution_attorney TEXT NOT NULL DEFAULT '',
       prosecution_attorney_id TEXT REFERENCES attorneys(id),
       prosecution_firm TEXT NOT NULL DEFAULT '',
@@ -75,15 +75,15 @@ export async function runSchema(): Promise<void> {
       sentence TEXT NOT NULL DEFAULT '',
       conviction_outcome TEXT NOT NULL DEFAULT '',
       conviction_date TEXT NOT NULL DEFAULT '',
-      court_district TEXT NOT NULL DEFAULT '',
-      court_location TEXT NOT NULL DEFAULT '',
+      district_number TEXT NOT NULL DEFAULT '',
       filing_date TEXT NOT NULL DEFAULT '',
       disposition_date TEXT NOT NULL DEFAULT '',
-      court_type TEXT NOT NULL DEFAULT '',
       case_type TEXT NOT NULL DEFAULT '',
       offense_code TEXT NOT NULL DEFAULT '',
       sentence_date TEXT NOT NULL DEFAULT '',
       charges TEXT NOT NULL DEFAULT '',
+      judgment_description TEXT NOT NULL DEFAULT '',
+      sentence_description TEXT NOT NULL DEFAULT '',
       created_at TEXT NOT NULL DEFAULT NOW(),
       updated_at TEXT NOT NULL DEFAULT NOW()
     )
@@ -154,19 +154,10 @@ export async function runSchema(): Promise<void> {
     ALTER TABLE cases ADD COLUMN IF NOT EXISTS conviction_date TEXT NOT NULL DEFAULT ''
   `);
   await pool.query(`
-    ALTER TABLE cases ADD COLUMN IF NOT EXISTS court_district TEXT NOT NULL DEFAULT ''
-  `);
-  await pool.query(`
-    ALTER TABLE cases ADD COLUMN IF NOT EXISTS court_location TEXT NOT NULL DEFAULT ''
-  `);
-  await pool.query(`
     ALTER TABLE cases ADD COLUMN IF NOT EXISTS filing_date TEXT NOT NULL DEFAULT ''
   `);
   await pool.query(`
     ALTER TABLE cases ADD COLUMN IF NOT EXISTS disposition_date TEXT NOT NULL DEFAULT ''
-  `);
-  await pool.query(`
-    ALTER TABLE cases ADD COLUMN IF NOT EXISTS court_type TEXT NOT NULL DEFAULT ''
   `);
   await pool.query(`
     ALTER TABLE cases ADD COLUMN IF NOT EXISTS case_type TEXT NOT NULL DEFAULT ''
@@ -180,6 +171,29 @@ export async function runSchema(): Promise<void> {
   await pool.query(`
     ALTER TABLE cases ADD COLUMN IF NOT EXISTS charges TEXT NOT NULL DEFAULT ''
   `);
+  await pool.query(`
+    ALTER TABLE cases ADD COLUMN IF NOT EXISTS court TEXT NOT NULL DEFAULT ''
+  `);
+  await pool.query(`
+    ALTER TABLE cases ADD COLUMN IF NOT EXISTS district_number TEXT NOT NULL DEFAULT ''
+  `);
+  await pool.query(`
+    ALTER TABLE cases ADD COLUMN IF NOT EXISTS judgment_description TEXT NOT NULL DEFAULT ''
+  `);
+  await pool.query(`
+    ALTER TABLE cases ADD COLUMN IF NOT EXISTS sentence_description TEXT NOT NULL DEFAULT ''
+  `);
+
+  // Migrate: copy county data to court before dropping
+  await pool.query(`
+    UPDATE cases SET court = county WHERE court = '' AND county != ''
+  `).catch(() => { /* county column may not exist */ });
+
+  // Migrate: drop obsolete columns
+  await pool.query(`ALTER TABLE cases DROP COLUMN IF EXISTS county`);
+  await pool.query(`ALTER TABLE cases DROP COLUMN IF EXISTS court_district`);
+  await pool.query(`ALTER TABLE cases DROP COLUMN IF EXISTS court_location`);
+  await pool.query(`ALTER TABLE cases DROP COLUMN IF EXISTS court_type`);
 
   // Migrate: drop judge remnants from existing databases
   await pool.query(`ALTER TABLE cases DROP COLUMN IF EXISTS judge`);

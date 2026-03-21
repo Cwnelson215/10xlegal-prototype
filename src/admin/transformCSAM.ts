@@ -105,22 +105,33 @@ function aggregateDistrictCourt(
     }));
 
     const disposition = str(first['disposition']);
+    const dispDate = str(first['disp_date']);
+    const origDispDate = str(first['orig_disp_date']);
+
+    const sentenceParts = caseRows.map(r => {
+      const parts = [str(r['sentence']), str(r['value']), str(r['units'])].filter(Boolean);
+      return parts.join(': ');
+    }).filter(Boolean);
 
     cases.push({
       case_number: caseNum,
       filing_date: str(first['filing_date']),
-      court_district: str(first['court_district']),
-      court_type: str(first['court_type']),
-      court_location: str(first['locn_descr']),
+      district_number: str(first['court_district']),
+      court: str(first['locn_descr']),
       case_type: str(first['case_type']),
-      court_date: str(first['disp_date']),
-      disposition_date: str(first['disp_date']),
-      conviction_outcome: disposition,
-      conviction_date: str(first['jdmt_date']),
       offense_code: str(first['offs_viol_code']),
       charge: str(first['offs_viol_descr']),
+      disposition_date: origDispDate,
+      court_date: dispDate || origDispDate,
+      ruling: [disposition, str(first['judgment'])].filter(Boolean).join(' - '),
+      conviction_outcome: disposition,
+      conviction_date: str(first['jdmt_date']),
+      sentence: sentenceParts.join('; '),
+      sentence_date: str(first['sentence_date']),
       defense_attorney: attorney?.def_atty ?? '',
       prosecution_attorney: attorney?.pla_atty ?? '',
+      judgment_description: '',
+      sentence_description: '',
       status: deriveStatus(disposition),
       charges,
     });
@@ -165,22 +176,34 @@ function aggregateJusticeCourt(workbook: XLSX.WorkBook): RawRow[] {
     }));
 
     const disposition = str(first['disposition']);
+    const dispDate = str(first['disp_date']);
+    const origDispDate = str(first['orig_disp_date']);
+    const dispositionDesc = str(first['disposition_description']);
+
+    const sentenceParts = caseRows.map(r => {
+      const parts = [str(r['value']), str(r['units'])].filter(Boolean);
+      return parts.join(' ');
+    }).filter(Boolean);
 
     cases.push({
       case_number: caseNum,
       filing_date: str(first['filing_date']),
-      court_district: str(first['court_district']),
-      court_type: str(first['court_type']),
-      court_location: str(first['locn_descr']),
+      district_number: str(first['court_district']),
+      court: str(first['locn_descr']),
       case_type: str(first['case_type']),
-      court_date: str(first['disp_date']),
-      disposition_date: str(first['disp_date']),
-      conviction_outcome: disposition,
-      conviction_date: str(first['jdmt_date']),
       offense_code: str(first['offs_viol_code']),
       charge: str(first['offs_viol_description']),
+      disposition_date: origDispDate,
+      court_date: dispDate || origDispDate,
+      ruling: dispositionDesc || [disposition, str(first['jdmt_description'])].filter(Boolean).join(' - '),
+      conviction_outcome: disposition,
+      conviction_date: str(first['jdmt_date']),
+      sentence: sentenceParts.join('; '),
+      sentence_date: str(first['sentence_date']),
       defense_attorney: str(first['def_res_atty']),
       prosecution_attorney: str(first['pet_pla_atty']),
+      judgment_description: str(first['jdmt_description']),
+      sentence_description: str(first['sentence_description']),
       status: deriveStatus(disposition),
       charges,
     });

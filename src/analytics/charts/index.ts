@@ -1,4 +1,4 @@
 export { ConvictionDistributionChart } from './ConvictionDistributionChart';
-export { CasesByCountyChart } from './CasesByCountyChart';
+export { CasesByCourtChart } from './CasesByCourtChart';
 export { CasesOverTimeChart } from './CasesOverTimeChart';
 export { ChargeDistributionChart } from './ChargeDistributionChart';

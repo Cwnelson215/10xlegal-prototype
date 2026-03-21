@@ -10,18 +10,18 @@ export function Home() {
     const [caseNumberQuery, setCaseNumberQuery] = useState('');
     const [attorneyQuery, setAttorneyQuery] = useState('');
 
-    const [countyFilter, setCountyFilter] = useState('all');
+    const [courtFilter, setCourtFilter] = useState('all');
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
 
     useEffect(() => {
         setPage(1);
-    }, [caseNumberQuery, attorneyQuery, countyFilter, pageSize]);
+    }, [caseNumberQuery, attorneyQuery, courtFilter, pageSize]);
 
     const hasSearchCriteria =
         caseNumberQuery.trim().length > 0 ||
         attorneyQuery.trim().length > 0 ||
-        countyFilter !== 'all';
+        courtFilter !== 'all';
 
     const filteredCases = useMemo(() => {
         const caseQuery = caseNumberQuery.trim().toLowerCase();
@@ -38,7 +38,7 @@ export function Home() {
                   caseItem.defenseAttorney.toLowerCase().includes(attorneyQueryLower)
                 : true;
 
-            const matchesCounty = countyFilter === 'all' ? true : caseItem.county === countyFilter;
+            const matchesCounty = courtFilter === 'all' ? true : caseItem.court === courtFilter;
 
             return matchesCaseNumber && matchesAttorney && matchesCounty;
         });
@@ -46,7 +46,7 @@ export function Home() {
         roleCases,
         caseNumberQuery,
         attorneyQuery,
-        countyFilter,
+        courtFilter,
     ]);
 
     const totalCases = roleCases.length;
@@ -124,18 +124,18 @@ export function Home() {
                         />
                     </div>
                     <div className="filter-group">
-                        <label htmlFor="county-filter">County</label>
+                        <label htmlFor="court-filter">Court</label>
                         <select
-                            id="county-filter"
-                            value={countyFilter}
-                            onChange={(event) => setCountyFilter(event.target.value)}
+                            id="court-filter"
+                            value={courtFilter}
+                            onChange={(event) => setCourtFilter(event.target.value)}
                         >
                             <option value="all">All</option>
-                            {Array.from(new Set(roleCases.map((caseItem) => caseItem.county)))
+                            {Array.from(new Set(roleCases.map((caseItem) => caseItem.court)))
                                 .sort()
-                                .map((county) => (
-                                    <option key={county} value={county}>
-                                        {county}
+                                .map((court) => (
+                                    <option key={court} value={court}>
+                                        {court}
                                     </option>
                                 ))}
                         </select>
@@ -154,7 +154,7 @@ export function Home() {
                                 <thead>
                                     <tr>
                                         <th>Case Number</th>
-                                        <th>County</th>
+                                        <th>Court</th>
                                         <th>Prosecuting Attorney</th>
                                         <th>Defense Attorney</th>
                                         <th>Charge</th>
@@ -167,7 +167,7 @@ export function Home() {
                                     {pagedCases.map((caseItem) => (
                                         <tr key={caseItem.caseNumber}>
                                             <td><Link to={`/cases/${caseItem.id}`} className="entity-link">{caseItem.caseNumber}</Link></td>
-                                            <td>{caseItem.county}</td>
+                                            <td>{caseItem.court}</td>
                                             <td>
                                                 {caseItem.prosecutionAttorneyId
                                                     ? <Link to={`/attorneys/${caseItem.prosecutionAttorneyId}`} className="entity-link">{caseItem.prosecutionAttorney}</Link>

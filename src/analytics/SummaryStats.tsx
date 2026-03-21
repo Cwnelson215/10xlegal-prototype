@@ -19,17 +19,17 @@ export function SummaryStats({ cases }: { cases: CaseRecord[] }) {
             }
         }
 
-        // Most active county
-        const countyCounts = new Map<string, number>();
+        // Most active court
+        const courtCounts = new Map<string, number>();
         for (const c of cases) {
-            countyCounts.set(c.county, (countyCounts.get(c.county) ?? 0) + 1);
+            courtCounts.set(c.court, (courtCounts.get(c.court) ?? 0) + 1);
         }
-        let mostActiveCounty = 'N/A';
-        let maxCounty = 0;
-        for (const [county, count] of countyCounts) {
-            if (count > maxCounty) {
-                maxCounty = count;
-                mostActiveCounty = county;
+        let mostActiveCourt = 'N/A';
+        let maxCourt = 0;
+        for (const [court, count] of courtCounts) {
+            if (count > maxCourt) {
+                maxCourt = count;
+                mostActiveCourt = court;
             }
         }
 
@@ -40,7 +40,7 @@ export function SummaryStats({ cases }: { cases: CaseRecord[] }) {
         }
         const avgPerMonth = months.size > 0 ? (totalCases / months.size).toFixed(1) : '0';
 
-        return { totalCases, mostCommonConviction, mostActiveCounty, avgPerMonth };
+        return { totalCases, mostCommonConviction, mostActiveCourt, avgPerMonth };
     }, [cases]);
 
     return (
@@ -54,8 +54,8 @@ export function SummaryStats({ cases }: { cases: CaseRecord[] }) {
                 <p className="stat-value">{stats.mostCommonConviction}</p>
             </div>
             <div className="stat-card">
-                <p className="stat-label">Most Active County</p>
-                <p className="stat-value">{stats.mostActiveCounty}</p>
+                <p className="stat-label">Most Active Court</p>
+                <p className="stat-value">{stats.mostActiveCourt}</p>
             </div>
             <div className="stat-card">
                 <p className="stat-label">Avg Cases / Month</p>

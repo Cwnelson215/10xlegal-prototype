@@ -33,8 +33,8 @@ describe('transformCSAM', () => {
   it('aggregates multiple rows per case into charges array', () => {
     const wb = makeWorkbook({
       'District Court Sentence Data': [
-        { case_num: 'C-001', filing_date: '2025-01-01', court_district: 'D1', court_type: 'District', locn_descr: 'Salt Lake', case_type: 'Criminal', disp_date: '2025-06-01', disposition: 'Disposed', jdmt_date: '2025-05-15', offs_viol_code: '76-5-401', offs_viol_descr: 'Assault', judgment: 'Guilty', sentence: 'Jail', value: '30', units: 'Days', charge_sequence: '1' },
-        { case_num: 'C-001', filing_date: '2025-01-01', court_district: 'D1', court_type: 'District', locn_descr: 'Salt Lake', case_type: 'Criminal', disp_date: '2025-06-01', disposition: 'Disposed', jdmt_date: '2025-05-15', offs_viol_code: '76-5-402', offs_viol_descr: 'Battery', judgment: 'Not Guilty', sentence: '', value: '', units: '', charge_sequence: '2' },
+        { case_num: 'C-001', filing_date: '2025-01-01', court_district: 'D1', court_type: 'District', locn_descr: 'Salt Lake', case_type: 'Criminal', orig_disp_date: '2025-05-30', disp_date: '2025-06-01', disposition: 'Disposed', jdmt_date: '2025-05-15', offs_viol_code: '76-5-401', offs_viol_descr: 'Assault', judgment: 'Guilty', sentence: 'Jail', value: '30', units: 'Days', charge_sequence: '1', sentence_date: '2025-06-02' },
+        { case_num: 'C-001', filing_date: '2025-01-01', court_district: 'D1', court_type: 'District', locn_descr: 'Salt Lake', case_type: 'Criminal', orig_disp_date: '2025-05-30', disp_date: '2025-06-01', disposition: 'Disposed', jdmt_date: '2025-05-15', offs_viol_code: '76-5-402', offs_viol_descr: 'Battery', judgment: 'Not Guilty', sentence: '', value: '', units: '', charge_sequence: '2', sentence_date: '2025-06-02' },
       ],
       'District Court Attorney Data': [
         { case_num: 'C-001', def_atty: 'Jane Doe', pla_atty: 'John Smith' },
@@ -47,11 +47,14 @@ describe('transformCSAM', () => {
 
     const row = result.cases!.rows[0]!;
     expect(row['case_number']).toBe('C-001');
-    expect(row['court_location']).toBe('Salt Lake');
+    expect(row['court']).toBe('Salt Lake');
+    expect(row['district_number']).toBe('D1');
     expect(row['defense_attorney']).toBe('Jane Doe');
     expect(row['prosecution_attorney']).toBe('John Smith');
     expect(row['charge']).toBe('Assault');
     expect(row['offense_code']).toBe('76-5-401');
+    expect(row['ruling']).toBe('Disposed - Guilty');
+    expect(row['sentence']).toBe('Jail: 30: Days');
     expect(row['status']).toBe('closed');
 
     const charges = row['charges'] as { offense_code: string; description: string }[];
@@ -80,7 +83,7 @@ describe('transformCSAM', () => {
   it('handles Justice Court Data with different column names', () => {
     const wb = makeWorkbook({
       'Justice Court Data': [
-        { case_num: 'JC-001', filing_date: '2025-03-01', court_district: 'J1', court_type: 'Justice', locn_descr: 'Provo', case_type: 'Infraction', disp_date: '2025-07-01', disposition: 'Closed', jdmt_date: '2025-06-15', offs_viol_code: '41-6a-501', offs_viol_description: 'DUI', jdmt_description: 'Guilty', sentence_description: 'Fine', value: '500', units: 'Dollars', charge_sequence: '1', def_res_atty: 'JC Def', pet_pla_atty: 'JC Pros' },
+        { case_num: 'JC-001', filing_date: '2025-03-01', court_district: 'J1', court_type: 'Justice', locn_descr: 'Provo', case_type: 'Infraction', orig_disp_date: '2025-06-28', disp_date: '2025-07-01', disposition: 'Closed', jdmt_date: '2025-06-15', offs_viol_code: '41-6a-501', offs_viol_description: 'DUI', jdmt_description: 'Guilty', sentence_description: 'Fine', value: '500', units: 'Dollars', charge_sequence: '1', def_res_atty: 'JC Def', pet_pla_atty: 'JC Pros', sentence_date: '2025-07-02', disposition_description: '' },
       ],
     });
 
@@ -89,9 +92,14 @@ describe('transformCSAM', () => {
 
     const row = result.cases!.rows[0]!;
     expect(row['case_number']).toBe('JC-001');
+    expect(row['court']).toBe('Provo');
+    expect(row['district_number']).toBe('J1');
     expect(row['charge']).toBe('DUI');
     expect(row['defense_attorney']).toBe('JC Def');
     expect(row['prosecution_attorney']).toBe('JC Pros');
+    expect(row['judgment_description']).toBe('Guilty');
+    expect(row['sentence_description']).toBe('Fine');
+    expect(row['sentence']).toBe('500 Dollars');
     expect(row['status']).toBe('closed');
 
     const charges = row['charges'] as { judgment: string; sentence: string }[];

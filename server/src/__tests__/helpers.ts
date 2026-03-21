@@ -49,13 +49,6 @@ export async function setupTestDb(): Promise<pg.Pool> {
       created_at TEXT NOT NULL DEFAULT NOW()
     );
 
-    CREATE TABLE judges (
-      id TEXT PRIMARY KEY,
-      name TEXT NOT NULL UNIQUE,
-      created_at TEXT NOT NULL DEFAULT NOW(),
-      updated_at TEXT NOT NULL DEFAULT NOW()
-    );
-
     CREATE TABLE law_firms (
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL UNIQUE,
@@ -81,9 +74,7 @@ export async function setupTestDb(): Promise<pg.Pool> {
       case_number TEXT NOT NULL UNIQUE,
       client_id TEXT NOT NULL,
       lawyer_id TEXT NOT NULL DEFAULT '',
-      county TEXT NOT NULL DEFAULT '',
-      judge TEXT NOT NULL DEFAULT '',
-      judge_id TEXT REFERENCES judges(id),
+      court TEXT NOT NULL DEFAULT '',
       prosecution_attorney TEXT NOT NULL DEFAULT '',
       prosecution_attorney_id TEXT REFERENCES attorneys(id),
       prosecution_firm TEXT NOT NULL DEFAULT '',
@@ -98,6 +89,15 @@ export async function setupTestDb(): Promise<pg.Pool> {
       sentence TEXT NOT NULL DEFAULT '',
       conviction_outcome TEXT NOT NULL DEFAULT '',
       conviction_date TEXT NOT NULL DEFAULT '',
+      district_number TEXT NOT NULL DEFAULT '',
+      filing_date TEXT NOT NULL DEFAULT '',
+      disposition_date TEXT NOT NULL DEFAULT '',
+      case_type TEXT NOT NULL DEFAULT '',
+      offense_code TEXT NOT NULL DEFAULT '',
+      sentence_date TEXT NOT NULL DEFAULT '',
+      charges TEXT NOT NULL DEFAULT '',
+      judgment_description TEXT NOT NULL DEFAULT '',
+      sentence_description TEXT NOT NULL DEFAULT '',
       created_at TEXT NOT NULL DEFAULT NOW(),
       updated_at TEXT NOT NULL DEFAULT NOW()
     );
@@ -163,12 +163,12 @@ export function generateToken(user: { id: string; name: string; email: string; r
   );
 }
 
-export async function seedTestCase(judgeId?: string) {
+export async function seedTestCase() {
   const id = uuidv4();
   const now = new Date().toISOString();
   await testPool.query(`
-    INSERT INTO cases (id, title, description, status, case_number, client_id, county, judge, judge_id, charge, court_date, ruling, sentence, conviction_outcome, conviction_date, created_at, updated_at)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
-  `, [id, 'Test Case', 'Description', 'active', `21-CR-${Math.floor(Math.random() * 99999)}`, 'client-1', 'Salt Lake', 'Hon. Test Judge', judgeId ?? null, 'Test Charge', '2026-06-15', 'Pending', '', 'Guilty', '2026-06-20', now, now]);
+    INSERT INTO cases (id, title, description, status, case_number, client_id, court, charge, court_date, ruling, sentence, conviction_outcome, conviction_date, created_at, updated_at)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+  `, [id, 'Test Case', 'Description', 'active', `21-CR-${Math.floor(Math.random() * 99999)}`, 'client-1', 'Salt Lake', 'Test Charge', '2026-06-15', 'Pending', '', 'Guilty', '2026-06-20', now, now]);
   return id;
 }

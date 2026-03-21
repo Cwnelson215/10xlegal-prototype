@@ -31,7 +31,7 @@ export function buildCalendarEvents(
             title: `Court: ${c.caseNumber}`,
             type: 'court-date',
             caseNumber: c.caseNumber,
-            detail: `${c.charge} — ${c.county} County`,
+            detail: `${c.charge} — ${c.court}`,
         });
 
         if (c.filingDate) {
@@ -41,7 +41,7 @@ export function buildCalendarEvents(
                 title: `Filed: ${c.caseNumber}`,
                 type: 'filing-date',
                 caseNumber: c.caseNumber,
-                detail: `${c.charge} — ${c.county} County`,
+                detail: `${c.charge} — ${c.court}`,
             });
         }
 

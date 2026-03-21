@@ -16,7 +16,7 @@ interface CaseRow {
   case_number: string;
   client_id: string;
   lawyer_id: string;
-  county: string;
+  court: string;
   prosecution_attorney: string;
   prosecution_attorney_id: string | null;
   prosecution_firm: string;
@@ -31,15 +31,15 @@ interface CaseRow {
   sentence: string;
   conviction_outcome: string;
   conviction_date: string;
-  court_district: string;
-  court_location: string;
+  district_number: string;
   filing_date: string;
   disposition_date: string;
-  court_type: string;
   case_type: string;
   offense_code: string;
   sentence_date: string;
   charges: string;
+  judgment_description: string;
+  sentence_description: string;
   created_at: string;
   updated_at: string;
 }
@@ -53,7 +53,7 @@ function toCaseResponse(row: CaseRow) {
     caseNumber: row.case_number,
     clientId: row.client_id,
     lawyerId: row.lawyer_id,
-    county: row.county,
+    court: row.court,
     prosecutionAttorney: row.prosecution_attorney,
     prosecutionAttorneyId: row.prosecution_attorney_id,
     prosecutionFirm: row.prosecution_firm,
@@ -68,14 +68,14 @@ function toCaseResponse(row: CaseRow) {
     sentence: row.sentence,
     convictionOutcome: row.conviction_outcome,
     convictionDate: row.conviction_date,
-    courtDistrict: row.court_district,
-    courtLocation: row.court_location,
+    districtNumber: row.district_number,
     filingDate: row.filing_date,
     dispositionDate: row.disposition_date,
-    courtType: row.court_type,
     caseType: row.case_type,
     offenseCode: row.offense_code,
     sentenceDate: row.sentence_date,
+    judgmentDescription: row.judgment_description,
+    sentenceDescription: row.sentence_description,
     charges: row.charges ? (() => { try { return JSON.parse(row.charges); } catch { return []; } })() : [],
     createdAt: row.created_at,
     updatedAt: row.updated_at,

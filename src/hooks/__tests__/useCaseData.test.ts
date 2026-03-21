@@ -33,11 +33,10 @@ describe('useCaseData', () => {
 
         const firstCase = result.current.allCases[0]!;
         expect(firstCase.caseNumber).toBe('21-CR-10001');
-        expect(firstCase.county).toBe('Salt Lake');
+        expect(firstCase.court).toBe('Salt Lake');
         expect(firstCase.charge).toBe('Test Charge');
         expect(firstCase.courtDate).toBe('2026-06-15');
-        expect(firstCase.courtDistrict).toBe('Third Judicial District');
-        expect(firstCase.courtLocation).toBe('Salt Lake City, UT');
+        expect(firstCase.districtNumber).toBe('3');
         expect(firstCase.filingDate).toBe('2026-01-10');
         expect(firstCase.prosecutionAttorney).toBe('Test Prosecutor');
         expect(firstCase.defenseAttorney).toBe('Test Defender');
@@ -49,7 +48,7 @@ describe('useCaseData', () => {
 
         const secondCase = result.current.allCases[1]!;
         expect(secondCase.caseNumber).toBe('21-CR-10002');
-        expect(secondCase.county).toBe('Utah');
+        expect(secondCase.court).toBe('Utah');
         expect(secondCase.status).toBe('closed');
         expect(secondCase.ruling).toBe('Guilty');
         expect(secondCase.convictionOutcome).toBe('Guilty');

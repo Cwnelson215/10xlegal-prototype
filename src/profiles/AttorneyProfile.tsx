@@ -62,7 +62,7 @@ export function AttorneyProfile() {
                                 <tr>
                                     <th>Case Number</th>
                                     <th>Charge</th>
-                                    <th>County</th>
+                                    <th>Court</th>
                                     <th>Court Date</th>
                                     <th>Ruling</th>
                                 </tr>
@@ -72,7 +72,7 @@ export function AttorneyProfile() {
                                     <tr key={c.id}>
                                         <td><Link to={`/cases/${c.id}`}>{c.caseNumber}</Link></td>
                                         <td>{c.charge}</td>
-                                        <td>{c.county}</td>
+                                        <td>{c.court}</td>
                                         <td>{c.courtDate}</td>
                                         <td>{c.ruling}</td>
                                     </tr>

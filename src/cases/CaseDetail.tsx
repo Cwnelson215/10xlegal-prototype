@@ -44,20 +44,16 @@ export function CaseDetail() {
                             <dd>{caseData.caseNumber}</dd>
                             <dt>Status</dt>
                             <dd><span className={`status-pill status-${caseData.status}`}>{caseData.status}</span></dd>
-                            <dt>County</dt>
-                            <dd>{caseData.county}</dd>
-                            {caseData.courtType && <>
-                                <dt>Court Type</dt>
-                                <dd>{caseData.courtType}</dd>
+                            <dt>Court</dt>
+                            <dd>{caseData.court}</dd>
+                            {caseData.districtNumber && <>
+                                <dt>District #</dt>
+                                <dd>{caseData.districtNumber}</dd>
                             </>}
                             {caseData.caseType && <>
                                 <dt>Case Type</dt>
                                 <dd>{caseData.caseType}</dd>
                             </>}
-                            <dt>Court District</dt>
-                            <dd>{caseData.courtDistrict}</dd>
-                            <dt>Court Location</dt>
-                            <dd>{caseData.courtLocation}</dd>
                             <dt>Charge</dt>
                             <dd>
                                 {caseData.charge}
@@ -88,6 +84,14 @@ export function CaseDetail() {
                             {caseData.sentenceDate && <>
                                 <dt>Sentence Date</dt>
                                 <dd>{caseData.sentenceDate}</dd>
+                            </>}
+                            {caseData.judgmentDescription && <>
+                                <dt>Judgment Description</dt>
+                                <dd>{caseData.judgmentDescription}</dd>
+                            </>}
+                            {caseData.sentenceDescription && <>
+                                <dt>Sentence Description</dt>
+                                <dd>{caseData.sentenceDescription}</dd>
                             </>}
                         </dl>
                     </div>

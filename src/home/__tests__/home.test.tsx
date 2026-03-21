@@ -63,7 +63,7 @@ describe('Home dashboard', () => {
         const headers = table.querySelectorAll('th');
         const headerTexts = Array.from(headers).map((th) => th.textContent);
         expect(headerTexts).toEqual([
-            'Case Number', 'County', 'Prosecuting Attorney',
+            'Case Number', 'Court', 'Prosecuting Attorney',
             'Defense Attorney', 'Charge', 'Court Date',
             'Conviction', 'Sentence',
         ]);
@@ -94,6 +94,6 @@ describe('Home dashboard', () => {
         expect(screen.getByLabelText('Case Number Sequence')).toBeInTheDocument();
         expect(screen.getByLabelText('Attorney Name')).toBeInTheDocument();
 
-        expect(screen.getByLabelText('County')).toBeInTheDocument();
+        expect(screen.getByLabelText('Court')).toBeInTheDocument();
     });
 });
