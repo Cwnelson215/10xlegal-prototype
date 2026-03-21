@@ -182,6 +182,22 @@ router.post('/refresh-token', async (req, res) => {
   });
 });
 
+// POST /auth/promote-admin — TEMPORARY: promote the authenticated user to admin
+router.post('/promote-admin', authenticate, async (req, res) => {
+  const db = getDb();
+  const result = await db.query(
+    `UPDATE users SET role = 'admin' WHERE id = $1 RETURNING id, name, email, role`,
+    [req.user!.id]
+  );
+  const user = result.rows[0] as UserRow;
+  const tokens = await generateTokens(user);
+  apiResponse(res, {
+    token: tokens.token,
+    refreshToken: tokens.refreshToken,
+    user: toUserResponse(user),
+  });
+});
+
 // GET /auth/verify-token
 router.get('/verify-token', authenticate, async (req, res) => {
   const result = await getDb().query('SELECT * FROM users WHERE id = $1', [req.user!.id]);

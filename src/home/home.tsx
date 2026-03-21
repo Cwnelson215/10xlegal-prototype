@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCaseData } from '../hooks';
+import apiClient from '../api/client';
 import './home.css';
 
 export function Home() {
@@ -90,6 +91,25 @@ export function Home() {
                     </p>
                 </div>
             </header>
+            {isAuthenticated && user?.role !== 'admin' && (
+                <div style={{ padding: '1rem', textAlign: 'center' }}>
+                    <button
+                        type="button"
+                        className="btn-form-primary"
+                        onClick={async () => {
+                            try {
+                                const res = await apiClient.post<{ data: { token: string; user: { role: string } } }>('/auth/promote-admin');
+                                apiClient.setToken(res.data.token);
+                                window.location.reload();
+                            } catch (err) {
+                                alert('Failed to promote: ' + (err instanceof Error ? err.message : 'Unknown error'));
+                            }
+                        }}
+                    >
+                        Promote to Admin
+                    </button>
+                </div>
+            )}
             <section className="directory-links">
                 <Link to="/attorneys" className="directory-card">
                     <h3>Attorneys</h3>
