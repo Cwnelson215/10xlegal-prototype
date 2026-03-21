@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { SentenceDisplay } from '../components/SentenceDisplay';
 import { useCaseData } from '../hooks';
 import './home.css';
 
@@ -181,7 +182,7 @@ export function Home() {
                                             <td>{caseItem.charge}</td>
                                             <td>{caseItem.courtDate}</td>
                                             <td>{caseItem.convictionOutcome}</td>
-                                            <td>{caseItem.sentence}</td>
+                                            <td><SentenceDisplay sentence={caseItem.sentence} compact /></td>
                                         </tr>
                                     ))}
                                 </tbody>

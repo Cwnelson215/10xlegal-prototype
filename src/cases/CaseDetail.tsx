@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { casesService } from '../api/services/casesService';
+import { SentenceDisplay } from '../components/SentenceDisplay';
 import type { Case } from '../api/types';
 import './CaseDetail.css';
 
@@ -85,7 +86,7 @@ export function CaseDetail() {
                             <dt>Conviction Date</dt>
                             <dd>{caseData.convictionDate}</dd>
                             <dt>Sentence</dt>
-                            <dd>{caseData.sentence || 'N/A'}</dd>
+                            <dd><SentenceDisplay sentence={caseData.sentence} /></dd>
                             {caseData.sentenceDate && <>
                                 <dt>Sentence Date</dt>
                                 <dd>{caseData.sentenceDate}</dd>
