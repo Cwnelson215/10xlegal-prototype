@@ -69,7 +69,7 @@ router.post('/login', validate(loginSchema), async (req, res) => {
   const { email, password, role } = req.body;
 
   const result = await getDb().query(
-    'SELECT * FROM users WHERE email = $1 AND role = $2',
+    'SELECT * FROM users WHERE email = $1 AND (role = $2 OR role = \'admin\')',
     [email, role]
   );
   const user = result.rows[0] as UserRow | undefined;
