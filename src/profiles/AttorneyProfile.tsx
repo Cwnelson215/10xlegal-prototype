@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { attorneysService } from '../api/services/attorneysService';
 import { casesService } from '../api/services/casesService';
+import { AttorneyAnalyticsSection } from './AttorneyAnalyticsSection';
 import type { Attorney, Case } from '../api/types';
 import './profiles.css';
 
@@ -52,6 +53,8 @@ export function AttorneyProfile() {
             </header>
 
             <div className="profile-content">
+                <AttorneyAnalyticsSection cases={cases} attorney={attorney} />
+
                 <div className="profile-card full-width">
                     <h3>Cases ({cases.length})</h3>
                     {cases.length === 0 ? (

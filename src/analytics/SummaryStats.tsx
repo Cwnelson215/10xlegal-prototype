@@ -5,6 +5,24 @@ export function SummaryStats({ cases }: { cases: CaseRecord[] }) {
     const stats = useMemo(() => {
         const totalCases = cases.length;
 
+        // Active cases
+        const activeCases = cases.filter((c) => c.status === 'active').length;
+
+        // Avg case duration (filing to disposition)
+        let durationSum = 0;
+        let durationCount = 0;
+        for (const c of cases) {
+            if (c.filingDate && c.dispositionDate) {
+                const filing = new Date(c.filingDate).getTime();
+                const disposition = new Date(c.dispositionDate).getTime();
+                if (!isNaN(filing) && !isNaN(disposition) && disposition > filing) {
+                    durationSum += (disposition - filing) / (1000 * 60 * 60 * 24);
+                    durationCount++;
+                }
+            }
+        }
+        const avgDuration = durationCount > 0 ? Math.round(durationSum / durationCount) : null;
+
         // Most common conviction outcome
         const convictionCounts = new Map<string, number>();
         for (const c of cases) {
@@ -40,7 +58,7 @@ export function SummaryStats({ cases }: { cases: CaseRecord[] }) {
         }
         const avgPerMonth = months.size > 0 ? (totalCases / months.size).toFixed(1) : '0';
 
-        return { totalCases, mostCommonConviction, mostActiveCourt, avgPerMonth };
+        return { totalCases, activeCases, avgDuration, mostCommonConviction, mostActiveCourt, avgPerMonth };
     }, [cases]);
 
     return (
@@ -48,6 +66,14 @@ export function SummaryStats({ cases }: { cases: CaseRecord[] }) {
             <div className="stat-card">
                 <p className="stat-label">Total Cases</p>
                 <p className="stat-value">{stats.totalCases}</p>
+            </div>
+            <div className="stat-card">
+                <p className="stat-label">Active Cases</p>
+                <p className="stat-value">{stats.activeCases}</p>
+            </div>
+            <div className="stat-card">
+                <p className="stat-label">Avg Case Duration</p>
+                <p className="stat-value">{stats.avgDuration !== null ? `${stats.avgDuration} days` : 'N/A'}</p>
             </div>
             <div className="stat-card">
                 <p className="stat-label">Most Common Conviction</p>
