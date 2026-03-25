@@ -201,5 +201,34 @@ export async function runSchema(): Promise<void> {
   await pool.query(`DROP TABLE IF EXISTS judges`);
   await pool.query(`DROP TABLE IF EXISTS team_members`);
 
+  // Migrate: unique index on attorneys(name, type) for upsert support
+  await pool.query(`
+    CREATE UNIQUE INDEX IF NOT EXISTS attorneys_name_type_idx ON attorneys (name, type)
+  `);
+
+  // Migrate: normalize existing attorney names from "Last, First" to "First Last" title case
+  await pool.query(`
+    UPDATE attorneys
+    SET name = INITCAP(TRIM(SPLIT_PART(name, ',', 2)) || ' ' || TRIM(SPLIT_PART(name, ',', 1))),
+        updated_at = NOW()
+    WHERE name LIKE '%,%'
+  `);
+  await pool.query(`
+    UPDATE attorneys SET name = INITCAP(name), updated_at = NOW()
+    WHERE name = UPPER(name) AND name NOT LIKE '%,%'
+  `);
+  await pool.query(`
+    UPDATE cases
+    SET prosecution_attorney = INITCAP(TRIM(SPLIT_PART(prosecution_attorney, ',', 2)) || ' ' || TRIM(SPLIT_PART(prosecution_attorney, ',', 1))),
+        updated_at = NOW()
+    WHERE prosecution_attorney LIKE '%,%'
+  `);
+  await pool.query(`
+    UPDATE cases
+    SET defense_attorney = INITCAP(TRIM(SPLIT_PART(defense_attorney, ',', 2)) || ' ' || TRIM(SPLIT_PART(defense_attorney, ',', 1))),
+        updated_at = NOW()
+    WHERE defense_attorney LIKE '%,%'
+  `);
+
   console.log('Database schema initialized');
 }

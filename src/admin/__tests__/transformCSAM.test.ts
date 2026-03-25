@@ -95,8 +95,8 @@ describe('transformCSAM', () => {
     expect(row['court']).toBe('Provo');
     expect(row['district_number']).toBe('J1');
     expect(row['charge']).toBe('DUI');
-    expect(row['defense_attorney']).toBe('JC Def');
-    expect(row['prosecution_attorney']).toBe('JC Pros');
+    expect(row['defense_attorney']).toBe('Jc Def');
+    expect(row['prosecution_attorney']).toBe('Jc Pros');
     expect(row['judgment_description']).toBe('Guilty');
     expect(row['sentence_description']).toBe('Fine');
     expect(row['sentence']).toBe('500 Dollars');

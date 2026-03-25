@@ -26,6 +26,21 @@ function str(val: unknown): string {
   return String(val).trim();
 }
 
+function toTitleCase(name: string): string {
+  return name.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function normalizeAttorneyName(raw: string): string {
+  const trimmed = raw.trim();
+  if (!trimmed) return '';
+  if (trimmed.includes(',')) {
+    const [last, ...rest] = trimmed.split(',');
+    const first = rest.join(',').trim();
+    if (first && last) return toTitleCase(`${first} ${last.trim()}`);
+  }
+  return toTitleCase(trimmed);
+}
+
 function deriveStatus(disposition: string): string {
   const d = disposition.toLowerCase();
   if (d.includes('disposed') || d.includes('closed')) return 'closed';
@@ -46,8 +61,8 @@ function parseAttorneySheet(workbook: XLSX.WorkBook): Map<string, AttorneyInfo> 
     const caseNum = str(row['case_num']);
     if (!caseNum || map.has(caseNum)) continue;
     map.set(caseNum, {
-      def_atty: str(row['def_atty']),
-      pla_atty: str(row['pla_atty']),
+      def_atty: normalizeAttorneyName(str(row['def_atty'])),
+      pla_atty: normalizeAttorneyName(str(row['pla_atty'])),
     });
   }
 
@@ -200,8 +215,8 @@ function aggregateJusticeCourt(workbook: XLSX.WorkBook): RawRow[] {
       conviction_date: str(first['jdmt_date']),
       sentence: sentenceParts.join('; '),
       sentence_date: str(first['sentence_date']),
-      defense_attorney: str(first['def_res_atty']),
-      prosecution_attorney: str(first['pet_pla_atty']),
+      defense_attorney: normalizeAttorneyName(str(first['def_res_atty'])),
+      prosecution_attorney: normalizeAttorneyName(str(first['pet_pla_atty'])),
       judgment_description: str(first['jdmt_description']),
       sentence_description: str(first['sentence_description']),
       status: deriveStatus(disposition),
