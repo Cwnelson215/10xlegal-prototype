@@ -26,12 +26,10 @@ export function Home() {
 
     const filteredCases = useMemo(() => {
         const caseQuery = caseNumberQuery.trim().toLowerCase();
-        const caseDigits = caseQuery.replace(/\D/g, '');
         const attorneyQueryLower = attorneyQuery.trim().toLowerCase();
         return roleCases.filter((caseItem) => {
-            const sequentialDigits = caseItem.caseNumber.split('-')[2] ?? '';
-            const matchesCaseNumber = caseDigits.length > 0
-                ? sequentialDigits.startsWith(caseDigits)
+            const matchesCaseNumber = caseQuery.length > 0
+                ? caseItem.caseNumber.toLowerCase().includes(caseQuery)
                 : true;
 
             const matchesAttorney = attorneyQueryLower.length > 0
