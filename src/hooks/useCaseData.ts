@@ -16,7 +16,7 @@ export function useCaseData() {
             try {
                 setIsLoading(true);
                 setErrorMessage('');
-                const response = await casesService.getCases(1, 1000);
+                const response = await casesService.getCases(1, 100000);
                 if (isMounted) {
                     setAllCases(response.data);
                 }

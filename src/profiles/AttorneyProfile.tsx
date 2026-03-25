@@ -20,7 +20,7 @@ export function AttorneyProfile() {
 
         Promise.all([
             attorneysService.getAttorney(id),
-            casesService.getCases(1, 1000),
+            casesService.getCases(1, 100000),
         ])
             .then(([attData, casesData]) => {
                 if (!mounted) return;

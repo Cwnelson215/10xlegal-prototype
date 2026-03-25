@@ -22,7 +22,8 @@ interface PaginationParams {
 
 export function parsePagination(query: Record<string, unknown>): PaginationParams {
   const page = Math.max(1, Number(query.page) || 1);
-  const pageSize = Math.min(100, Math.max(1, Number(query.pageSize) || 10));
+  const maxSize = Number(query.pageSize) === 0 ? 10 : Number(query.pageSize);
+  const pageSize = Math.max(1, maxSize || 10);
   return { page, pageSize };
 }
 
