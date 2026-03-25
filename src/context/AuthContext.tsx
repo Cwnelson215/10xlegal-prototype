@@ -17,6 +17,19 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+function extractErrorMessage(err: unknown, fallback: string): string {
+    if (err instanceof Error) return err.message;
+    if (err && typeof err === 'object' && 'message' in err) {
+        const apiErr = err as { message: string; errors?: Record<string, string[]> };
+        if (apiErr.errors) {
+            const details = Object.values(apiErr.errors).flat().join('. ');
+            return details || apiErr.message;
+        }
+        return apiErr.message;
+    }
+    return fallback;
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -61,7 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const response = await authService.login(credentials);
             setUser(response.user);
         } catch (err) {
-            const message = err instanceof Error ? err.message : 'Login failed. Is the backend running?';
+            const message = extractErrorMessage(err, 'Login failed. Is the backend running?');
             setError(message);
             throw err;
         } finally {
@@ -77,7 +90,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const response = await authService.register(data);
             setUser(response.user);
         } catch (err) {
-            const errorMessage = err instanceof Error ? err.message : 'Registration failed';
+            const errorMessage = extractErrorMessage(err, 'Registration failed');
             setError(errorMessage);
             throw err;
         } finally {
