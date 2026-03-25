@@ -230,5 +230,44 @@ export async function runSchema(): Promise<void> {
     WHERE defense_attorney LIKE '%,%'
   `);
 
+  // Migrate: backfill attorney records from existing case data
+  // Create prosecution attorneys from cases that have a name but no attorney_id
+  await pool.query(`
+    INSERT INTO attorneys (id, name, type, created_at, updated_at)
+    SELECT gen_random_uuid()::text, prosecution_attorney, 'prosecution', NOW(), NOW()
+    FROM cases
+    WHERE prosecution_attorney != ''
+      AND prosecution_attorney_id IS NULL
+    GROUP BY prosecution_attorney
+    ON CONFLICT (name, type) DO NOTHING
+  `);
+  // Create defense attorneys from cases that have a name but no attorney_id
+  await pool.query(`
+    INSERT INTO attorneys (id, name, type, created_at, updated_at)
+    SELECT gen_random_uuid()::text, defense_attorney, 'defense', NOW(), NOW()
+    FROM cases
+    WHERE defense_attorney != ''
+      AND defense_attorney_id IS NULL
+    GROUP BY defense_attorney
+    ON CONFLICT (name, type) DO NOTHING
+  `);
+  // Link existing cases to their newly-created attorney records
+  await pool.query(`
+    UPDATE cases SET prosecution_attorney_id = a.id
+    FROM attorneys a
+    WHERE cases.prosecution_attorney = a.name
+      AND a.type = 'prosecution'
+      AND cases.prosecution_attorney != ''
+      AND cases.prosecution_attorney_id IS NULL
+  `);
+  await pool.query(`
+    UPDATE cases SET defense_attorney_id = a.id
+    FROM attorneys a
+    WHERE cases.defense_attorney = a.name
+      AND a.type = 'defense'
+      AND cases.defense_attorney != ''
+      AND cases.defense_attorney_id IS NULL
+  `);
+
   console.log('Database schema initialized');
 }
