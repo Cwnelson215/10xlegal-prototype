@@ -5,6 +5,7 @@ import { authenticate, optionalAuth } from '../middleware/auth.js';
 import { apiResponse, apiError, parsePagination, paginatedResponse } from '../utils/responses.js';
 import { validate } from '../middleware/validate.js';
 import { createCaseSchema, updateCaseSchema } from '../validation/schemas.js';
+import { auditLog } from '../utils/audit.js';
 
 const router = Router();
 
@@ -111,6 +112,7 @@ router.post('/', authenticate, validate(createCaseSchema), async (req, res) => {
 
   const result = await db.query('SELECT * FROM cases WHERE id = $1', [id]);
   const row = result.rows[0] as CaseRow;
+  auditLog('case_create', { userId: req.user!.id, userName: req.user!.name }, `Created case ${caseNumber}`);
   apiResponse(res, toCaseResponse(row), 201);
 });
 
@@ -159,6 +161,7 @@ router.put('/:id', authenticate, validate(updateCaseSchema), async (req, res) =>
 
   const result = await db.query('SELECT * FROM cases WHERE id = $1', [req.params.id]);
   const row = result.rows[0] as CaseRow;
+  auditLog('case_update', { userId: req.user!.id, userName: req.user!.name }, `Updated case ${req.params.id}`);
   apiResponse(res, toCaseResponse(row));
 });
 
@@ -172,6 +175,7 @@ router.delete('/:id', authenticate, async (req, res) => {
   }
 
   await db.query('DELETE FROM cases WHERE id = $1', [req.params.id]);
+  auditLog('case_delete', { userId: req.user!.id, userName: req.user!.name }, `Deleted case ${req.params.id}`);
   apiResponse(res, null);
 });
 

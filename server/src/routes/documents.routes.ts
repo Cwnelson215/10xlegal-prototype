@@ -7,6 +7,7 @@ import { config } from '../config.js';
 import { getDb } from '../db/connection.js';
 import { authenticate } from '../middleware/auth.js';
 import { apiResponse, apiError, parsePagination, paginatedResponse } from '../utils/responses.js';
+import { auditLog } from '../utils/audit.js';
 
 const router = Router();
 
@@ -107,6 +108,7 @@ router.post('/upload', authenticate, upload.single('file'), async (req, res) => 
 
   const result = await db.query('SELECT * FROM documents WHERE id = $1', [id]);
   const row = result.rows[0] as DocumentRow;
+  auditLog('document_upload', { userId: req.user!.id, userName: req.user!.name }, `Uploaded "${fileName}" to case ${caseId}`);
   apiResponse(res, toDocumentResponse(row), 201);
 });
 
@@ -159,6 +161,7 @@ router.delete('/:id', authenticate, async (req, res) => {
   }
 
   await db.query('DELETE FROM documents WHERE id = $1', [req.params.id]);
+  auditLog('document_delete', { userId: req.user!.id, userName: req.user!.name }, `Deleted document ${req.params.id}`);
   apiResponse(res, null);
 });
 

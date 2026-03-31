@@ -31,7 +31,7 @@ export async function setupTestDb(): Promise<pg.Pool> {
       name TEXT NOT NULL,
       email TEXT NOT NULL UNIQUE,
       password TEXT NOT NULL,
-      role TEXT NOT NULL CHECK(role IN ('client', 'lawyer', 'legal-official')),
+      role TEXT NOT NULL CHECK(role IN ('client', 'lawyer', 'legal-official', 'admin')),
       lawyer_state_bar TEXT,
       lawyer_bar_number TEXT,
       official_agency TEXT,
@@ -128,6 +128,31 @@ export async function setupTestDb(): Promise<pg.Pool> {
       updated_at TEXT NOT NULL DEFAULT NOW()
     );
 
+    CREATE TABLE import_history (
+      id TEXT PRIMARY KEY,
+      data_type TEXT NOT NULL,
+      format TEXT NOT NULL,
+      file_name TEXT NOT NULL DEFAULT '',
+      total_rows INTEGER NOT NULL DEFAULT 0,
+      imported_rows INTEGER NOT NULL DEFAULT 0,
+      failed_rows INTEGER NOT NULL DEFAULT 0,
+      status TEXT NOT NULL DEFAULT 'completed',
+      errors TEXT NOT NULL DEFAULT '[]',
+      imported_by TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT NOW()
+    );
+
+    CREATE TABLE audit_log (
+      id TEXT PRIMARY KEY,
+      action TEXT NOT NULL,
+      user_id TEXT NOT NULL,
+      user_name TEXT NOT NULL,
+      details TEXT NOT NULL DEFAULT '',
+      created_at TEXT NOT NULL DEFAULT NOW()
+    );
+
+    CREATE UNIQUE INDEX attorneys_name_type_idx ON attorneys (name, type);
+
 `);
 
   return testPool;
@@ -163,12 +188,58 @@ export function generateToken(user: { id: string; name: string; email: string; r
   );
 }
 
-export async function seedTestCase() {
+export async function seedTestCase(overrides: Record<string, string> = {}) {
   const id = uuidv4();
   const now = new Date().toISOString();
   await testPool.query(`
     INSERT INTO cases (id, title, description, status, case_number, client_id, court, charge, court_date, ruling, sentence, conviction_outcome, conviction_date, created_at, updated_at)
     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
-  `, [id, 'Test Case', 'Description', 'active', `21-CR-${Math.floor(Math.random() * 99999)}`, 'client-1', 'Salt Lake', 'Test Charge', '2026-06-15', 'Pending', '', 'Guilty', '2026-06-20', now, now]);
+  `, [
+    id,
+    overrides.title || 'Test Case',
+    overrides.description || 'Description',
+    overrides.status || 'active',
+    overrides.caseNumber || `21-CR-${Math.floor(Math.random() * 99999)}`,
+    overrides.clientId || 'client-1',
+    overrides.court || 'Salt Lake',
+    overrides.charge || 'Test Charge',
+    overrides.courtDate || '2026-06-15',
+    overrides.ruling || 'Pending',
+    overrides.sentence || '',
+    overrides.convictionOutcome || 'Guilty',
+    overrides.convictionDate || '2026-06-20',
+    now, now,
+  ]);
+  return id;
+}
+
+export async function seedTestFirm(name = 'Test Firm') {
+  const id = uuidv4();
+  const now = new Date().toISOString();
+  await testPool.query(
+    `INSERT INTO law_firms (id, name, type, created_at, updated_at) VALUES ($1, $2, '', $3, $4)`,
+    [id, name, now, now]
+  );
+  return id;
+}
+
+export async function seedTestAttorney(type: 'prosecution' | 'defense' = 'prosecution', firmId?: string, name?: string) {
+  const id = uuidv4();
+  const now = new Date().toISOString();
+  await testPool.query(
+    `INSERT INTO attorneys (id, name, type, firm_id, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6)`,
+    [id, name || `Test ${type} attorney`, type, firmId || null, now, now]
+  );
+  return id;
+}
+
+export async function seedTestDeadline(caseId = '', title = 'Test Deadline') {
+  const id = uuidv4();
+  const now = new Date().toISOString();
+  await testPool.query(
+    `INSERT INTO deadlines (id, title, description, due_date, case_id, status, created_at, updated_at)
+     VALUES ($1, $2, '', '2026-07-01', $3, 'pending', $4, $5)`,
+    [id, title, caseId, now, now]
+  );
   return id;
 }

@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { getDb } from '../db/connection.js';
 import { authenticate } from '../middleware/auth.js';
 import { apiResponse, apiError } from '../utils/responses.js';
+import { auditLog } from '../utils/audit.js';
 
 const router = Router();
 
@@ -76,6 +77,7 @@ router.put('/profile', authenticate, async (req, res) => {
 
   const result = await db.query('SELECT * FROM users WHERE id = $1', [req.user!.id]);
   const user = result.rows[0] as UserRow;
+  auditLog('profile_update', { userId: req.user!.id, userName: req.user!.name }, `Updated profile fields`);
   apiResponse(res, toUserResponse(user));
 });
 

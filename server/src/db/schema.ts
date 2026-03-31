@@ -206,6 +206,19 @@ export async function runSchema(): Promise<void> {
     CREATE UNIQUE INDEX IF NOT EXISTS attorneys_name_type_idx ON attorneys (name, type)
   `);
 
+  // Performance indexes on foreign keys and frequently queried columns
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_cases_prosecution_attorney_id ON cases (prosecution_attorney_id)`);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_cases_defense_attorney_id ON cases (defense_attorney_id)`);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_cases_client_id ON cases (client_id)`);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_cases_prosecution_firm_id ON cases (prosecution_firm_id)`);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_cases_defense_firm_id ON cases (defense_firm_id)`);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_attorneys_firm_id ON attorneys (firm_id)`);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_deadlines_case_id ON deadlines (case_id)`);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_documents_case_id ON documents (case_id)`);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_documents_uploaded_by ON documents (uploaded_by)`);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user_id ON refresh_tokens (user_id)`);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_audit_log_created_at ON audit_log (created_at DESC)`);
+
   // Migrate: normalize existing attorney names from "Last, First" to "First Last" title case
   await pool.query(`
     UPDATE attorneys

@@ -5,6 +5,7 @@ import { authenticate, optionalAuth } from '../middleware/auth.js';
 import { apiResponse, apiError, parsePagination, paginatedResponse } from '../utils/responses.js';
 import { validate } from '../middleware/validate.js';
 import { createDeadlineSchema, updateDeadlineSchema } from '../validation/schemas.js';
+import { auditLog } from '../utils/audit.js';
 
 const router = Router();
 
@@ -84,6 +85,7 @@ router.post('/', authenticate, validate(createDeadlineSchema), async (req, res) 
 
   const result = await db.query('SELECT * FROM deadlines WHERE id = $1', [id]);
   const row = result.rows[0] as DeadlineRow;
+  auditLog('deadline_create', { userId: req.user!.id, userName: req.user!.name }, `Created deadline "${title}"`);
   apiResponse(res, toDeadlineResponse(row), 201);
 });
 
@@ -133,6 +135,7 @@ router.put('/:id', authenticate, validate(updateDeadlineSchema), async (req, res
 
   const result = await db.query('SELECT * FROM deadlines WHERE id = $1', [req.params.id]);
   const row = result.rows[0] as DeadlineRow;
+  auditLog('deadline_update', { userId: req.user!.id, userName: req.user!.name }, `Updated deadline ${req.params.id}`);
   apiResponse(res, toDeadlineResponse(row));
 });
 
@@ -146,6 +149,7 @@ router.delete('/:id', authenticate, async (req, res) => {
   }
 
   await db.query('DELETE FROM deadlines WHERE id = $1', [req.params.id]);
+  auditLog('deadline_delete', { userId: req.user!.id, userName: req.user!.name }, `Deleted deadline ${req.params.id}`);
   apiResponse(res, null);
 });
 

@@ -8,6 +8,10 @@ let pool: pg.Pool;
 export async function initDb(): Promise<void> {
   pool = new Pool(config.databaseConfig);
 
+  pool.on('error', (err) => {
+    console.error('Unexpected database pool error:', err.message);
+  });
+
   // Verify connectivity
   const client = await pool.connect();
   client.release();

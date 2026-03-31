@@ -5,6 +5,7 @@ import { getDb } from '../db/connection.js';
 import { authenticate } from '../middleware/auth.js';
 import { apiResponse, apiError, parsePagination, paginatedResponse } from '../utils/responses.js';
 import { normalizeAttorneyName } from '../utils/nameFormat.js';
+import { auditLog } from '../utils/audit.js';
 
 const router = Router();
 
@@ -118,12 +119,7 @@ router.patch('/users/:id/role', async (req, res) => {
     return;
   }
 
-  // Log the action
-  await db.query(
-    `INSERT INTO audit_log (id, action, user_id, user_name, details, created_at)
-     VALUES ($1, $2, $3, $4, $5, $6)`,
-    [uuidv4(), 'role_change', req.user!.id, req.user!.name, `Changed user ${id} role to ${role}`, now]
-  );
+  auditLog('role_change', { userId: req.user!.id, userName: req.user!.name }, `Changed user ${id} role to ${role}`);
 
   apiResponse(res, toUserResponse(result.rows[0] as UserRow));
 });
@@ -481,18 +477,8 @@ router.post('/upload', async (req, res) => {
     }
   }
 
-  // Audit log
-  try {
-    const typeSummary = results.map(r => `${r.importedRows} ${r.dataType}`).join(', ');
-    await db.query(
-      `INSERT INTO audit_log (id, action, user_id, user_name, details, created_at)
-       VALUES ($1,$2,$3,$4,$5,$6)`,
-      [uuidv4(), 'data_import', req.user!.id, req.user!.name,
-        `Imported ${typeSummary} (${totalFailed} total failed)`, now]
-    );
-  } catch (_logErr) {
-    // Don't fail the response if logging fails
-  }
+  const typeSummary = results.map(r => `${r.importedRows} ${r.dataType}`).join(', ');
+  auditLog('data_import', { userId: req.user!.id, userName: req.user!.name }, `Imported ${typeSummary} (${totalFailed} total failed)`);
 
   const totalRows = results.reduce((sum, r) => sum + r.totalRows, 0);
 
@@ -570,7 +556,11 @@ router.get('/export', async (req, res) => {
       headers.join(','),
       ...result.rows.map((row: any) =>
         headers.map(h => {
-          const val = String(row[h] ?? '');
+          let val = String(row[h] ?? '');
+          // Prevent CSV formula injection
+          if (/^[=+\-@\t\r]/.test(val)) {
+            val = "'" + val;
+          }
           return val.includes(',') || val.includes('"') || val.includes('\n')
             ? `"${val.replace(/"/g, '""')}"`
             : val;

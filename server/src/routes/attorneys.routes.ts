@@ -5,41 +5,6 @@ import { apiResponse, apiError, parsePagination, paginatedResponse } from '../ut
 
 const router = Router();
 
-interface AttorneyRow {
-  id: string;
-  name: string;
-  type: string;
-  firm_id: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-async function toAttorneyResponse(row: AttorneyRow) {
-  const db = getDb();
-
-  let firmName: string | null = null;
-  if (row.firm_id) {
-    const firmResult = await db.query('SELECT name FROM law_firms WHERE id = $1', [row.firm_id]);
-    const firm = firmResult.rows[0] as { name: string } | undefined;
-    firmName = firm?.name ?? null;
-  }
-
-  const countCol = row.type === 'prosecution' ? 'prosecution_attorney_id' : 'defense_attorney_id';
-  const caseCountResult = await db.query(`SELECT COUNT(*)::int as count FROM cases WHERE ${countCol} = $1`, [row.id]);
-  const caseCount = caseCountResult.rows[0]!.count as number;
-
-  return {
-    id: row.id,
-    name: row.name,
-    type: row.type,
-    firmId: row.firm_id,
-    firmName,
-    caseCount,
-    createdAt: row.created_at,
-    updatedAt: row.updated_at,
-  };
-}
-
 // GET /attorneys
 router.get('/', optionalAuth, async (req, res) => {
   const { page, pageSize } = parsePagination(req.query as Record<string, unknown>);
@@ -53,34 +18,77 @@ router.get('/', optionalAuth, async (req, res) => {
   let paramIdx = 1;
 
   if (type === 'prosecution' || type === 'defense') {
-    whereClause = `WHERE type = $${paramIdx++}`;
+    whereClause = `WHERE a.type = $${paramIdx++}`;
     countParams.push(type);
     rowParams.push(type);
   }
 
-  const countResult = await db.query(`SELECT COUNT(*)::int as count FROM attorneys ${whereClause}`, countParams);
+  const countResult = await db.query(
+    `SELECT COUNT(*)::int as count FROM attorneys a ${whereClause}`,
+    countParams
+  );
   const total = countResult.rows[0]!.count as number;
 
   rowParams.push(pageSize, offset);
   const rowsResult = await db.query(
-    `SELECT * FROM attorneys ${whereClause} ORDER BY name ASC LIMIT $${paramIdx++} OFFSET $${paramIdx}`,
+    `SELECT a.id, a.name, a.type, a.firm_id, a.created_at, a.updated_at,
+            lf.name AS firm_name,
+            CASE WHEN a.type = 'prosecution'
+              THEN (SELECT COUNT(*)::int FROM cases WHERE prosecution_attorney_id = a.id)
+              ELSE (SELECT COUNT(*)::int FROM cases WHERE defense_attorney_id = a.id)
+            END AS case_count
+     FROM attorneys a
+     LEFT JOIN law_firms lf ON lf.id = a.firm_id
+     ${whereClause}
+     ORDER BY a.name ASC
+     LIMIT $${paramIdx++} OFFSET $${paramIdx}`,
     rowParams
   );
-  const rows = rowsResult.rows as AttorneyRow[];
 
-  const data = await Promise.all(rows.map((r) => toAttorneyResponse(r)));
+  const data = rowsResult.rows.map((row: any) => ({
+    id: row.id,
+    name: row.name,
+    type: row.type,
+    firmId: row.firm_id,
+    firmName: row.firm_name ?? null,
+    caseCount: row.case_count,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  }));
+
   paginatedResponse(res, data, total, page, pageSize);
 });
 
 // GET /attorneys/:id
 router.get('/:id', optionalAuth, async (req, res) => {
-  const result = await getDb().query('SELECT * FROM attorneys WHERE id = $1', [req.params.id]);
-  const row = result.rows[0] as AttorneyRow | undefined;
+  const db = getDb();
+  const result = await db.query(
+    `SELECT a.id, a.name, a.type, a.firm_id, a.created_at, a.updated_at,
+            lf.name AS firm_name,
+            CASE WHEN a.type = 'prosecution'
+              THEN (SELECT COUNT(*)::int FROM cases WHERE prosecution_attorney_id = a.id)
+              ELSE (SELECT COUNT(*)::int FROM cases WHERE defense_attorney_id = a.id)
+            END AS case_count
+     FROM attorneys a
+     LEFT JOIN law_firms lf ON lf.id = a.firm_id
+     WHERE a.id = $1`,
+    [req.params.id]
+  );
+  const row = result.rows[0] as any | undefined;
   if (!row) {
     apiError(res, 'Attorney not found', 404);
     return;
   }
-  apiResponse(res, await toAttorneyResponse(row));
+  apiResponse(res, {
+    id: row.id,
+    name: row.name,
+    type: row.type,
+    firmId: row.firm_id,
+    firmName: row.firm_name ?? null,
+    caseCount: row.case_count,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  });
 });
 
 export { router as attorneysRoutes };

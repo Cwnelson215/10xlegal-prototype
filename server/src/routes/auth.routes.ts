@@ -8,6 +8,7 @@ import { authenticate } from '../middleware/auth.js';
 import { apiResponse, apiError } from '../utils/responses.js';
 import { validate } from '../middleware/validate.js';
 import { loginSchema, registerSchema } from '../validation/schemas.js';
+import { auditLog } from '../utils/audit.js';
 
 const router = Router();
 
@@ -75,16 +76,19 @@ router.post('/login', validate(loginSchema), async (req, res) => {
   const user = result.rows[0] as UserRow | undefined;
 
   if (!user) {
+    auditLog('login_failed', { userId: 'anonymous', userName: email }, `Failed login attempt for ${email}`);
     apiError(res, 'Invalid credentials', 401);
     return;
   }
 
   if (!bcryptjs.compareSync(password, user.password)) {
+    auditLog('login_failed', { userId: user.id, userName: user.name }, `Failed login attempt (wrong password)`);
     apiError(res, 'Invalid credentials', 401);
     return;
   }
 
   const tokens = await generateTokens(user);
+  auditLog('login_success', { userId: user.id, userName: user.name }, `User logged in`);
 
   apiResponse(res, {
     token: tokens.token,
@@ -123,6 +127,7 @@ router.post('/register', validate(registerSchema), async (req, res) => {
   const userResult = await getDb().query('SELECT * FROM users WHERE id = $1', [id]);
   const user = userResult.rows[0] as UserRow;
   const tokens = await generateTokens(user);
+  auditLog('register', { userId: id, userName: name }, `New user registered with role ${role}`);
 
   apiResponse(res, {
     token: tokens.token,
