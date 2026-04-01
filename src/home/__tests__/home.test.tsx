@@ -96,4 +96,69 @@ describe('Home dashboard', () => {
 
         expect(screen.getByLabelText('Court')).toBeInTheDocument();
     });
+
+    it('filters cases by case number', async () => {
+        renderHome();
+
+        await waitFor(() => {
+            expect(screen.queryByText('Loading cases...')).not.toBeInTheDocument();
+        });
+
+        const { fireEvent } = await import('@testing-library/react');
+        fireEvent.change(screen.getByLabelText('Case Number Sequence'), { target: { value: '10001' } });
+
+        expect(screen.getByText('21-CR-10001')).toBeInTheDocument();
+        expect(screen.queryByText('21-CR-10002')).not.toBeInTheDocument();
+    });
+
+    it('filters cases by attorney name', async () => {
+        renderHome();
+
+        await waitFor(() => {
+            expect(screen.queryByText('Loading cases...')).not.toBeInTheDocument();
+        });
+
+        const { fireEvent } = await import('@testing-library/react');
+        fireEvent.change(screen.getByLabelText('Attorney Name'), { target: { value: 'Another' } });
+
+        expect(screen.queryByText('21-CR-10001')).not.toBeInTheDocument();
+        expect(screen.getByText('21-CR-10002')).toBeInTheDocument();
+    });
+
+    it('filters cases by court', async () => {
+        renderHome();
+
+        await waitFor(() => {
+            expect(screen.queryByText('Loading cases...')).not.toBeInTheDocument();
+        });
+
+        const { fireEvent } = await import('@testing-library/react');
+        fireEvent.change(screen.getByLabelText('Court'), { target: { value: 'Utah' } });
+
+        expect(screen.queryByText('21-CR-10001')).not.toBeInTheDocument();
+        expect(screen.getByText('21-CR-10002')).toBeInTheDocument();
+    });
+
+    it('shows no cases message when filters match nothing', async () => {
+        renderHome();
+
+        await waitFor(() => {
+            expect(screen.queryByText('Loading cases...')).not.toBeInTheDocument();
+        });
+
+        const { fireEvent } = await import('@testing-library/react');
+        fireEvent.change(screen.getByLabelText('Case Number Sequence'), { target: { value: 'nonexistent' } });
+
+        expect(screen.getByText('No cases match the selected filters.')).toBeInTheDocument();
+    });
+
+    it('renders attorneys directory link', async () => {
+        renderHome();
+
+        await waitFor(() => {
+            expect(screen.queryByText('Loading cases...')).not.toBeInTheDocument();
+        });
+
+        expect(screen.getByText('Attorneys')).toBeInTheDocument();
+    });
 });
