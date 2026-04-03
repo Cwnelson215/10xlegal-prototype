@@ -21,7 +21,7 @@ function buildDatabaseConfig(): pg.PoolConfig {
     database: process.env.DB_NAME || '10xlegal',
     user: process.env.DB_USER || 'postgres',
     password: process.env.DB_PASSWORD || 'postgres',
-    ssl: isProduction ? true : false,
+    ssl: isProduction ? { rejectUnauthorized: false } : false,
     max: parseInt(process.env.DB_POOL_MAX || '20'),
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 5000,
