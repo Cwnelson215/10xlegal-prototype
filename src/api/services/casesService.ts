@@ -66,4 +66,12 @@ export const casesService = {
             API_ENDPOINTS.CASES.DELETE(id)
         );
     },
+
+    async assignJudge(caseId: string, judgeId: string): Promise<Case> {
+        const response = await apiClient.put<ApiResponse<Case>>(
+            API_ENDPOINTS.CASES.ASSIGN_JUDGE(caseId),
+            { judgeId }
+        );
+        return response.data!;
+    },
 };

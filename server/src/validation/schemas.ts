@@ -51,3 +51,14 @@ export const updateDeadlineSchema = z.object({
   status: z.enum(['pending', 'completed', 'overdue']).optional(),
   assignedTo: z.string().optional(),
 });
+
+export const createJudgeSchema = z.object({
+  name: z.string().min(1, 'Name required'),
+  title: z.string().optional(),
+  court: z.string().optional(),
+  district: z.string().optional(),
+});
+
+export const assignJudgeSchema = z.object({
+  judgeId: z.string().min(1, 'Judge ID required'),
+});

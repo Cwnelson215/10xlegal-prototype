@@ -28,6 +28,7 @@ export const API_ENDPOINTS = {
         GET: (id: string) => `/cases/${id}`,
         UPDATE: (id: string) => `/cases/${id}`,
         DELETE: (id: string) => `/cases/${id}`,
+        ASSIGN_JUDGE: (id: string) => `/cases/${id}/judge`,
     },
 
     // Documents endpoints
@@ -52,6 +53,13 @@ export const API_ENDPOINTS = {
     ATTORNEYS: {
         LIST: '/attorneys',
         GET: (id: string) => `/attorneys/${id}`,
+    },
+
+    // Judges endpoints
+    JUDGES: {
+        LIST: '/judges',
+        CREATE: '/judges',
+        GET: (id: string) => `/judges/${id}`,
     },
 
     // Firms endpoints

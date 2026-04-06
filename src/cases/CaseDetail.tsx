@@ -2,14 +2,18 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { casesService } from '../api/services/casesService';
 import { SentenceDisplay } from '../components/SentenceDisplay';
+import { AssignJudgeModal } from './AssignJudgeModal';
+import { useAuth } from '../context/AuthContext';
 import type { Case } from '../api/types';
 import './CaseDetail.css';
 
 export function CaseDetail() {
     const { id } = useParams<{ id: string }>();
+    const { user } = useAuth();
     const [caseData, setCaseData] = useState<Case | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState('');
+    const [showAssignJudge, setShowAssignJudge] = useState(false);
 
     useEffect(() => {
         if (!id) return;
@@ -125,8 +129,35 @@ export function CaseDetail() {
                             </dd>
                         </dl>
                     </div>
+
+                    <div className="detail-card">
+                        <h3>Judge</h3>
+                        <dl>
+                            <dt>Judge</dt>
+                            <dd>
+                                {caseData.judgeId
+                                    ? <Link to={`/judges/${caseData.judgeId}`}>{caseData.judgeName}</Link>
+                                    : caseData.judgeName || 'Not assigned'}
+                            </dd>
+                        </dl>
+                        {!caseData.judgeId && user?.role === 'admin' && (
+                            <button className="assign-judge-btn" onClick={() => setShowAssignJudge(true)}>
+                                Assign Judge
+                            </button>
+                        )}
+                    </div>
                 </div>
             </div>
+
+            {showAssignJudge && (
+                <AssignJudgeModal
+                    caseId={caseData.id}
+                    court={caseData.court}
+                    district={caseData.districtNumber}
+                    onAssigned={(updated) => { setCaseData(updated); setShowAssignJudge(false); }}
+                    onClose={() => setShowAssignJudge(false)}
+                />
+            )}
         </div>
     );
 }

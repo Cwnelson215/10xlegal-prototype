@@ -52,6 +52,18 @@ export async function runSchema(): Promise<void> {
   `);
 
   await pool.query(`
+    CREATE TABLE IF NOT EXISTS judges (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      title TEXT NOT NULL DEFAULT '',
+      court TEXT NOT NULL DEFAULT '',
+      district TEXT NOT NULL DEFAULT '',
+      created_at TEXT NOT NULL DEFAULT NOW(),
+      updated_at TEXT NOT NULL DEFAULT NOW()
+    )
+  `);
+
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS cases (
       id TEXT PRIMARY KEY,
       title TEXT NOT NULL,
@@ -69,6 +81,8 @@ export async function runSchema(): Promise<void> {
       defense_attorney_id TEXT REFERENCES attorneys(id),
       defense_firm TEXT NOT NULL DEFAULT '',
       defense_firm_id TEXT REFERENCES law_firms(id),
+      judge_name TEXT NOT NULL DEFAULT '',
+      judge_id TEXT REFERENCES judges(id),
       charge TEXT NOT NULL DEFAULT '',
       court_date TEXT NOT NULL DEFAULT '',
       ruling TEXT NOT NULL DEFAULT '',
@@ -200,11 +214,12 @@ export async function runSchema(): Promise<void> {
   await pool.query(`ALTER TABLE cases DROP COLUMN IF EXISTS court_location`);
   await pool.query(`ALTER TABLE cases DROP COLUMN IF EXISTS court_type`);
 
-  // Migrate: drop judge remnants from existing databases
-  await pool.query(`ALTER TABLE cases DROP COLUMN IF EXISTS judge`);
-  await pool.query(`ALTER TABLE cases DROP COLUMN IF EXISTS judge_id`);
-  await pool.query(`DROP TABLE IF EXISTS judges`);
+  // Migrate: drop obsolete team_members table
   await pool.query(`DROP TABLE IF EXISTS team_members`);
+
+  // Migrate: add judge columns if missing (for existing databases)
+  await pool.query(`ALTER TABLE cases ADD COLUMN IF NOT EXISTS judge_name TEXT NOT NULL DEFAULT ''`);
+  await pool.query(`ALTER TABLE cases ADD COLUMN IF NOT EXISTS judge_id TEXT REFERENCES judges(id)`);
 
   // Migrate: unique index on attorneys(name, type) for upsert support
   await pool.query(`
@@ -223,6 +238,7 @@ export async function runSchema(): Promise<void> {
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_documents_uploaded_by ON documents (uploaded_by)`);
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user_id ON refresh_tokens (user_id)`);
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_audit_log_created_at ON audit_log (created_at DESC)`);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_cases_judge_id ON cases (judge_id)`);
 
   // Migrate: normalize existing attorney names from "Last, First" to "First Last" title case
   await pool.query(`

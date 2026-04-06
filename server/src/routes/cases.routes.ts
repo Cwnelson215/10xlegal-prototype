@@ -4,7 +4,7 @@ import { getDb } from '../db/connection.js';
 import { authenticate, optionalAuth } from '../middleware/auth.js';
 import { apiResponse, apiError, parsePagination, paginatedResponse } from '../utils/responses.js';
 import { validate } from '../middleware/validate.js';
-import { createCaseSchema, updateCaseSchema } from '../validation/schemas.js';
+import { createCaseSchema, updateCaseSchema, assignJudgeSchema } from '../validation/schemas.js';
 import { auditLog } from '../utils/audit.js';
 
 const router = Router();
@@ -26,6 +26,8 @@ interface CaseRow {
   defense_attorney_id: string | null;
   defense_firm: string;
   defense_firm_id: string | null;
+  judge_name: string;
+  judge_id: string | null;
   charge: string;
   court_date: string;
   ruling: string;
@@ -63,6 +65,8 @@ function toCaseResponse(row: CaseRow) {
     defenseAttorneyId: row.defense_attorney_id,
     defenseFirm: row.defense_firm,
     defenseFirmId: row.defense_firm_id,
+    judgeName: row.judge_name,
+    judgeId: row.judge_id,
     charge: row.charge,
     courtDate: row.court_date,
     ruling: row.ruling,
@@ -177,6 +181,40 @@ router.delete('/:id', authenticate, async (req, res) => {
   await db.query('DELETE FROM cases WHERE id = $1', [req.params.id]);
   auditLog('case_delete', { userId: req.user!.id, userName: req.user!.name }, `Deleted case ${req.params.id}`);
   apiResponse(res, null);
+});
+
+// PUT /cases/:id/judge
+router.put('/:id/judge', authenticate, validate(assignJudgeSchema), async (req: any, res) => {
+  if (req.user.role !== 'admin') {
+    apiError(res, 'Admin access required', 403);
+    return;
+  }
+
+  const db = getDb();
+  const caseResult = await db.query('SELECT id, case_number FROM cases WHERE id = $1', [req.params.id]);
+  if (!caseResult.rows[0]) {
+    apiError(res, 'Case not found', 404);
+    return;
+  }
+
+  const { judgeId } = req.body;
+  const judgeResult = await db.query('SELECT id, name FROM judges WHERE id = $1', [judgeId]);
+  if (!judgeResult.rows[0]) {
+    apiError(res, 'Judge not found', 404);
+    return;
+  }
+
+  const judgeName = (judgeResult.rows[0] as any).name;
+  await db.query(
+    'UPDATE cases SET judge_id = $1, judge_name = $2, updated_at = NOW() WHERE id = $3',
+    [judgeId, judgeName, req.params.id]
+  );
+
+  const result = await db.query('SELECT * FROM cases WHERE id = $1', [req.params.id]);
+  const row = result.rows[0] as CaseRow;
+  const caseNumber = (caseResult.rows[0] as any).case_number;
+  auditLog('judge_assign', { userId: req.user.id, userName: req.user.name }, `Assigned Judge ${judgeName} to case ${caseNumber}`);
+  apiResponse(res, toCaseResponse(row));
 });
 
 export { router as casesRoutes };

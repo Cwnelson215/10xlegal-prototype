@@ -1,0 +1,149 @@
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid #eef2f6;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #7f8c8d;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+}
+
+.modal-close:hover {
+    color: #2c3e50;
+}
+
+.modal-body {
+    padding: 24px;
+}
+
+.modal-error {
+    background: #fdf2f2;
+    color: #c0392b;
+    padding: 10px 14px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    font-size: 14px;
+}
+
+.modal-body .form-group {
+    margin-bottom: 16px;
+}
+
+.modal-body label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #5d6d7e;
+    margin-bottom: 6px;
+}
+
+.modal-body select,
+.modal-body input[type="text"] {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #dce1e8;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #2c3e50;
+    box-sizing: border-box;
+}
+
+.modal-body select:focus,
+.modal-body input[type="text"]:focus {
+    outline: none;
+    border-color: #2980b9;
+    box-shadow: 0 0 0 2px rgba(41, 128, 185, 0.15);
+}
+
+.btn-link {
+    background: none;
+    border: none;
+    color: #2980b9;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 0;
+    font-weight: 500;
+}
+
+.btn-link:hover {
+    text-decoration: underline;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 16px 24px;
+    border-top: 1px solid #eef2f6;
+}
+
+.btn-cancel {
+    padding: 8px 20px;
+    border: 1px solid #dce1e8;
+    border-radius: 6px;
+    background: white;
+    color: #5d6d7e;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.btn-cancel:hover {
+    background: #f5f7fa;
+}
+
+.btn-assign {
+    padding: 8px 20px;
+    border: none;
+    border-radius: 6px;
+    background: #2980b9;
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.btn-assign:hover {
+    background: #2471a3;
+}
+
+.btn-assign:disabled,
+.btn-cancel:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}

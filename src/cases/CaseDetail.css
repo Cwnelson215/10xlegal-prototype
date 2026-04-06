@@ -128,3 +128,20 @@
 .charges-list li {
   margin-bottom: 2px;
 }
+
+.assign-judge-btn {
+  margin-top: 16px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  background: #2980b9;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+}
+
+.assign-judge-btn:hover {
+  background: #2471a3;
+}

@@ -82,6 +82,8 @@ export interface Case {
     defenseAttorneyId?: string;
     prosecutionFirmId?: string;
     defenseFirmId?: string;
+    judgeName?: string;
+    judgeId?: string;
     createdAt: string;
     updatedAt: string;
 }
@@ -172,6 +174,25 @@ export interface LawFirm {
     attorneys?: Attorney[];
     createdAt: string;
     updatedAt: string;
+}
+
+// Judge Types
+export interface Judge {
+    id: string;
+    name: string;
+    title: string;
+    court: string;
+    district: string;
+    caseCount: number;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface CreateJudgeRequest {
+    name: string;
+    title?: string;
+    court?: string;
+    district?: string;
 }
 
 // API Response Types

@@ -11,6 +11,7 @@ import { CaseDetail } from './cases/CaseDetail';
 import { AttorneyProfile } from './profiles/AttorneyProfile';
 
 import { AttorneysList } from './profiles/AttorneysList';
+import { JudgeProfile } from './profiles/JudgeProfile';
 
 import { Admin } from './admin/admin';
 import { AdminLogin } from './admin/AdminLogin';
@@ -96,6 +97,7 @@ function AppContent() {
                 <Route path="/cases/:id" element={<CaseDetail />} />
                 <Route path="/attorneys" element={<AttorneysList />} />
                 <Route path="/attorneys/:id" element={<AttorneyProfile />} />
+                <Route path="/judges/:id" element={<JudgeProfile />} />
                 <Route path="/admin-login" element={<AdminLogin />} />
                 <Route path="/admin" element={<AdminGuard><Admin /></AdminGuard>} />
             </Routes>
