@@ -1,5 +1,7 @@
 import { useMemo } from 'react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer } from 'recharts';
+import { CustomTooltip } from '../CustomTooltip';
+import { CHART_COLORS, AXIS_TICK_STYLE, GRID_PROPS } from '../chartTheme';
 import type { CaseRecord } from '../../types';
 
 export function TopAttorneysChart({ cases }: { cases: CaseRecord[] }) {
@@ -18,7 +20,7 @@ export function TopAttorneysChart({ cases }: { cases: CaseRecord[] }) {
             }
         }
         return Array.from(counts, ([name, { prosecution, defense }]) => ({
-            name: name.length > 20 ? name.slice(0, 17) + '...' : name,
+            name: name.length > 22 ? name.slice(0, 19) + '...' : name,
             prosecution,
             defense,
             total: prosecution + defense,
@@ -27,17 +29,24 @@ export function TopAttorneysChart({ cases }: { cases: CaseRecord[] }) {
             .slice(0, 10);
     }, [cases]);
 
-    if (data.length === 0) return <p>No data available.</p>;
+    if (data.length === 0) return <p className="chart-empty">No data available.</p>;
 
     return (
-        <ResponsiveContainer width="100%" height={350}>
-            <BarChart data={data} layout="vertical" margin={{ left: 100 }}>
-                <XAxis type="number" allowDecimals={false} />
-                <YAxis type="category" dataKey="name" width={95} tick={{ fontSize: 11 }} />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="prosecution" stackId="a" fill="#e74c3c" name="Prosecution" />
-                <Bar dataKey="defense" stackId="a" fill="#3498db" name="Defense" radius={[0, 4, 4, 0]} />
+        <ResponsiveContainer width="100%" height={380}>
+            <BarChart data={data} margin={{ left: 10, right: 20, bottom: 20 }}>
+                <CartesianGrid {...GRID_PROPS} />
+                <XAxis
+                    dataKey="name"
+                    tick={{ ...AXIS_TICK_STYLE, fontSize: 11 }}
+                    angle={-35}
+                    textAnchor="end"
+                    height={70}
+                />
+                <YAxis allowDecimals={false} tick={AXIS_TICK_STYLE} />
+                <CustomTooltip />
+                <Legend iconType="circle" wrapperStyle={{ fontSize: 12, paddingTop: 8 }} />
+                <Bar dataKey="prosecution" fill={CHART_COLORS.coral} name="Prosecution" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="defense" fill={CHART_COLORS.blue} name="Defense" radius={[4, 4, 0, 0]} />
             </BarChart>
         </ResponsiveContainer>
     );

@@ -1,9 +1,11 @@
 import { useMemo } from 'react';
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Legend, ReferenceLine, ResponsiveContainer } from 'recharts';
+import { CustomTooltip } from '../CustomTooltip';
+import { CHART_COLORS, AXIS_TICK_STYLE, GRID_PROPS } from '../chartTheme';
 import type { CaseRecord } from '../../types';
 
 export function ProsDefVolumeChart({ cases }: { cases: CaseRecord[] }) {
-    const data = useMemo(() => {
+    const { data, avgTotal } = useMemo(() => {
         const monthly = new Map<string, { prosecution: number; defense: number }>();
         for (const c of cases) {
             if (!c.courtDate) continue;
@@ -13,36 +15,57 @@ export function ProsDefVolumeChart({ cases }: { cases: CaseRecord[] }) {
             if (c.defenseAttorney) entry.defense++;
             monthly.set(month, entry);
         }
-        return Array.from(monthly, ([month, counts]) => ({ month, ...counts }))
+        const result = Array.from(monthly, ([month, counts]) => ({ month, ...counts }))
             .sort((a, b) => a.month.localeCompare(b.month));
+        const avg = result.length > 0
+            ? Math.round(result.reduce((s, d) => s + d.prosecution + d.defense, 0) / result.length)
+            : 0;
+        return { data: result, avgTotal: avg };
     }, [cases]);
 
-    if (data.length === 0) return <p>No data available.</p>;
+    if (data.length === 0) return <p className="chart-empty">No data available.</p>;
 
     return (
-        <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={data}>
-                <XAxis dataKey="month" tick={{ fontSize: 11 }} interval="preserveStartEnd" />
-                <YAxis allowDecimals={false} />
-                <Tooltip />
-                <Legend />
+        <ResponsiveContainer width="100%" height={320}>
+            <AreaChart data={data} margin={{ top: 10, right: 20, bottom: 0, left: 0 }}>
+                <defs>
+                    <linearGradient id="gradPros" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor={CHART_COLORS.coral} stopOpacity={0.2} />
+                        <stop offset="100%" stopColor={CHART_COLORS.coral} stopOpacity={0.02} />
+                    </linearGradient>
+                    <linearGradient id="gradDef" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor={CHART_COLORS.blue} stopOpacity={0.2} />
+                        <stop offset="100%" stopColor={CHART_COLORS.blue} stopOpacity={0.02} />
+                    </linearGradient>
+                </defs>
+                <CartesianGrid {...GRID_PROPS} />
+                <XAxis dataKey="month" tick={AXIS_TICK_STYLE} interval="preserveStartEnd" />
+                <YAxis allowDecimals={false} tick={AXIS_TICK_STYLE} />
+                <ReferenceLine
+                    y={avgTotal}
+                    stroke={CHART_COLORS.grey}
+                    strokeDasharray="6 4"
+                    label={{ value: `Avg: ${avgTotal}`, position: 'right', fill: '#627D98', fontSize: 11 }}
+                />
+                <CustomTooltip />
+                <Legend iconType="circle" wrapperStyle={{ fontSize: 12, paddingTop: 8 }} />
                 <Area
-                    type="monotone"
+                    type="natural"
                     dataKey="prosecution"
-                    stackId="1"
-                    stroke="#e74c3c"
-                    fill="rgba(231,76,60,0.25)"
+                    stroke={CHART_COLORS.coral}
+                    fill="url(#gradPros)"
                     name="Prosecution"
                     strokeWidth={2}
+                    dot={false}
                 />
                 <Area
-                    type="monotone"
+                    type="natural"
                     dataKey="defense"
-                    stackId="1"
-                    stroke="#3498db"
-                    fill="rgba(52,152,219,0.25)"
+                    stroke={CHART_COLORS.blue}
+                    fill="url(#gradDef)"
                     name="Defense"
                     strokeWidth={2}
+                    dot={false}
                 />
             </AreaChart>
         </ResponsiveContainer>

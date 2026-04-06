@@ -38,7 +38,25 @@ describe('Analytics', () => {
         await waitFor(() => {
             expect(screen.queryByText('Loading analytics...')).not.toBeInTheDocument();
         });
-        fireEvent.click(screen.getByText('Attorney Analytics'));
+        fireEvent.click(screen.getByText('Attorneys & Firms'));
         expect(screen.getByText('Total Attorneys')).toBeInTheDocument();
+    });
+
+    it('switches to cases tab', async () => {
+        renderAnalytics();
+        await waitFor(() => {
+            expect(screen.queryByText('Loading analytics...')).not.toBeInTheDocument();
+        });
+        fireEvent.click(screen.getByText('Cases'));
+        expect(screen.getByText('Unique Charges')).toBeInTheDocument();
+    });
+
+    it('switches to judges tab', async () => {
+        renderAnalytics();
+        await waitFor(() => {
+            expect(screen.queryByText('Loading analytics...')).not.toBeInTheDocument();
+        });
+        fireEvent.click(screen.getByText('Judges & Courts'));
+        expect(screen.getByText('Total Judges')).toBeInTheDocument();
     });
 });

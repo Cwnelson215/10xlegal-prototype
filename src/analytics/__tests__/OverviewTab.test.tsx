@@ -16,14 +16,16 @@ const mockCases: CaseRecord[] = [
 ];
 
 describe('OverviewTab', () => {
-    it('renders summary stats and chart headings', () => {
+    it('renders KPI cards and chart headings', () => {
         render(createElement(OverviewTab, { cases: mockCases }));
         expect(screen.getByText('Total Cases')).toBeInTheDocument();
+        expect(screen.getByText('Active Cases')).toBeInTheDocument();
+        expect(screen.getByText('Avg Resolution Time')).toBeInTheDocument();
+        expect(screen.getByText('Conviction Rate')).toBeInTheDocument();
+        expect(screen.getByText('Cases Over Time')).toBeInTheDocument();
+        expect(screen.getByText('Case Status')).toBeInTheDocument();
+        expect(screen.getByText('Case Pipeline')).toBeInTheDocument();
         expect(screen.getByText('Conviction Distribution')).toBeInTheDocument();
         expect(screen.getByText('Cases by Court')).toBeInTheDocument();
-        expect(screen.getByText('Cases Over Time')).toBeInTheDocument();
-        expect(screen.getByText('Charge Distribution')).toBeInTheDocument();
-        expect(screen.getByText('Case Status')).toBeInTheDocument();
-        expect(screen.getByText('Ruling Distribution')).toBeInTheDocument();
     });
 });

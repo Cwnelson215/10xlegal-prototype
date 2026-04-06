@@ -4,20 +4,20 @@ import { CustomTooltip } from '../CustomTooltip';
 import { CHART_PALETTE } from '../chartTheme';
 import type { CaseRecord } from '../../types';
 
-export function ConvictionDistributionChart({ cases }: { cases: CaseRecord[] }) {
+export function CaseTypeBreakdownChart({ cases }: { cases: CaseRecord[] }) {
     const data = useMemo(() => {
         const counts = new Map<string, number>();
         for (const c of cases) {
-            counts.set(c.convictionOutcome, (counts.get(c.convictionOutcome) ?? 0) + 1);
+            if (c.caseType) {
+                counts.set(c.caseType, (counts.get(c.caseType) ?? 0) + 1);
+            }
         }
-        return Array.from(counts, ([name, value]) => ({ name, value })).sort(
-            (a, b) => b.value - a.value,
-        );
+        return Array.from(counts, ([name, value]) => ({ name, value }))
+            .sort((a, b) => b.value - a.value)
+            .slice(0, 10);
     }, [cases]);
 
-    const total = useMemo(() => data.reduce((sum, d) => sum + d.value, 0), [data]);
-
-    if (data.length === 0) return <p className="chart-empty">No data available.</p>;
+    if (data.length === 0) return <p className="chart-empty">No case type data available.</p>;
 
     return (
         <ResponsiveContainer width="100%" height={300}>
@@ -31,19 +31,13 @@ export function ConvictionDistributionChart({ cases }: { cases: CaseRecord[] }) 
                     dataKey="value"
                     paddingAngle={2}
                     label={({ name, percent }: { name?: string; percent?: number }) =>
-                        `${name ?? ''} ${((percent ?? 0) * 100).toFixed(0)}%`
+                        `${(name ?? '').length > 15 ? (name ?? '').slice(0, 12) + '...' : name ?? ''} ${((percent ?? 0) * 100).toFixed(0)}%`
                     }
                 >
                     {data.map((_, index) => (
                         <Cell key={index} fill={CHART_PALETTE[index % CHART_PALETTE.length]!} />
                     ))}
                 </Pie>
-                <text x="50%" y="48%" textAnchor="middle" fill="#1B2A4A" fontSize={24} fontWeight={700}>
-                    {total.toLocaleString()}
-                </text>
-                <text x="50%" y="56%" textAnchor="middle" fill="#627D98" fontSize={12}>
-                    Total Cases
-                </text>
                 <CustomTooltip />
                 <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
             </PieChart>

@@ -1,10 +1,19 @@
 import { useState } from 'react';
 import { useCaseData } from '../hooks';
 import { OverviewTab } from './OverviewTab';
+import { CasesTab } from './CasesTab';
 import { AttorneyAnalyticsTab } from './AttorneyAnalyticsTab';
+import { JudgesTab } from './JudgesTab';
 import './analytics.css';
 
-type Tab = 'overview' | 'attorneys';
+type Tab = 'overview' | 'cases' | 'attorneys' | 'judges';
+
+const TABS: { key: Tab; label: string }[] = [
+    { key: 'overview', label: 'Overview' },
+    { key: 'cases', label: 'Cases' },
+    { key: 'attorneys', label: 'Attorneys & Firms' },
+    { key: 'judges', label: 'Judges & Courts' },
+];
 
 export function Analytics() {
     const { cases, isLoading, errorMessage } = useCaseData();
@@ -15,7 +24,7 @@ export function Analytics() {
             <header className="analytics-header">
                 <div className="header-content">
                     <h1>Analytics</h1>
-                    <p>Overview of all case data</p>
+                    <p>Comprehensive insights across all case data</p>
                 </div>
             </header>
 
@@ -25,22 +34,21 @@ export function Analytics() {
             {!isLoading && !errorMessage && (
                 <div className="analytics-content">
                     <div className="analytics-tabs">
-                        <button
-                            className={`tab-btn${activeTab === 'overview' ? ' active' : ''}`}
-                            onClick={() => setActiveTab('overview')}
-                        >
-                            Overview
-                        </button>
-                        <button
-                            className={`tab-btn${activeTab === 'attorneys' ? ' active' : ''}`}
-                            onClick={() => setActiveTab('attorneys')}
-                        >
-                            Attorney Analytics
-                        </button>
+                        {TABS.map((tab) => (
+                            <button
+                                key={tab.key}
+                                className={`tab-btn${activeTab === tab.key ? ' active' : ''}`}
+                                onClick={() => setActiveTab(tab.key)}
+                            >
+                                {tab.label}
+                            </button>
+                        ))}
                     </div>
 
                     {activeTab === 'overview' && <OverviewTab cases={cases} />}
+                    {activeTab === 'cases' && <CasesTab cases={cases} />}
                     {activeTab === 'attorneys' && <AttorneyAnalyticsTab cases={cases} />}
+                    {activeTab === 'judges' && <JudgesTab cases={cases} />}
                 </div>
             )}
         </div>

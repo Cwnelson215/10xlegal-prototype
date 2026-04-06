@@ -1,10 +1,11 @@
 import { useMemo } from 'react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer } from 'recharts';
+import { CustomTooltip } from '../CustomTooltip';
+import { OUTCOME_COLORS, AXIS_TICK_STYLE, GRID_PROPS } from '../chartTheme';
 import type { CaseRecord } from '../../types';
 
 export function AttorneyOutcomesChart({ cases }: { cases: CaseRecord[] }) {
     const data = useMemo(() => {
-        // Count cases per attorney, then for top 8 show outcome breakdown
         const attorneyCases = new Map<string, CaseRecord[]>();
         for (const c of cases) {
             if (c.prosecutionAttorney) {
@@ -19,7 +20,6 @@ export function AttorneyOutcomesChart({ cases }: { cases: CaseRecord[] }) {
             }
         }
 
-        // Sort by case count, take top 8
         const sorted = Array.from(attorneyCases.entries())
             .sort((a, b) => b[1].length - a[1].length)
             .slice(0, 8);
@@ -39,7 +39,7 @@ export function AttorneyOutcomesChart({ cases }: { cases: CaseRecord[] }) {
                 }
             }
             return {
-                name: name.length > 18 ? name.slice(0, 15) + '...' : name,
+                name: name.length > 20 ? name.slice(0, 17) + '...' : name,
                 guilty,
                 notGuilty,
                 other,
@@ -47,18 +47,19 @@ export function AttorneyOutcomesChart({ cases }: { cases: CaseRecord[] }) {
         });
     }, [cases]);
 
-    if (data.length === 0) return <p>No data available.</p>;
+    if (data.length === 0) return <p className="chart-empty">No data available.</p>;
 
     return (
         <ResponsiveContainer width="100%" height={350}>
-            <BarChart data={data} layout="vertical" margin={{ left: 100 }}>
-                <XAxis type="number" allowDecimals={false} />
-                <YAxis type="category" dataKey="name" width={95} tick={{ fontSize: 11 }} />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="guilty" stackId="a" fill="#e74c3c" name="Guilty" />
-                <Bar dataKey="notGuilty" stackId="a" fill="#2ecc71" name="Not Guilty" />
-                <Bar dataKey="other" stackId="a" fill="#95a5a6" name="Other" radius={[0, 4, 4, 0]} />
+            <BarChart data={data} layout="vertical" margin={{ left: 10, right: 20 }}>
+                <CartesianGrid {...GRID_PROPS} horizontal={false} />
+                <XAxis type="number" allowDecimals={false} tick={AXIS_TICK_STYLE} />
+                <YAxis type="category" dataKey="name" width={110} tick={{ ...AXIS_TICK_STYLE, fontSize: 11 }} />
+                <CustomTooltip />
+                <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
+                <Bar dataKey="guilty" stackId="a" fill={OUTCOME_COLORS.guilty} name="Guilty" />
+                <Bar dataKey="notGuilty" stackId="a" fill={OUTCOME_COLORS.notGuilty} name="Not Guilty" />
+                <Bar dataKey="other" stackId="a" fill={OUTCOME_COLORS.other} name="Other" radius={[0, 6, 6, 0]} />
             </BarChart>
         </ResponsiveContainer>
     );

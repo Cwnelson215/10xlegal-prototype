@@ -1,93 +1,107 @@
 import { useMemo } from 'react';
+import { KpiRow } from './KpiRow';
+import { KpiCard } from './KpiCard';
+import { ChartCard } from './ChartCard';
+import { CHART_COLORS } from './chartTheme';
 import {
     TopAttorneysChart,
     AttorneyOutcomesChart,
+    AttorneyWinRateChart,
     FirmCaseloadChart,
     ProsDefVolumeChart,
 } from './charts';
 import type { CaseRecord } from '../types';
 
-function AttorneySummaryStats({ cases }: { cases: CaseRecord[] }) {
+export function AttorneyAnalyticsTab({ cases }: { cases: CaseRecord[] }) {
     const stats = useMemo(() => {
         const prosecutionSet = new Set<string>();
         const defenseSet = new Set<string>();
-        const prosecutionCounts = new Map<string, number>();
-        const defenseCounts = new Map<string, number>();
+        const firmCounts = new Map<string, number>();
+        let prosConvictions = 0;
+        let prosTotal = 0;
+        let defWins = 0;
+        let defTotal = 0;
 
         for (const c of cases) {
+            const outcome = c.convictionOutcome?.toLowerCase() ?? '';
+            const isGuilty = outcome.includes('guilty') && !outcome.includes('not guilty');
+            const isNotGuilty = outcome.includes('not guilty') || outcome.includes('acquit') || outcome.includes('dismiss');
+
             if (c.prosecutionAttorney) {
                 prosecutionSet.add(c.prosecutionAttorney);
-                prosecutionCounts.set(c.prosecutionAttorney, (prosecutionCounts.get(c.prosecutionAttorney) ?? 0) + 1);
+                prosTotal++;
+                if (isGuilty) prosConvictions++;
             }
             if (c.defenseAttorney) {
                 defenseSet.add(c.defenseAttorney);
-                defenseCounts.set(c.defenseAttorney, (defenseCounts.get(c.defenseAttorney) ?? 0) + 1);
+                defTotal++;
+                if (isNotGuilty) defWins++;
             }
+            if (c.prosecutionFirm) firmCounts.set(c.prosecutionFirm, (firmCounts.get(c.prosecutionFirm) ?? 0) + 1);
+            if (c.defenseFirm) firmCounts.set(c.defenseFirm, (firmCounts.get(c.defenseFirm) ?? 0) + 1);
         }
 
         const totalAttorneys = new Set([...prosecutionSet, ...defenseSet]).size;
+        const prosWinRate = prosTotal > 0 ? Math.round((prosConvictions / prosTotal) * 100) : null;
+        const defWinRate = defTotal > 0 ? Math.round((defWins / defTotal) * 100) : null;
 
-        let mostActiveProsecution = 'N/A';
-        let maxPros = 0;
-        for (const [name, count] of prosecutionCounts) {
-            if (count > maxPros) { maxPros = count; mostActiveProsecution = name; }
+        let mostActiveFirm = 'N/A';
+        let maxFirm = 0;
+        for (const [firm, count] of firmCounts) {
+            if (count > maxFirm) {
+                maxFirm = count;
+                mostActiveFirm = firm.length > 25 ? firm.slice(0, 22) + '...' : firm;
+            }
         }
 
-        let mostActiveDefense = 'N/A';
-        let maxDef = 0;
-        for (const [name, count] of defenseCounts) {
-            if (count > maxDef) { maxDef = count; mostActiveDefense = name; }
-        }
-
-        const avgCasesPerAttorney = totalAttorneys > 0 ? (cases.length / totalAttorneys).toFixed(1) : '0';
-
-        return { totalAttorneys, mostActiveProsecution, mostActiveDefense, avgCasesPerAttorney };
+        return { totalAttorneys, prosWinRate, defWinRate, mostActiveFirm };
     }, [cases]);
 
     return (
-        <div className="summary-stats">
-            <div className="stat-card">
-                <p className="stat-label">Total Attorneys</p>
-                <p className="stat-value">{stats.totalAttorneys}</p>
-            </div>
-            <div className="stat-card">
-                <p className="stat-label">Most Active Prosecutor</p>
-                <p className="stat-value">{stats.mostActiveProsecution}</p>
-            </div>
-            <div className="stat-card">
-                <p className="stat-label">Most Active Defender</p>
-                <p className="stat-value">{stats.mostActiveDefense}</p>
-            </div>
-            <div className="stat-card">
-                <p className="stat-label">Avg Cases / Attorney</p>
-                <p className="stat-value">{stats.avgCasesPerAttorney}</p>
-            </div>
-        </div>
-    );
-}
-
-export function AttorneyAnalyticsTab({ cases }: { cases: CaseRecord[] }) {
-    return (
         <>
-            <AttorneySummaryStats cases={cases} />
+            <KpiRow>
+                <KpiCard
+                    label="Total Attorneys"
+                    value={stats.totalAttorneys.toLocaleString()}
+                    accentColor={CHART_COLORS.blue}
+                />
+                <KpiCard
+                    label="Prosecution Win Rate"
+                    value={stats.prosWinRate !== null ? `${stats.prosWinRate}%` : 'N/A'}
+                    accentColor={CHART_COLORS.coral}
+                />
+                <KpiCard
+                    label="Defense Win Rate"
+                    value={stats.defWinRate !== null ? `${stats.defWinRate}%` : 'N/A'}
+                    accentColor={CHART_COLORS.green}
+                />
+                <KpiCard
+                    label="Most Active Firm"
+                    value={stats.mostActiveFirm}
+                    accentColor={CHART_COLORS.plum}
+                />
+            </KpiRow>
 
-            <div className="charts-grid">
-                <div className="chart-card">
-                    <h3>Top Attorneys by Caseload</h3>
+            <div className="dashboard-grid">
+                <ChartCard title="Top Attorneys by Caseload" subtitle="Prosecution vs defense cases" span={12}>
                     <TopAttorneysChart cases={cases} />
-                </div>
-                <div className="chart-card">
-                    <h3>Conviction Outcomes by Attorney</h3>
+                </ChartCard>
+
+                <ChartCard title="Attorney Win Rates" subtitle="Top attorneys by conviction/acquittal rate" span={6}>
+                    <AttorneyWinRateChart cases={cases} />
+                </ChartCard>
+
+                <ChartCard title="Conviction Outcomes by Attorney" subtitle="Top 8 attorneys by outcome breakdown" span={6}>
                     <AttorneyOutcomesChart cases={cases} />
-                </div>
-                <div className="chart-card">
-                    <h3>Cases by Law Firm</h3>
+                </ChartCard>
+
+                <ChartCard title="Cases by Law Firm" subtitle="Prosecution vs defense split" span={6}>
                     <FirmCaseloadChart cases={cases} />
-                </div>
-                <div className="chart-card">
-                    <h3>Prosecution vs Defense Volume</h3>
+                </ChartCard>
+
+                <ChartCard title="Prosecution vs Defense Volume" subtitle="Monthly trend over time" span={6}>
                     <ProsDefVolumeChart cases={cases} />
-                </div>
+                </ChartCard>
             </div>
         </>
     );

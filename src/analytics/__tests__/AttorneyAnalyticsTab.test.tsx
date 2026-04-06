@@ -24,12 +24,12 @@ const mockCases: CaseRecord[] = [
 ];
 
 describe('AttorneyAnalyticsTab', () => {
-    it('renders attorney summary stats', () => {
+    it('renders attorney KPI cards', () => {
         render(createElement(AttorneyAnalyticsTab, { cases: mockCases }));
         expect(screen.getByText('Total Attorneys')).toBeInTheDocument();
-        expect(screen.getByText('Most Active Prosecutor')).toBeInTheDocument();
-        expect(screen.getByText('Most Active Defender')).toBeInTheDocument();
-        expect(screen.getByText('Avg Cases / Attorney')).toBeInTheDocument();
+        expect(screen.getByText('Prosecution Win Rate')).toBeInTheDocument();
+        expect(screen.getByText('Defense Win Rate')).toBeInTheDocument();
+        expect(screen.getByText('Most Active Firm')).toBeInTheDocument();
     });
 
     it('renders chart headings', () => {
@@ -43,7 +43,6 @@ describe('AttorneyAnalyticsTab', () => {
     it('handles empty cases', () => {
         render(createElement(AttorneyAnalyticsTab, { cases: [] }));
         expect(screen.getByText('Total Attorneys')).toBeInTheDocument();
-        // With 0 attorneys, multiple stats should show 0
         const zeros = screen.getAllByText('0');
         expect(zeros.length).toBeGreaterThanOrEqual(1);
     });
