@@ -23,7 +23,7 @@ export function AttorneyAnalyticsTab({ cases }: { cases: CaseRecord[] }) {
         let defTotal = 0;
 
         for (const c of cases) {
-            const cls = classifyOutcome(c.convictionOutcome ?? c.ruling);
+            const cls = classifyOutcome(c.convictionOutcome || c.ruling);
 
             if (c.prosecutionAttorney) {
                 prosecutionSet.add(c.prosecutionAttorney);

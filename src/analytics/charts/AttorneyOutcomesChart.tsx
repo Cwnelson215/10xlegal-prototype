@@ -33,7 +33,7 @@ export function AttorneyOutcomesChart({ cases }: { cases: CaseRecord[] }) {
             let notGuilty = 0;
             let other = 0;
             for (const c of attCases) {
-                const cls = classifyOutcome(c.convictionOutcome ?? c.ruling);
+                const cls = classifyOutcome(c.convictionOutcome || c.ruling);
                 if (cls === 'guilty') guilty++;
                 else if (cls === 'notGuilty') notGuilty++;
                 else other++;

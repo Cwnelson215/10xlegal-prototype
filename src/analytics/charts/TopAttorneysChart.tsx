@@ -36,15 +36,15 @@ export function TopAttorneysChart({ cases }: { cases: CaseRecord[] }) {
     if (data.length === 0) return <p className="chart-empty">No data available.</p>;
 
     return (
-        <ResponsiveContainer width="100%" height={400}>
-            <BarChart data={data} margin={{ left: 10, right: 20, bottom: 40, top: 10 }}>
+        <ResponsiveContainer width="100%" height={420}>
+            <BarChart data={data} margin={{ left: 10, right: 20, bottom: 5, top: 10 }}>
                 <CartesianGrid {...GRID_PROPS} />
                 <XAxis
                     dataKey="name"
                     tick={{ ...AXIS_TICK_STYLE, fontSize: 10 }}
-                    angle={-40}
+                    angle={-45}
                     textAnchor="end"
-                    height={80}
+                    height={90}
                     interval={0}
                 />
                 <YAxis allowDecimals={false} tick={AXIS_TICK_STYLE} />

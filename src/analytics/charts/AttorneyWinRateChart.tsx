@@ -14,7 +14,7 @@ export function AttorneyWinRateChart({ cases }: { cases: CaseRecord[] }) {
         const defStats = new Map<string, { total: number; wins: number }>();
 
         for (const c of cases) {
-            const cls = classifyOutcome(c.convictionOutcome ?? c.ruling);
+            const cls = classifyOutcome(c.convictionOutcome || c.ruling);
 
             if (c.prosecutionAttorney) {
                 const entry = prosStats.get(c.prosecutionAttorney) ?? { total: 0, convictions: 0 };
