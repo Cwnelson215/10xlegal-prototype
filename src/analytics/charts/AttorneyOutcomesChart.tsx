@@ -4,6 +4,10 @@ import { CustomTooltip } from '../CustomTooltip';
 import { OUTCOME_COLORS, AXIS_TICK_STYLE, GRID_PROPS, classifyOutcome } from '../chartTheme';
 import type { CaseRecord } from '../../types';
 
+function truncate(s: string, max: number): string {
+    return s.length > max ? s.slice(0, max - 2) + '...' : s;
+}
+
 export function AttorneyOutcomesChart({ cases }: { cases: CaseRecord[] }) {
     const data = useMemo(() => {
         const attorneyCases = new Map<string, CaseRecord[]>();
@@ -35,7 +39,7 @@ export function AttorneyOutcomesChart({ cases }: { cases: CaseRecord[] }) {
                 else other++;
             }
             return {
-                name: name.length > 20 ? name.slice(0, 17) + '...' : name,
+                name: truncate(name, 18),
                 guilty,
                 notGuilty,
                 other,
@@ -47,7 +51,7 @@ export function AttorneyOutcomesChart({ cases }: { cases: CaseRecord[] }) {
 
     return (
         <ResponsiveContainer width="100%" height={350}>
-            <BarChart data={data} layout="vertical" margin={{ left: 10, right: 20 }}>
+            <BarChart data={data} layout="vertical" margin={{ left: 20, right: 20, top: 5, bottom: 5 }}>
                 <CartesianGrid {...GRID_PROPS} horizontal={false} />
                 <XAxis type="number" allowDecimals={false} tick={AXIS_TICK_STYLE} />
                 <YAxis type="category" dataKey="name" width={110} tick={{ ...AXIS_TICK_STYLE, fontSize: 11 }} />

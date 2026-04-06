@@ -4,6 +4,10 @@ import { CustomTooltip } from '../CustomTooltip';
 import { CHART_COLORS, AXIS_TICK_STYLE, GRID_PROPS } from '../chartTheme';
 import type { CaseRecord } from '../../types';
 
+function truncate(s: string, max: number): string {
+    return s.length > max ? s.slice(0, max - 2) + '...' : s;
+}
+
 export function CourtThroughputChart({ cases }: { cases: CaseRecord[] }) {
     const { data, overallAvg } = useMemo(() => {
         const courtDays = new Map<string, number[]>();
@@ -21,7 +25,7 @@ export function CourtThroughputChart({ cases }: { cases: CaseRecord[] }) {
         }
 
         const result = Array.from(courtDays, ([court, days]) => ({
-            court: court.length > 28 ? court.slice(0, 25) + '...' : court,
+            court: truncate(court, 22),
             avgDays: Math.round(days.reduce((a, b) => a + b, 0) / days.length),
             cases: days.length,
         }))
@@ -38,8 +42,8 @@ export function CourtThroughputChart({ cases }: { cases: CaseRecord[] }) {
     if (data.length === 0) return <p className="chart-empty">No throughput data available.</p>;
 
     return (
-        <ResponsiveContainer width="100%" height={Math.max(300, data.length * 34)}>
-            <BarChart data={data} layout="vertical" margin={{ left: 10, right: 30 }}>
+        <ResponsiveContainer width="100%" height={Math.max(300, data.length * 32)}>
+            <BarChart data={data} layout="vertical" margin={{ left: 20, right: 20, top: 15, bottom: 5 }}>
                 <defs>
                     <linearGradient id="gradThroughput" x1="0" y1="0" x2="1" y2="0">
                         <stop offset="0%" stopColor={CHART_COLORS.green} stopOpacity={0.8} />
@@ -47,13 +51,12 @@ export function CourtThroughputChart({ cases }: { cases: CaseRecord[] }) {
                     </linearGradient>
                 </defs>
                 <CartesianGrid {...GRID_PROPS} horizontal={false} />
-                <XAxis type="number" allowDecimals={false} tick={AXIS_TICK_STYLE} label={{ value: 'Avg Days', position: 'insideBottomRight', offset: -5, fill: '#627D98', fontSize: 11 }} />
-                <YAxis type="category" dataKey="court" width={140} tick={{ ...AXIS_TICK_STYLE, fontSize: 11 }} />
+                <XAxis type="number" allowDecimals={false} tick={AXIS_TICK_STYLE} />
+                <YAxis type="category" dataKey="court" width={130} tick={{ ...AXIS_TICK_STYLE, fontSize: 11 }} />
                 <ReferenceLine
                     x={overallAvg}
                     stroke={CHART_COLORS.coral}
                     strokeDasharray="6 4"
-                    label={{ value: `Avg: ${overallAvg}d`, position: 'top', fill: CHART_COLORS.coral, fontSize: 11 }}
                 />
                 <CustomTooltip formatter={(value, name) => name === 'Avg Days' ? `${value} days` : String(value)} />
                 <Bar dataKey="avgDays" fill="url(#gradThroughput)" radius={[0, 6, 6, 0]} name="Avg Days" />

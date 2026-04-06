@@ -13,7 +13,7 @@ export function DistrictComparisonChart({ cases }: { cases: CaseRecord[] }) {
             }
         }
         return Array.from(counts, ([district, count]) => ({
-            district: `District ${district}`,
+            district: `Dist. ${district}`,
             count,
         }))
             .sort((a, b) => b.count - a.count)
@@ -24,7 +24,7 @@ export function DistrictComparisonChart({ cases }: { cases: CaseRecord[] }) {
 
     return (
         <ResponsiveContainer width="100%" height={320}>
-            <BarChart data={data} margin={{ top: 10, right: 20, bottom: 20, left: 0 }}>
+            <BarChart data={data} margin={{ top: 10, right: 20, bottom: 10, left: 0 }}>
                 <defs>
                     <linearGradient id="gradDistrict" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="0%" stopColor={CHART_COLORS.blue} stopOpacity={0.9} />
@@ -35,9 +35,7 @@ export function DistrictComparisonChart({ cases }: { cases: CaseRecord[] }) {
                 <XAxis
                     dataKey="district"
                     tick={{ ...AXIS_TICK_STYLE, fontSize: 11 }}
-                    angle={-30}
-                    textAnchor="end"
-                    height={60}
+                    interval={0}
                 />
                 <YAxis allowDecimals={false} tick={AXIS_TICK_STYLE} />
                 <CustomTooltip />

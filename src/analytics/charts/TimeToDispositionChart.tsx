@@ -4,6 +4,10 @@ import { CustomTooltip } from '../CustomTooltip';
 import { CHART_COLORS, AXIS_TICK_STYLE, GRID_PROPS } from '../chartTheme';
 import type { CaseRecord } from '../../types';
 
+function truncate(s: string, max: number): string {
+    return s.length > max ? s.slice(0, max - 2) + '...' : s;
+}
+
 export function TimeToDispositionChart({ cases }: { cases: CaseRecord[] }) {
     const { data, overallAvg } = useMemo(() => {
         const chargeDays = new Map<string, number[]>();
@@ -21,7 +25,7 @@ export function TimeToDispositionChart({ cases }: { cases: CaseRecord[] }) {
         }
 
         const result = Array.from(chargeDays, ([charge, days]) => ({
-            charge: charge.length > 30 ? charge.slice(0, 27) + '...' : charge,
+            charge: truncate(charge, 25),
             avgDays: Math.round(days.reduce((a, b) => a + b, 0) / days.length),
             cases: days.length,
         }))
@@ -39,7 +43,7 @@ export function TimeToDispositionChart({ cases }: { cases: CaseRecord[] }) {
 
     return (
         <ResponsiveContainer width="100%" height={Math.max(300, data.length * 36)}>
-            <BarChart data={data} layout="vertical" margin={{ left: 10, right: 30 }}>
+            <BarChart data={data} layout="vertical" margin={{ left: 20, right: 20, top: 15, bottom: 5 }}>
                 <defs>
                     <linearGradient id="gradDisposition" x1="0" y1="0" x2="1" y2="0">
                         <stop offset="0%" stopColor={CHART_COLORS.plum} stopOpacity={0.85} />
@@ -47,13 +51,12 @@ export function TimeToDispositionChart({ cases }: { cases: CaseRecord[] }) {
                     </linearGradient>
                 </defs>
                 <CartesianGrid {...GRID_PROPS} horizontal={false} />
-                <XAxis type="number" allowDecimals={false} tick={AXIS_TICK_STYLE} label={{ value: 'Days', position: 'insideBottomRight', offset: -5, fill: '#627D98', fontSize: 11 }} />
-                <YAxis type="category" dataKey="charge" width={150} tick={{ ...AXIS_TICK_STYLE, fontSize: 11 }} />
+                <XAxis type="number" allowDecimals={false} tick={AXIS_TICK_STYLE} />
+                <YAxis type="category" dataKey="charge" width={155} tick={{ ...AXIS_TICK_STYLE, fontSize: 11 }} />
                 <ReferenceLine
                     x={overallAvg}
                     stroke={CHART_COLORS.coral}
                     strokeDasharray="6 4"
-                    label={{ value: `Avg: ${overallAvg}d`, position: 'top', fill: CHART_COLORS.coral, fontSize: 11 }}
                 />
                 <CustomTooltip formatter={(value, name) => name === 'Avg Days' ? `${value} days` : String(value)} />
                 <Bar dataKey="avgDays" fill="url(#gradDisposition)" radius={[0, 6, 6, 0]} name="Avg Days" />

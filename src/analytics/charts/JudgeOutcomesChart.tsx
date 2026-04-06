@@ -4,6 +4,10 @@ import { CustomTooltip } from '../CustomTooltip';
 import { OUTCOME_COLORS, AXIS_TICK_STYLE, GRID_PROPS, classifyOutcome } from '../chartTheme';
 import type { CaseRecord } from '../../types';
 
+function truncate(s: string, max: number): string {
+    return s.length > max ? s.slice(0, max - 2) + '...' : s;
+}
+
 export function JudgeOutcomesChart({ cases }: { cases: CaseRecord[] }) {
     const data = useMemo(() => {
         const judgeCases = new Map<string, CaseRecord[]>();
@@ -29,7 +33,7 @@ export function JudgeOutcomesChart({ cases }: { cases: CaseRecord[] }) {
                     else other++;
                 }
                 return {
-                    name: name.length > 22 ? name.slice(0, 19) + '...' : name,
+                    name: truncate(name, 18),
                     guilty,
                     notGuilty,
                     other,
@@ -41,10 +45,10 @@ export function JudgeOutcomesChart({ cases }: { cases: CaseRecord[] }) {
 
     return (
         <ResponsiveContainer width="100%" height={Math.max(350, data.length * 36)}>
-            <BarChart data={data} layout="vertical" margin={{ left: 10, right: 20 }}>
+            <BarChart data={data} layout="vertical" margin={{ left: 20, right: 20, top: 5, bottom: 5 }}>
                 <CartesianGrid {...GRID_PROPS} horizontal={false} />
                 <XAxis type="number" allowDecimals={false} tick={AXIS_TICK_STYLE} />
-                <YAxis type="category" dataKey="name" width={120} tick={{ ...AXIS_TICK_STYLE, fontSize: 11 }} />
+                <YAxis type="category" dataKey="name" width={110} tick={{ ...AXIS_TICK_STYLE, fontSize: 11 }} />
                 <CustomTooltip />
                 <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
                 <Bar dataKey="guilty" stackId="a" fill={OUTCOME_COLORS.guilty} name="Guilty" />

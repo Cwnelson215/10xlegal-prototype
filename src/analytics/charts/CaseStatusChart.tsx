@@ -37,26 +37,23 @@ export function CaseStatusChart({ cases }: { cases: CaseRecord[] }) {
                     data={data}
                     cx="50%"
                     cy="50%"
-                    outerRadius={100}
-                    innerRadius={55}
+                    outerRadius={85}
+                    innerRadius={50}
                     dataKey="value"
                     paddingAngle={2}
-                    label={({ name, percent }: { name?: string; percent?: number }) =>
-                        `${name ?? ''} ${((percent ?? 0) * 100).toFixed(0)}%`
-                    }
                 >
                     {data.map((entry) => (
                         <Cell key={entry.status} fill={STATUS_COLORS[entry.status] ?? '#9FB3C8'} />
                     ))}
                 </Pie>
-                <text x="50%" y="48%" textAnchor="middle" fill="#1B2A4A" fontSize={24} fontWeight={700}>
+                <text x="50%" y="47%" textAnchor="middle" fill="#1B2A4A" fontSize={22} fontWeight={700}>
                     {total.toLocaleString()}
                 </text>
-                <text x="50%" y="56%" textAnchor="middle" fill="#627D98" fontSize={12}>
+                <text x="50%" y="55%" textAnchor="middle" fill="#627D98" fontSize={11}>
                     Total
                 </text>
                 <CustomTooltip />
-                <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
+                <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11 }} />
             </PieChart>
         </ResponsiveContainer>
     );
