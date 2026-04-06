@@ -190,9 +190,9 @@ export interface Judge {
 
 export interface CreateJudgeRequest {
     name: string;
-    title?: string;
-    court?: string;
-    district?: string;
+    title?: string | undefined;
+    court?: string | undefined;
+    district?: string | undefined;
 }
 
 // API Response Types
