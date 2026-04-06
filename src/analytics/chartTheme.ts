@@ -37,13 +37,23 @@ export const STATUS_COLORS: Record<string, string> = {
     closed: '#27AB83',
 };
 
-// Semantic outcome colors
-export const OUTCOME_COLORS = {
+// Outcome categories and their colors
+export const OUTCOME_CATEGORIES = ['guilty', 'noContest', 'dismissed', 'pending'] as const;
+export type OutcomeCategory = typeof OUTCOME_CATEGORIES[number];
+
+export const OUTCOME_COLORS: Record<OutcomeCategory, string> = {
     guilty: '#CB6040',
-    notGuilty: '#27AB83',
+    noContest: '#D4A017',
     dismissed: '#9FB3C8',
-    other: '#9FB3C8',
-} as const;
+    pending: '#724BB7',
+};
+
+export const OUTCOME_LABELS: Record<OutcomeCategory, string> = {
+    guilty: 'Guilty',
+    noContest: 'No Contest',
+    dismissed: 'Dismissed',
+    pending: 'Pending',
+};
 
 // Shared Recharts axis tick style
 export const AXIS_TICK_STYLE = {
@@ -58,16 +68,23 @@ export const GRID_PROPS = {
     stroke: '#E4E7EB',
 } as const;
 
-// Classify a conviction outcome or ruling string into guilty/notGuilty/other
-export function classifyOutcome(outcome: string | null | undefined): 'guilty' | 'notGuilty' | 'other' {
-    if (!outcome) return 'other';
-    const lower = outcome.toLowerCase();
-    // Check "not guilty" / acquittal / dismissed first (before checking "guilty")
-    if (lower.includes('not guilty') || lower.includes('acquit') || lower.includes('dismissed')) {
-        return 'notGuilty';
-    }
-    if (lower.includes('guilty') || lower.includes('no contest')) {
-        return 'guilty';
-    }
-    return 'other';
+// Classify a ruling string into a meaningful outcome category.
+// The ruling field contains the real detail (e.g. "Charges All Disposed - Guilty").
+// The convictionOutcome field only has generic values like "Charges All Disposed".
+// Always pass `ruling` to this function.
+export function classifyOutcome(ruling: string | null | undefined): OutcomeCategory {
+    if (!ruling) return 'pending';
+    const lower = ruling.toLowerCase();
+
+    // Dismissed (check before guilty since "dismissed" is unambiguous)
+    if (lower.includes('dismiss')) return 'dismissed';
+
+    // No Contest
+    if (lower.includes('no contest') || lower.includes('nolo')) return 'noContest';
+
+    // Guilty (includes "Guilty", "Guilty - Jury", "Guilty - Mental Cond", etc.)
+    if (lower.includes('guilty')) return 'guilty';
+
+    // No clear outcome keyword -- treat as pending/unresolved
+    return 'pending';
 }

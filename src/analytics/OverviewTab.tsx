@@ -33,16 +33,14 @@ export function OverviewTab({ cases }: { cases: CaseRecord[] }) {
         }
         const avgResolution = durationCount > 0 ? Math.round(durationSum / durationCount) : null;
 
-        // Conviction rate (check both convictionOutcome and ruling)
+        // Conviction rate (ruling field has the detailed outcome)
         let guiltyCount = 0;
         let outcomeCount = 0;
         for (const c of cases) {
-            const source = c.convictionOutcome || c.ruling;
-            if (source) {
-                outcomeCount++;
-                if (classifyOutcome(source) === 'guilty') {
-                    guiltyCount++;
-                }
+            if (c.ruling) {
+                const cls = classifyOutcome(c.ruling);
+                if (cls !== 'pending') outcomeCount++;
+                if (cls === 'guilty' || cls === 'noContest') guiltyCount++;
             }
         }
         const convictionRate = outcomeCount > 0 ? Math.round((guiltyCount / outcomeCount) * 100) : null;

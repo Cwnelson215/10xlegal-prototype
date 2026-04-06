@@ -14,18 +14,18 @@ export function AttorneyWinRateChart({ cases }: { cases: CaseRecord[] }) {
         const defStats = new Map<string, { total: number; wins: number }>();
 
         for (const c of cases) {
-            const cls = classifyOutcome(c.convictionOutcome || c.ruling);
+            const cls = classifyOutcome(c.ruling);
 
             if (c.prosecutionAttorney) {
                 const entry = prosStats.get(c.prosecutionAttorney) ?? { total: 0, convictions: 0 };
                 entry.total++;
-                if (cls === 'guilty') entry.convictions++;
+                if (cls === 'guilty' || cls === 'noContest') entry.convictions++;
                 prosStats.set(c.prosecutionAttorney, entry);
             }
             if (c.defenseAttorney) {
                 const entry = defStats.get(c.defenseAttorney) ?? { total: 0, wins: 0 };
                 entry.total++;
-                if (cls === 'notGuilty') entry.wins++;
+                if (cls === 'dismissed') entry.wins++;
                 defStats.set(c.defenseAttorney, entry);
             }
         }
@@ -69,7 +69,7 @@ export function AttorneyWinRateChart({ cases }: { cases: CaseRecord[] }) {
                 <CustomTooltip formatter={(value) => `${value}%`} />
                 <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
                 <Bar dataKey="prosRate" fill={CHART_COLORS.coral} name="Conviction Rate" radius={[0, 6, 6, 0]} />
-                <Bar dataKey="defRate" fill={CHART_COLORS.green} name="Defense Win Rate" radius={[0, 6, 6, 0]} />
+                <Bar dataKey="defRate" fill={CHART_COLORS.green} name="Dismissal Rate" radius={[0, 6, 6, 0]} />
             </BarChart>
         </ResponsiveContainer>
     );

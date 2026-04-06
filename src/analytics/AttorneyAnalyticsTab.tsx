@@ -23,17 +23,17 @@ export function AttorneyAnalyticsTab({ cases }: { cases: CaseRecord[] }) {
         let defTotal = 0;
 
         for (const c of cases) {
-            const cls = classifyOutcome(c.convictionOutcome || c.ruling);
+            const cls = classifyOutcome(c.ruling);
 
             if (c.prosecutionAttorney) {
                 prosecutionSet.add(c.prosecutionAttorney);
                 prosTotal++;
-                if (cls === 'guilty') prosConvictions++;
+                if (cls === 'guilty' || cls === 'noContest') prosConvictions++;
             }
             if (c.defenseAttorney) {
                 defenseSet.add(c.defenseAttorney);
                 defTotal++;
-                if (cls === 'notGuilty') defWins++;
+                if (cls === 'dismissed') defWins++;
             }
             if (c.prosecutionFirm) firmCounts.set(c.prosecutionFirm, (firmCounts.get(c.prosecutionFirm) ?? 0) + 1);
             if (c.defenseFirm) firmCounts.set(c.defenseFirm, (firmCounts.get(c.defenseFirm) ?? 0) + 1);

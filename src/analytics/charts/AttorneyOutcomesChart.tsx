@@ -24,27 +24,20 @@ export function AttorneyOutcomesChart({ cases }: { cases: CaseRecord[] }) {
             }
         }
 
-        const sorted = Array.from(attorneyCases.entries())
+        return Array.from(attorneyCases.entries())
             .sort((a, b) => b[1].length - a[1].length)
-            .slice(0, 8);
-
-        return sorted.map(([name, attCases]) => {
-            let guilty = 0;
-            let notGuilty = 0;
-            let other = 0;
-            for (const c of attCases) {
-                const cls = classifyOutcome(c.convictionOutcome || c.ruling);
-                if (cls === 'guilty') guilty++;
-                else if (cls === 'notGuilty') notGuilty++;
-                else other++;
-            }
-            return {
-                name: truncate(name, 18),
-                guilty,
-                notGuilty,
-                other,
-            };
-        });
+            .slice(0, 8)
+            .map(([name, attCases]) => {
+                let guilty = 0, noContest = 0, dismissed = 0, pending = 0;
+                for (const c of attCases) {
+                    const cls = classifyOutcome(c.ruling);
+                    if (cls === 'guilty') guilty++;
+                    else if (cls === 'noContest') noContest++;
+                    else if (cls === 'dismissed') dismissed++;
+                    else pending++;
+                }
+                return { name: truncate(name, 18), guilty, noContest, dismissed, pending };
+            });
     }, [cases]);
 
     if (data.length === 0) return <p className="chart-empty">No data available.</p>;
@@ -58,8 +51,9 @@ export function AttorneyOutcomesChart({ cases }: { cases: CaseRecord[] }) {
                 <CustomTooltip />
                 <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
                 <Bar dataKey="guilty" stackId="a" fill={OUTCOME_COLORS.guilty} name="Guilty" />
-                <Bar dataKey="notGuilty" stackId="a" fill={OUTCOME_COLORS.notGuilty} name="Not Guilty" />
-                <Bar dataKey="other" stackId="a" fill={OUTCOME_COLORS.other} name="Other" radius={[0, 6, 6, 0]} />
+                <Bar dataKey="noContest" stackId="a" fill={OUTCOME_COLORS.noContest} name="No Contest" />
+                <Bar dataKey="dismissed" stackId="a" fill={OUTCOME_COLORS.dismissed} name="Dismissed" />
+                <Bar dataKey="pending" stackId="a" fill={OUTCOME_COLORS.pending} name="Pending" radius={[0, 6, 6, 0]} />
             </BarChart>
         </ResponsiveContainer>
     );
