@@ -146,6 +146,11 @@ export async function runSchema(): Promise<void> {
     )
   `);
 
+  // Migrate: add admin_password column for separate admin verification
+  await pool.query(`
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS admin_password TEXT
+  `);
+
   // Migrate: add columns if missing (for existing databases)
   await pool.query(`
     ALTER TABLE cases ADD COLUMN IF NOT EXISTS conviction_outcome TEXT NOT NULL DEFAULT ''

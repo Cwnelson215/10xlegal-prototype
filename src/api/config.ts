@@ -71,5 +71,7 @@ export const API_ENDPOINTS = {
         EXPORT_DATA: '/admin/export',
         AUDIT_LOG: '/admin/audit-log',
         TRUNCATE_DATA: '/admin/truncate',
+        HAS_ADMIN_PASSWORD: '/admin/has-admin-password',
+        SET_ADMIN_PASSWORD: '/admin/admin-password',
     },
 };

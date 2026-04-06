@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import type { Request, Response, NextFunction } from 'express';
 import { v4 as uuidv4 } from 'uuid';
+import bcryptjs from 'bcryptjs';
 import { getDb } from '../db/connection.js';
 import { authenticate } from '../middleware/auth.js';
 import { apiResponse, apiError, parsePagination, paginatedResponse } from '../utils/responses.js';
@@ -100,12 +101,36 @@ router.get('/users', async (req, res) => {
 router.patch('/users/:id/role', async (req, res) => {
   const db = getDb();
   const { id } = req.params;
-  const { role } = req.body;
+  const { role, adminPassword } = req.body;
 
   const validRoles = ['client', 'lawyer', 'legal-official', 'admin'];
   if (!role || !validRoles.includes(role)) {
     apiError(res, `Invalid role. Must be one of: ${validRoles.join(', ')}`);
     return;
+  }
+
+  // Upgrading to admin requires admin password verification
+  if (role === 'admin') {
+    if (!adminPassword) {
+      apiError(res, 'Admin password is required to grant admin privileges', 400);
+      return;
+    }
+
+    const adminResult = await db.query(
+      'SELECT admin_password FROM users WHERE id = $1',
+      [req.user!.id]
+    );
+    const storedHash = adminResult.rows[0]?.admin_password;
+
+    if (!storedHash) {
+      apiError(res, 'Admin password not set. Please set an admin password first.', 400);
+      return;
+    }
+
+    if (!bcryptjs.compareSync(adminPassword, storedHash)) {
+      apiError(res, 'Incorrect admin password', 401);
+      return;
+    }
   }
 
   const now = new Date().toISOString();
@@ -122,6 +147,41 @@ router.patch('/users/:id/role', async (req, res) => {
   auditLog('role_change', { userId: req.user!.id, userName: req.user!.name }, `Changed user ${id} role to ${role}`);
 
   apiResponse(res, toUserResponse(result.rows[0] as UserRow));
+});
+
+// ─── GET /admin/has-admin-password ──────────────────────────────────────────
+
+router.get('/has-admin-password', async (req, res) => {
+  const db = getDb();
+  const result = await db.query(
+    'SELECT admin_password FROM users WHERE id = $1',
+    [req.user!.id]
+  );
+  apiResponse(res, { hasAdminPassword: !!result.rows[0]?.admin_password });
+});
+
+// ─── POST /admin/admin-password ─────────────────────────────────────────────
+
+router.post('/admin-password', async (req, res) => {
+  const db = getDb();
+  const { password } = req.body;
+
+  if (!password || typeof password !== 'string' || password.length < 8) {
+    apiError(res, 'Admin password must be at least 8 characters', 400);
+    return;
+  }
+
+  const hashed = bcryptjs.hashSync(password, 10);
+  const now = new Date().toISOString();
+
+  await db.query(
+    'UPDATE users SET admin_password = $1, updated_at = $2 WHERE id = $3',
+    [hashed, now, req.user!.id]
+  );
+
+  auditLog('admin_password_set', { userId: req.user!.id, userName: req.user!.name }, 'Admin password was set/updated');
+
+  apiResponse(res, { message: 'Admin password set successfully' });
 });
 
 // ─── POST /admin/upload ──────────────────────────────────────────────────────

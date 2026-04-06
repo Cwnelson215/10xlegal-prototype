@@ -36,12 +36,30 @@ export const adminService = {
         );
     },
 
-    async updateUserRole(userId: string, role: UserRole): Promise<User> {
+    async updateUserRole(userId: string, role: UserRole, adminPassword?: string): Promise<User> {
+        const body: { role: UserRole; adminPassword?: string } = { role };
+        if (adminPassword) {
+            body.adminPassword = adminPassword;
+        }
         const response = await apiClient.patch<ApiResponse<User>>(
             API_ENDPOINTS.ADMIN.UPDATE_USER_ROLE(userId),
-            { role }
+            body
         );
         return response.data!;
+    },
+
+    async hasAdminPassword(): Promise<boolean> {
+        const response = await apiClient.get<ApiResponse<{ hasAdminPassword: boolean }>>(
+            API_ENDPOINTS.ADMIN.HAS_ADMIN_PASSWORD
+        );
+        return response.data!.hasAdminPassword;
+    },
+
+    async setAdminPassword(password: string): Promise<void> {
+        await apiClient.post<ApiResponse<{ message: string }>>(
+            API_ENDPOINTS.ADMIN.SET_ADMIN_PASSWORD,
+            { password }
+        );
     },
 
     async getDataExport(dataType: DataType, format: 'json' | 'csv'): Promise<Blob> {
