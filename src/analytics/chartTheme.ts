@@ -57,3 +57,17 @@ export const GRID_PROPS = {
     strokeDasharray: '3 3',
     stroke: '#E4E7EB',
 } as const;
+
+// Classify a conviction outcome or ruling string into guilty/notGuilty/other
+export function classifyOutcome(outcome: string | null | undefined): 'guilty' | 'notGuilty' | 'other' {
+    if (!outcome) return 'other';
+    const lower = outcome.toLowerCase();
+    // Check "not guilty" / acquittal / dismissed first (before checking "guilty")
+    if (lower.includes('not guilty') || lower.includes('acquit') || lower.includes('dismissed')) {
+        return 'notGuilty';
+    }
+    if (lower.includes('guilty') || lower.includes('no contest')) {
+        return 'guilty';
+    }
+    return 'other';
+}

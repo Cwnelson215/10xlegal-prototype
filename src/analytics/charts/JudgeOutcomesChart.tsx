@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer } from 'recharts';
 import { CustomTooltip } from '../CustomTooltip';
-import { OUTCOME_COLORS, AXIS_TICK_STYLE, GRID_PROPS } from '../chartTheme';
+import { OUTCOME_COLORS, AXIS_TICK_STYLE, GRID_PROPS, classifyOutcome } from '../chartTheme';
 import type { CaseRecord } from '../../types';
 
 export function JudgeOutcomesChart({ cases }: { cases: CaseRecord[] }) {
@@ -23,14 +23,10 @@ export function JudgeOutcomesChart({ cases }: { cases: CaseRecord[] }) {
                 let notGuilty = 0;
                 let other = 0;
                 for (const c of jCases) {
-                    const outcome = c.convictionOutcome?.toLowerCase() ?? '';
-                    if (outcome.includes('guilty') && !outcome.includes('not guilty')) {
-                        guilty++;
-                    } else if (outcome.includes('not guilty') || outcome.includes('acquit')) {
-                        notGuilty++;
-                    } else {
-                        other++;
-                    }
+                    const cls = classifyOutcome(c.convictionOutcome ?? c.ruling);
+                    if (cls === 'guilty') guilty++;
+                    else if (cls === 'notGuilty') notGuilty++;
+                    else other++;
                 }
                 return {
                     name: name.length > 22 ? name.slice(0, 19) + '...' : name,

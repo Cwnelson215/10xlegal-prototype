@@ -163,6 +163,15 @@
   margin: 0;
   line-height: 1.1;
   word-break: break-word;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.kpi-value.kpi-value-long {
+  font-size: 18px;
 }
 
 .kpi-subtitle {

@@ -12,21 +12,22 @@ const BUCKETS = [
     { label: '5+ years', maxDays: Infinity },
 ];
 
-function parseSentenceDays(sentence: string): number | null {
-    if (!sentence) return null;
-    const lower = sentence.toLowerCase();
+function parseSentenceDays(text: string): number | null {
+    if (!text) return null;
+    const lower = text.toLowerCase();
 
-    // Try parsing "X year(s)" pattern
     const yearMatch = lower.match(/(\d+)\s*year/);
     if (yearMatch?.[1]) return parseInt(yearMatch[1], 10) * 365;
 
-    // Try parsing "X month(s)" pattern
     const monthMatch = lower.match(/(\d+)\s*month/);
     if (monthMatch?.[1]) return parseInt(monthMatch[1], 10) * 30;
 
-    // Try parsing "X day(s)" pattern
     const dayMatch = lower.match(/(\d+)\s*day/);
     if (dayMatch?.[1]) return parseInt(dayMatch[1], 10);
+
+    // Try bare number (assume days)
+    const bareNumber = lower.match(/^(\d+)$/);
+    if (bareNumber?.[1]) return parseInt(bareNumber[1], 10);
 
     return null;
 }
@@ -36,33 +37,38 @@ export function SentenceLengthChart({ cases }: { cases: CaseRecord[] }) {
         const bucketCounts = BUCKETS.map((b) => ({ label: b.label, count: 0, maxDays: b.maxDays }));
 
         for (const c of cases) {
-            // Try main sentence field
-            let days = parseSentenceDays(c.sentence);
+            let days: number | null = null;
 
-            // Fallback: try charges array
+            // Try main sentence field
+            days = parseSentenceDays(c.sentence);
+
+            // Try sentenceDescription
+            if (days === null) days = parseSentenceDays(c.sentenceDescription);
+
+            // Try charges array
             if (days === null && c.charges?.length) {
                 for (const charge of c.charges) {
                     if (charge.value && charge.units) {
                         const val = parseInt(charge.value, 10);
-                        if (!isNaN(val)) {
+                        if (!isNaN(val) && val > 0) {
                             const unit = charge.units.toLowerCase();
                             if (unit.includes('year')) days = val * 365;
                             else if (unit.includes('month')) days = val * 30;
                             else if (unit.includes('day')) days = val;
                         }
+                    } else if (charge.sentence) {
+                        days = parseSentenceDays(charge.sentence);
                     }
                     if (days !== null) break;
                 }
             }
 
             if (days !== null && days > 0) {
-                let prevMax = 0;
                 for (const bucket of bucketCounts) {
-                    if (days > prevMax && days <= bucket.maxDays) {
+                    if (days <= bucket.maxDays) {
                         bucket.count++;
                         break;
                     }
-                    prevMax = bucket.maxDays;
                 }
             }
         }

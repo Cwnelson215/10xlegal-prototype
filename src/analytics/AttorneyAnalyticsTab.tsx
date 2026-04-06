@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { KpiRow } from './KpiRow';
 import { KpiCard } from './KpiCard';
 import { ChartCard } from './ChartCard';
-import { CHART_COLORS } from './chartTheme';
+import { CHART_COLORS, classifyOutcome } from './chartTheme';
 import {
     TopAttorneysChart,
     AttorneyOutcomesChart,
@@ -23,19 +23,17 @@ export function AttorneyAnalyticsTab({ cases }: { cases: CaseRecord[] }) {
         let defTotal = 0;
 
         for (const c of cases) {
-            const outcome = c.convictionOutcome?.toLowerCase() ?? '';
-            const isGuilty = outcome.includes('guilty') && !outcome.includes('not guilty');
-            const isNotGuilty = outcome.includes('not guilty') || outcome.includes('acquit') || outcome.includes('dismiss');
+            const cls = classifyOutcome(c.convictionOutcome ?? c.ruling);
 
             if (c.prosecutionAttorney) {
                 prosecutionSet.add(c.prosecutionAttorney);
                 prosTotal++;
-                if (isGuilty) prosConvictions++;
+                if (cls === 'guilty') prosConvictions++;
             }
             if (c.defenseAttorney) {
                 defenseSet.add(c.defenseAttorney);
                 defTotal++;
-                if (isNotGuilty) defWins++;
+                if (cls === 'notGuilty') defWins++;
             }
             if (c.prosecutionFirm) firmCounts.set(c.prosecutionFirm, (firmCounts.get(c.prosecutionFirm) ?? 0) + 1);
             if (c.defenseFirm) firmCounts.set(c.defenseFirm, (firmCounts.get(c.defenseFirm) ?? 0) + 1);

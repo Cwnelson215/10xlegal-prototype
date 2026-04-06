@@ -1,30 +1,27 @@
 import { useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer } from 'recharts';
 import { CustomTooltip } from '../CustomTooltip';
-import { CHART_COLORS, AXIS_TICK_STYLE, GRID_PROPS } from '../chartTheme';
+import { CHART_COLORS, AXIS_TICK_STYLE, GRID_PROPS, classifyOutcome } from '../chartTheme';
 import type { CaseRecord } from '../../types';
 
 export function AttorneyWinRateChart({ cases }: { cases: CaseRecord[] }) {
     const data = useMemo(() => {
-        // Track prosecution attorney outcomes
         const prosStats = new Map<string, { total: number; convictions: number }>();
         const defStats = new Map<string, { total: number; wins: number }>();
 
         for (const c of cases) {
-            const outcome = c.convictionOutcome?.toLowerCase() ?? '';
-            const isGuilty = outcome.includes('guilty') && !outcome.includes('not guilty');
-            const isNotGuilty = outcome.includes('not guilty') || outcome.includes('acquit') || outcome.includes('dismiss');
+            const cls = classifyOutcome(c.convictionOutcome ?? c.ruling);
 
             if (c.prosecutionAttorney) {
                 const entry = prosStats.get(c.prosecutionAttorney) ?? { total: 0, convictions: 0 };
                 entry.total++;
-                if (isGuilty) entry.convictions++;
+                if (cls === 'guilty') entry.convictions++;
                 prosStats.set(c.prosecutionAttorney, entry);
             }
             if (c.defenseAttorney) {
                 const entry = defStats.get(c.defenseAttorney) ?? { total: 0, wins: 0 };
                 entry.total++;
-                if (isNotGuilty) entry.wins++;
+                if (cls === 'notGuilty') entry.wins++;
                 defStats.set(c.defenseAttorney, entry);
             }
         }
@@ -32,29 +29,26 @@ export function AttorneyWinRateChart({ cases }: { cases: CaseRecord[] }) {
         // Top prosecution by conviction rate (min 3 cases)
         const topPros = Array.from(prosStats, ([name, s]) => ({
             name: name.length > 22 ? name.slice(0, 19) + '...' : name,
-            rate: Math.round((s.convictions / s.total) * 100),
+            prosRate: Math.round((s.convictions / s.total) * 100),
+            defRate: 0,
             total: s.total,
-            type: 'Prosecution' as const,
         }))
             .filter((d) => d.total >= 3)
-            .sort((a, b) => b.rate - a.rate)
+            .sort((a, b) => b.prosRate - a.prosRate)
             .slice(0, 5);
 
         // Top defense by win rate (min 3 cases)
         const topDef = Array.from(defStats, ([name, s]) => ({
             name: name.length > 22 ? name.slice(0, 19) + '...' : name,
-            rate: Math.round((s.wins / s.total) * 100),
+            prosRate: 0,
+            defRate: Math.round((s.wins / s.total) * 100),
             total: s.total,
-            type: 'Defense' as const,
         }))
             .filter((d) => d.total >= 3)
-            .sort((a, b) => b.rate - a.rate)
+            .sort((a, b) => b.defRate - a.defRate)
             .slice(0, 5);
 
-        return [
-            ...topPros.map((d) => ({ ...d, prosRate: d.rate, defRate: 0 })),
-            ...topDef.map((d) => ({ ...d, prosRate: 0, defRate: d.rate })),
-        ];
+        return [...topPros, ...topDef];
     }, [cases]);
 
     if (data.length === 0) return <p className="chart-empty">Not enough data for win rate analysis.</p>;

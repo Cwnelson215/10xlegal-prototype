@@ -20,26 +20,28 @@ export function CaseTypeBreakdownChart({ cases }: { cases: CaseRecord[] }) {
     if (data.length === 0) return <p className="chart-empty">No case type data available.</p>;
 
     return (
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width="100%" height={320}>
             <PieChart>
                 <Pie
                     data={data}
                     cx="50%"
-                    cy="50%"
-                    outerRadius={100}
-                    innerRadius={55}
+                    cy="45%"
+                    outerRadius={90}
+                    innerRadius={50}
                     dataKey="value"
                     paddingAngle={2}
-                    label={({ name, percent }: { name?: string; percent?: number }) =>
-                        `${(name ?? '').length > 15 ? (name ?? '').slice(0, 12) + '...' : name ?? ''} ${((percent ?? 0) * 100).toFixed(0)}%`
-                    }
+                    label={({ name, percent }: { name?: string; percent?: number }) => {
+                        const short = (name ?? '').length > 15 ? (name ?? '').slice(0, 12) + '...' : name ?? '';
+                        return `${short} ${((percent ?? 0) * 100).toFixed(0)}%`;
+                    }}
+                    labelLine={{ strokeWidth: 1 }}
                 >
                     {data.map((_, index) => (
                         <Cell key={index} fill={CHART_PALETTE[index % CHART_PALETTE.length]!} />
                     ))}
                 </Pie>
                 <CustomTooltip />
-                <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
+                <Legend iconType="circle" wrapperStyle={{ fontSize: 11 }} />
             </PieChart>
         </ResponsiveContainer>
     );

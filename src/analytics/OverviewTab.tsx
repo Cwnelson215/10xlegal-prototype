@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { KpiRow } from './KpiRow';
 import { KpiCard } from './KpiCard';
 import { ChartCard } from './ChartCard';
-import { CHART_COLORS } from './chartTheme';
+import { CHART_COLORS, classifyOutcome } from './chartTheme';
 import {
     CasesOverTimeChart,
     CaseStatusChart,
@@ -33,14 +33,14 @@ export function OverviewTab({ cases }: { cases: CaseRecord[] }) {
         }
         const avgResolution = durationCount > 0 ? Math.round(durationSum / durationCount) : null;
 
-        // Conviction rate
+        // Conviction rate (check both convictionOutcome and ruling)
         let guiltyCount = 0;
         let outcomeCount = 0;
         for (const c of cases) {
-            if (c.convictionOutcome) {
+            const source = c.convictionOutcome || c.ruling;
+            if (source) {
                 outcomeCount++;
-                const outcome = c.convictionOutcome.toLowerCase();
-                if (outcome.includes('guilty') && !outcome.includes('not guilty')) {
+                if (classifyOutcome(source) === 'guilty') {
                     guiltyCount++;
                 }
             }
