@@ -20,4 +20,12 @@ export const attorneysService = {
         );
         return response.data!;
     },
+
+    async createAttorney(data: { name: string; type: 'prosecution' | 'defense'; firmId?: string }): Promise<Attorney> {
+        const response = await apiClient.post<ApiResponse<Attorney>>(
+            API_ENDPOINTS.ATTORNEYS.CREATE,
+            data
+        );
+        return response.data!;
+    },
 };

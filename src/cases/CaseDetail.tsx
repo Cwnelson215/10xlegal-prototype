@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { casesService } from '../api/services/casesService';
 import { SentenceDisplay } from '../components/SentenceDisplay';
 import { AssignJudgeModal } from './AssignJudgeModal';
+import { AssignAttorneyModal } from './AssignAttorneyModal';
 import { useAuth } from '../context/AuthContext';
 import type { Case } from '../api/types';
 import './CaseDetail.css';
@@ -14,6 +15,7 @@ export function CaseDetail() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState('');
     const [showAssignJudge, setShowAssignJudge] = useState(false);
+    const [assignAttorney, setAssignAttorney] = useState<{ side: 'prosecution' | 'defense'; role: 'head' | 'arguing' } | null>(null);
 
     useEffect(() => {
         if (!id) return;
@@ -109,11 +111,23 @@ export function CaseDetail() {
                     <div className="detail-card">
                         <h3>Prosecution</h3>
                         <dl>
-                            <dt>Attorney</dt>
+                            <dt>Head Lawyer</dt>
                             <dd>
                                 {caseData.prosecutionAttorneyId
                                     ? <Link to={`/attorneys/${caseData.prosecutionAttorneyId}`}>{caseData.prosecutionAttorney}</Link>
-                                    : caseData.prosecutionAttorney}
+                                    : caseData.prosecutionAttorney || 'Not assigned'}
+                                {user?.role === 'admin' && (
+                                    <button className="assign-attorney-btn" onClick={() => setAssignAttorney({ side: 'prosecution', role: 'head' })}>Edit</button>
+                                )}
+                            </dd>
+                            <dt>Arguing Attorney</dt>
+                            <dd>
+                                {caseData.prosecutionArguingAttorneyId
+                                    ? <Link to={`/attorneys/${caseData.prosecutionArguingAttorneyId}`}>{caseData.prosecutionArguingAttorney}</Link>
+                                    : caseData.prosecutionArguingAttorney || 'Not assigned'}
+                                {user?.role === 'admin' && (
+                                    <button className="assign-attorney-btn" onClick={() => setAssignAttorney({ side: 'prosecution', role: 'arguing' })}>Edit</button>
+                                )}
                             </dd>
                         </dl>
                     </div>
@@ -121,11 +135,23 @@ export function CaseDetail() {
                     <div className="detail-card">
                         <h3>Defense</h3>
                         <dl>
-                            <dt>Attorney</dt>
+                            <dt>Head Lawyer</dt>
                             <dd>
                                 {caseData.defenseAttorneyId
                                     ? <Link to={`/attorneys/${caseData.defenseAttorneyId}`}>{caseData.defenseAttorney}</Link>
-                                    : caseData.defenseAttorney}
+                                    : caseData.defenseAttorney || 'Not assigned'}
+                                {user?.role === 'admin' && (
+                                    <button className="assign-attorney-btn" onClick={() => setAssignAttorney({ side: 'defense', role: 'head' })}>Edit</button>
+                                )}
+                            </dd>
+                            <dt>Arguing Attorney</dt>
+                            <dd>
+                                {caseData.defenseArguingAttorneyId
+                                    ? <Link to={`/attorneys/${caseData.defenseArguingAttorneyId}`}>{caseData.defenseArguingAttorney}</Link>
+                                    : caseData.defenseArguingAttorney || 'Not assigned'}
+                                {user?.role === 'admin' && (
+                                    <button className="assign-attorney-btn" onClick={() => setAssignAttorney({ side: 'defense', role: 'arguing' })}>Edit</button>
+                                )}
                             </dd>
                         </dl>
                     </div>
@@ -156,6 +182,16 @@ export function CaseDetail() {
                     district={caseData.districtNumber}
                     onAssigned={(updated) => { setCaseData(updated); setShowAssignJudge(false); }}
                     onClose={() => setShowAssignJudge(false)}
+                />
+            )}
+
+            {assignAttorney && (
+                <AssignAttorneyModal
+                    caseId={caseData.id}
+                    side={assignAttorney.side}
+                    role={assignAttorney.role}
+                    onAssigned={(updated) => { setCaseData(updated); setAssignAttorney(null); }}
+                    onClose={() => setAssignAttorney(null)}
                 />
             )}
         </div>

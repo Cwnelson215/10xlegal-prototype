@@ -4,7 +4,7 @@ import { getDb } from '../db/connection.js';
 import { authenticate, optionalAuth } from '../middleware/auth.js';
 import { apiResponse, apiError, parsePagination, paginatedResponse } from '../utils/responses.js';
 import { validate } from '../middleware/validate.js';
-import { createCaseSchema, updateCaseSchema, assignJudgeSchema } from '../validation/schemas.js';
+import { createCaseSchema, updateCaseSchema, assignJudgeSchema, assignAttorneySchema } from '../validation/schemas.js';
 import { auditLog } from '../utils/audit.js';
 
 const router = Router();
@@ -28,6 +28,10 @@ interface CaseRow {
   defense_firm_id: string | null;
   judge_name: string;
   judge_id: string | null;
+  prosecution_arguing_attorney: string;
+  prosecution_arguing_attorney_id: string | null;
+  defense_arguing_attorney: string;
+  defense_arguing_attorney_id: string | null;
   charge: string;
   court_date: string;
   ruling: string;
@@ -67,6 +71,10 @@ function toCaseResponse(row: CaseRow) {
     defenseFirmId: row.defense_firm_id,
     judgeName: row.judge_name,
     judgeId: row.judge_id,
+    prosecutionArguingAttorney: row.prosecution_arguing_attorney,
+    prosecutionArguingAttorneyId: row.prosecution_arguing_attorney_id,
+    defenseArguingAttorney: row.defense_arguing_attorney,
+    defenseArguingAttorneyId: row.defense_arguing_attorney_id,
     charge: row.charge,
     courtDate: row.court_date,
     ruling: row.ruling,
@@ -214,6 +222,59 @@ router.put('/:id/judge', authenticate, validate(assignJudgeSchema), async (req: 
   const row = result.rows[0] as CaseRow;
   const caseNumber = (caseResult.rows[0] as any).case_number;
   auditLog('judge_assign', { userId: req.user.id, userName: req.user.name }, `Assigned Judge ${judgeName} to case ${caseNumber}`);
+  apiResponse(res, toCaseResponse(row));
+});
+
+// PUT /cases/:id/attorneys
+router.put('/:id/attorneys', authenticate, validate(assignAttorneySchema), async (req: any, res) => {
+  if (req.user.role !== 'admin') {
+    apiError(res, 'Admin access required', 403);
+    return;
+  }
+
+  const db = getDb();
+  const caseResult = await db.query('SELECT id, case_number FROM cases WHERE id = $1', [req.params.id]);
+  if (!caseResult.rows[0]) {
+    apiError(res, 'Case not found', 404);
+    return;
+  }
+
+  const { side, role, attorneyId } = req.body;
+  const attorneyResult = await db.query('SELECT id, name FROM attorneys WHERE id = $1', [attorneyId]);
+  if (!attorneyResult.rows[0]) {
+    apiError(res, 'Attorney not found', 404);
+    return;
+  }
+
+  const attorneyName = (attorneyResult.rows[0] as any).name;
+
+  // Determine which columns to update based on side + role
+  let nameCol: string;
+  let idCol: string;
+  if (side === 'prosecution' && role === 'head') {
+    nameCol = 'prosecution_attorney';
+    idCol = 'prosecution_attorney_id';
+  } else if (side === 'prosecution' && role === 'arguing') {
+    nameCol = 'prosecution_arguing_attorney';
+    idCol = 'prosecution_arguing_attorney_id';
+  } else if (side === 'defense' && role === 'head') {
+    nameCol = 'defense_attorney';
+    idCol = 'defense_attorney_id';
+  } else {
+    nameCol = 'defense_arguing_attorney';
+    idCol = 'defense_arguing_attorney_id';
+  }
+
+  await db.query(
+    `UPDATE cases SET ${nameCol} = $1, ${idCol} = $2, updated_at = NOW() WHERE id = $3`,
+    [attorneyName, attorneyId, req.params.id]
+  );
+
+  const result = await db.query('SELECT * FROM cases WHERE id = $1', [req.params.id]);
+  const row = result.rows[0] as CaseRow;
+  const caseNumber = (caseResult.rows[0] as any).case_number;
+  const roleLabel = role === 'head' ? 'Head Lawyer' : 'Arguing Attorney';
+  auditLog('attorney_assign', { userId: req.user.id, userName: req.user.name }, `Assigned ${side} ${roleLabel} ${attorneyName} to case ${caseNumber}`);
   apiResponse(res, toCaseResponse(row));
 });
 

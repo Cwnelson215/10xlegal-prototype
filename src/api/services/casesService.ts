@@ -74,4 +74,12 @@ export const casesService = {
         );
         return response.data!;
     },
+
+    async assignAttorney(caseId: string, side: 'prosecution' | 'defense', role: 'head' | 'arguing', attorneyId: string): Promise<Case> {
+        const response = await apiClient.put<ApiResponse<Case>>(
+            API_ENDPOINTS.CASES.ASSIGN_ATTORNEY(caseId),
+            { side, role, attorneyId }
+        );
+        return response.data!;
+    },
 };

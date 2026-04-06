@@ -29,6 +29,7 @@ export const API_ENDPOINTS = {
         UPDATE: (id: string) => `/cases/${id}`,
         DELETE: (id: string) => `/cases/${id}`,
         ASSIGN_JUDGE: (id: string) => `/cases/${id}/judge`,
+        ASSIGN_ATTORNEY: (id: string) => `/cases/${id}/attorneys`,
     },
 
     // Documents endpoints
@@ -52,6 +53,7 @@ export const API_ENDPOINTS = {
     // Attorneys endpoints
     ATTORNEYS: {
         LIST: '/attorneys',
+        CREATE: '/attorneys',
         GET: (id: string) => `/attorneys/${id}`,
     },
 

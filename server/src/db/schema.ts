@@ -83,6 +83,10 @@ export async function runSchema(): Promise<void> {
       defense_firm_id TEXT REFERENCES law_firms(id),
       judge_name TEXT NOT NULL DEFAULT '',
       judge_id TEXT REFERENCES judges(id),
+      prosecution_arguing_attorney TEXT NOT NULL DEFAULT '',
+      prosecution_arguing_attorney_id TEXT REFERENCES attorneys(id),
+      defense_arguing_attorney TEXT NOT NULL DEFAULT '',
+      defense_arguing_attorney_id TEXT REFERENCES attorneys(id),
       charge TEXT NOT NULL DEFAULT '',
       court_date TEXT NOT NULL DEFAULT '',
       ruling TEXT NOT NULL DEFAULT '',
@@ -221,6 +225,12 @@ export async function runSchema(): Promise<void> {
   await pool.query(`ALTER TABLE cases ADD COLUMN IF NOT EXISTS judge_name TEXT NOT NULL DEFAULT ''`);
   await pool.query(`ALTER TABLE cases ADD COLUMN IF NOT EXISTS judge_id TEXT REFERENCES judges(id)`);
 
+  // Migrate: add arguing attorney columns if missing (for existing databases)
+  await pool.query(`ALTER TABLE cases ADD COLUMN IF NOT EXISTS prosecution_arguing_attorney TEXT NOT NULL DEFAULT ''`);
+  await pool.query(`ALTER TABLE cases ADD COLUMN IF NOT EXISTS prosecution_arguing_attorney_id TEXT REFERENCES attorneys(id)`);
+  await pool.query(`ALTER TABLE cases ADD COLUMN IF NOT EXISTS defense_arguing_attorney TEXT NOT NULL DEFAULT ''`);
+  await pool.query(`ALTER TABLE cases ADD COLUMN IF NOT EXISTS defense_arguing_attorney_id TEXT REFERENCES attorneys(id)`);
+
   // Migrate: unique index on attorneys(name, type) for upsert support
   await pool.query(`
     CREATE UNIQUE INDEX IF NOT EXISTS attorneys_name_type_idx ON attorneys (name, type)
@@ -239,6 +249,8 @@ export async function runSchema(): Promise<void> {
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user_id ON refresh_tokens (user_id)`);
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_audit_log_created_at ON audit_log (created_at DESC)`);
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_cases_judge_id ON cases (judge_id)`);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_cases_prosecution_arguing_attorney_id ON cases (prosecution_arguing_attorney_id)`);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_cases_defense_arguing_attorney_id ON cases (defense_arguing_attorney_id)`);
 
   // Migrate: normalize existing attorney names from "Last, First" to "First Last" title case
   await pool.query(`
