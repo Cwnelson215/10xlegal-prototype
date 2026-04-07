@@ -71,7 +71,7 @@ export async function setupTestDb(): Promise<pg.Pool> {
       title TEXT NOT NULL,
       description TEXT NOT NULL DEFAULT '',
       status TEXT NOT NULL DEFAULT 'active',
-      case_number TEXT NOT NULL UNIQUE,
+      case_number TEXT NOT NULL,
       client_id TEXT NOT NULL,
       lawyer_id TEXT NOT NULL DEFAULT '',
       court TEXT NOT NULL DEFAULT '',
@@ -152,6 +152,7 @@ export async function setupTestDb(): Promise<pg.Pool> {
     );
 
     CREATE UNIQUE INDEX attorneys_name_type_idx ON attorneys (name, type);
+    CREATE UNIQUE INDEX cases_case_number_district_idx ON cases (case_number, district_number);
 
 `);
 

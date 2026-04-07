@@ -25,8 +25,9 @@ export function buildCalendarEvents(
     const events: CalendarEvent[] = [];
 
     for (const c of cases) {
+        const caseKey = c.districtNumber ? `${c.caseNumber}-${c.districtNumber}` : c.caseNumber;
         events.push({
-            id: `court-${c.caseNumber}`,
+            id: `court-${caseKey}`,
             date: c.courtDate,
             title: `Court: ${c.caseNumber}`,
             type: 'court-date',
@@ -36,7 +37,7 @@ export function buildCalendarEvents(
 
         if (c.filingDate) {
             events.push({
-                id: `filing-${c.caseNumber}`,
+                id: `filing-${caseKey}`,
                 date: c.filingDate,
                 title: `Filed: ${c.caseNumber}`,
                 type: 'filing-date',
@@ -47,7 +48,7 @@ export function buildCalendarEvents(
 
         if (c.dispositionDate && c.dispositionDate !== 'N/A') {
             events.push({
-                id: `disposition-${c.caseNumber}`,
+                id: `disposition-${caseKey}`,
                 date: c.dispositionDate,
                 title: `Disposition: ${c.caseNumber}`,
                 type: 'disposition',
@@ -58,7 +59,7 @@ export function buildCalendarEvents(
 
         if (c.convictionDate && c.convictionDate !== 'N/A') {
             events.push({
-                id: `conviction-${c.caseNumber}`,
+                id: `conviction-${caseKey}`,
                 date: c.convictionDate,
                 title: `Conviction: ${c.caseNumber}`,
                 type: 'conviction',

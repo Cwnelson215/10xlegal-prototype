@@ -263,7 +263,7 @@ router.post('/upload', async (req, res) => {
                   judgment_description, sentence_description,
                   updated_at)
                  VALUES ${placeholders.join(',')}
-                 ON CONFLICT (case_number) DO UPDATE SET
+                 ON CONFLICT (case_number, district_number) DO UPDATE SET
                   title = CASE WHEN cases.title = '' THEN EXCLUDED.title ELSE cases.title END,
                   description = CASE WHEN cases.description = '' THEN EXCLUDED.description ELSE cases.description END,
                   status = CASE WHEN cases.status = 'active' THEN EXCLUDED.status ELSE cases.status END,
@@ -307,6 +307,7 @@ router.post('/upload', async (req, res) => {
               for (const r of batch) {
                 const caseNum = r.caseNumber || r.case_number || '';
                 if (!caseNum) continue;
+                const distNum = r.districtNumber || r.district_number || '';
                 const prosAtty = normalizeAttorneyName(r.prosecutionAttorney || r.prosecution_attorney || '');
                 const defAtty = normalizeAttorneyName(r.defenseAttorney || r.defense_attorney || '');
 
@@ -321,8 +322,8 @@ router.post('/upload', async (req, res) => {
                   const attId = attResult.rows[0]?.id;
                   if (attId) {
                     await db.query(
-                      `UPDATE cases SET prosecution_attorney_id = $1 WHERE case_number = $2`,
-                      [attId, caseNum]
+                      `UPDATE cases SET prosecution_attorney_id = $1 WHERE case_number = $2 AND district_number = $3`,
+                      [attId, caseNum, distNum]
                     );
                   }
                 }
@@ -337,8 +338,8 @@ router.post('/upload', async (req, res) => {
                   const attId = attResult.rows[0]?.id;
                   if (attId) {
                     await db.query(
-                      `UPDATE cases SET defense_attorney_id = $1 WHERE case_number = $2`,
-                      [attId, caseNum]
+                      `UPDATE cases SET defense_attorney_id = $1 WHERE case_number = $2 AND district_number = $3`,
+                      [attId, caseNum, distNum]
                     );
                   }
                 }
@@ -357,7 +358,7 @@ router.post('/upload', async (req, res) => {
                       judgment_description, sentence_description,
                       updated_at)
                      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27)
-                     ON CONFLICT (case_number) DO UPDATE SET
+                     ON CONFLICT (case_number, district_number) DO UPDATE SET
                       title = CASE WHEN cases.title = '' THEN EXCLUDED.title ELSE cases.title END,
                       description = CASE WHEN cases.description = '' THEN EXCLUDED.description ELSE cases.description END,
                       status = CASE WHEN cases.status = 'active' THEN EXCLUDED.status ELSE cases.status END,
@@ -420,6 +421,7 @@ router.post('/upload', async (req, res) => {
 
                   // Auto-create attorney records and link to case
                   const fbCaseNum = r.caseNumber || r.case_number || '';
+                  const fbDistNum = r.districtNumber || r.district_number || '';
                   const fbPros = normalizeAttorneyName(r.prosecutionAttorney || r.prosecution_attorney || '');
                   const fbDef = normalizeAttorneyName(r.defenseAttorney || r.defense_attorney || '');
                   if (fbCaseNum && fbPros) {
@@ -431,7 +433,7 @@ router.post('/upload', async (req, res) => {
                       [uuidv4(), fbPros, now]
                     );
                     if (ar.rows[0]?.id) {
-                      await db.query(`UPDATE cases SET prosecution_attorney_id = $1 WHERE case_number = $2`, [ar.rows[0].id, fbCaseNum]);
+                      await db.query(`UPDATE cases SET prosecution_attorney_id = $1 WHERE case_number = $2 AND district_number = $3`, [ar.rows[0].id, fbCaseNum, fbDistNum]);
                     }
                   }
                   if (fbCaseNum && fbDef) {
@@ -443,7 +445,7 @@ router.post('/upload', async (req, res) => {
                       [uuidv4(), fbDef, now]
                     );
                     if (ar.rows[0]?.id) {
-                      await db.query(`UPDATE cases SET defense_attorney_id = $1 WHERE case_number = $2`, [ar.rows[0].id, fbCaseNum]);
+                      await db.query(`UPDATE cases SET defense_attorney_id = $1 WHERE case_number = $2 AND district_number = $3`, [ar.rows[0].id, fbCaseNum, fbDistNum]);
                     }
                   }
 

@@ -91,21 +91,24 @@ function aggregateDistrictCourt(
   const sheet = workbook.Sheets[sheetName]!;
   const rows = XLSX.utils.sheet_to_json<RawRow>(sheet);
 
-  // Group by case_num
+  // Group by case_num + court_district to distinguish same case number across districts
   const grouped = new Map<string, RawRow[]>();
   for (const row of rows) {
     const caseNum = str(row['case_num']);
     if (!caseNum) continue;
-    const existing = grouped.get(caseNum);
+    const district = str(row['court_district']);
+    const key = `${caseNum}||${district}`;
+    const existing = grouped.get(key);
     if (existing) {
       existing.push(row);
     } else {
-      grouped.set(caseNum, [row]);
+      grouped.set(key, [row]);
     }
   }
 
   const cases: RawRow[] = [];
-  for (const [caseNum, caseRows] of grouped) {
+  for (const [key, caseRows] of grouped) {
+    const caseNum = key.split('||')[0]!;
     const first = caseRows[0]!;
     const attorney = attorneyMap.get(caseNum);
 
@@ -168,16 +171,19 @@ function aggregateJusticeCourt(workbook: XLSX.WorkBook): RawRow[] {
   for (const row of rows) {
     const caseNum = str(row['case_num']);
     if (!caseNum) continue;
-    const existing = grouped.get(caseNum);
+    const district = str(row['court_district']);
+    const key = `${caseNum}||${district}`;
+    const existing = grouped.get(key);
     if (existing) {
       existing.push(row);
     } else {
-      grouped.set(caseNum, [row]);
+      grouped.set(key, [row]);
     }
   }
 
   const cases: RawRow[] = [];
-  for (const [caseNum, caseRows] of grouped) {
+  for (const [key, caseRows] of grouped) {
+    const caseNum = key.split('||')[0]!;
     const first = caseRows[0]!;
 
     const charges: ChargeEntry[] = caseRows.map(r => ({

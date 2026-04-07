@@ -69,7 +69,7 @@ export async function runSchema(): Promise<void> {
       title TEXT NOT NULL,
       description TEXT NOT NULL DEFAULT '',
       status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('pending', 'active', 'on-hold', 'closed')),
-      case_number TEXT NOT NULL UNIQUE,
+      case_number TEXT NOT NULL,
       client_id TEXT NOT NULL,
       lawyer_id TEXT NOT NULL DEFAULT '',
       court TEXT NOT NULL DEFAULT '',
@@ -234,6 +234,15 @@ export async function runSchema(): Promise<void> {
   // Migrate: unique index on attorneys(name, type) for upsert support
   await pool.query(`
     CREATE UNIQUE INDEX IF NOT EXISTS attorneys_name_type_idx ON attorneys (name, type)
+  `);
+
+  // Migrate: replace single-column case_number UNIQUE with composite (case_number, district_number)
+  // Drop the old constraint if it exists (from earlier schema versions)
+  await pool.query(`
+    ALTER TABLE cases DROP CONSTRAINT IF EXISTS cases_case_number_key
+  `);
+  await pool.query(`
+    CREATE UNIQUE INDEX IF NOT EXISTS cases_case_number_district_idx ON cases (case_number, district_number)
   `);
 
   // Performance indexes on foreign keys and frequently queried columns
