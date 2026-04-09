@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { OverviewTab } from '../OverviewTab';
+import { AnalyticsFilterProvider } from '../context';
 import { createElement } from 'react';
 import type { CaseRecord } from '../../types';
 
@@ -17,7 +18,7 @@ const mockCases: CaseRecord[] = [
 
 describe('OverviewTab', () => {
     it('renders KPI cards and chart headings', () => {
-        render(createElement(OverviewTab, { cases: mockCases }));
+        render(createElement(AnalyticsFilterProvider, null, createElement(OverviewTab, { cases: mockCases })));
         expect(screen.getByText('Total Cases')).toBeInTheDocument();
         expect(screen.getByText('Active Cases')).toBeInTheDocument();
         expect(screen.getByText('Avg Resolution Time')).toBeInTheDocument();

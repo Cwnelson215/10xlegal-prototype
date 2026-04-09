@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import { useCaseData } from '../hooks';
+import { AnalyticsFilterProvider, useFilteredCases } from './context';
+import { FilterToolbar } from './FilterToolbar';
+import { CaseDrillDownModal } from './CaseDrillDownModal';
 import { OverviewTab } from './OverviewTab';
 import { CasesTab } from './CasesTab';
 import { AttorneyAnalyticsTab } from './AttorneyAnalyticsTab';
@@ -32,25 +35,40 @@ export function Analytics() {
             {!isLoading && errorMessage && <div className="analytics-state error">{errorMessage}</div>}
 
             {!isLoading && !errorMessage && (
-                <div className="analytics-content">
-                    <div className="analytics-tabs">
-                        {TABS.map((tab) => (
-                            <button
-                                key={tab.key}
-                                className={`tab-btn${activeTab === tab.key ? ' active' : ''}`}
-                                onClick={() => setActiveTab(tab.key)}
-                            >
-                                {tab.label}
-                            </button>
-                        ))}
-                    </div>
+                <AnalyticsFilterProvider>
+                    <div className="analytics-content">
+                        <div className="analytics-tabs">
+                            {TABS.map((tab) => (
+                                <button
+                                    key={tab.key}
+                                    className={`tab-btn${activeTab === tab.key ? ' active' : ''}`}
+                                    onClick={() => setActiveTab(tab.key)}
+                                >
+                                    {tab.label}
+                                </button>
+                            ))}
+                        </div>
 
-                    {activeTab === 'overview' && <OverviewTab cases={cases} />}
-                    {activeTab === 'cases' && <CasesTab cases={cases} />}
-                    {activeTab === 'attorneys' && <AttorneyAnalyticsTab cases={cases} />}
-                    {activeTab === 'judges' && <JudgesTab cases={cases} />}
-                </div>
+                        <FilterToolbar rawCases={cases} />
+
+                        <AnalyticsTabs activeTab={activeTab} rawCases={cases} />
+                    </div>
+                    <CaseDrillDownModal />
+                </AnalyticsFilterProvider>
             )}
         </div>
+    );
+}
+
+function AnalyticsTabs({ activeTab, rawCases }: { activeTab: Tab; rawCases: import('../types').CaseRecord[] }) {
+    const filtered = useFilteredCases(rawCases);
+
+    return (
+        <>
+            {activeTab === 'overview' && <OverviewTab cases={filtered} />}
+            {activeTab === 'cases' && <CasesTab cases={filtered} />}
+            {activeTab === 'attorneys' && <AttorneyAnalyticsTab cases={filtered} />}
+            {activeTab === 'judges' && <JudgesTab cases={filtered} />}
+        </>
     );
 }

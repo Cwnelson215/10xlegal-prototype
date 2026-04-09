@@ -1,7 +1,8 @@
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 import { PieChart, Pie, Cell, Legend, ResponsiveContainer } from 'recharts';
 import { CustomTooltip } from '../CustomTooltip';
 import { STATUS_COLORS } from '../chartTheme';
+import { useAnalyticsFilter } from '../context';
 import type { CaseRecord } from '../../types';
 
 const STATUS_LABELS: Record<string, string> = {
@@ -14,6 +15,8 @@ const STATUS_LABELS: Record<string, string> = {
 const STATUS_ORDER = ['active', 'pending', 'on-hold', 'closed'];
 
 export function CaseStatusChart({ cases }: { cases: CaseRecord[] }) {
+    const { openDrillDown, toggleCrossFilter } = useAnalyticsFilter();
+
     const data = useMemo(() => {
         const counts = new Map<string, number>();
         for (const c of cases) {
@@ -28,6 +31,19 @@ export function CaseStatusChart({ cases }: { cases: CaseRecord[] }) {
 
     const total = useMemo(() => data.reduce((sum, d) => sum + d.value, 0), [data]);
 
+    const handleClick = useCallback((_: unknown, index: number) => {
+        const entry = data[index];
+        if (!entry) return;
+        const matching = cases.filter((c) => c.status === entry.status);
+        openDrillDown(`${entry.name} Cases (${matching.length})`, matching);
+    }, [data, cases, openDrillDown]);
+
+    const handleDoubleClick = useCallback((_: unknown, index: number) => {
+        const entry = data[index];
+        if (!entry) return;
+        toggleCrossFilter('status', entry.status);
+    }, [data, toggleCrossFilter]);
+
     if (data.length === 0) return <p className="chart-empty">No data available.</p>;
 
     return (
@@ -41,6 +57,9 @@ export function CaseStatusChart({ cases }: { cases: CaseRecord[] }) {
                     innerRadius={50}
                     dataKey="value"
                     paddingAngle={2}
+                    onClick={handleClick}
+                    onDoubleClick={handleDoubleClick}
+                    style={{ cursor: 'pointer' }}
                 >
                     {data.map((entry) => (
                         <Cell key={entry.status} fill={STATUS_COLORS[entry.status] ?? '#9FB3C8'} />

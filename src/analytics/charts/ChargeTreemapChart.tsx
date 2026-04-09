@@ -1,6 +1,7 @@
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 import { Treemap, ResponsiveContainer } from 'recharts';
 import { CHART_PALETTE } from '../chartTheme';
+import { useAnalyticsFilter } from '../context';
 import type { CaseRecord } from '../../types';
 
 interface TreemapContentProps {
@@ -11,13 +12,14 @@ interface TreemapContentProps {
     name?: string;
     value?: number;
     index?: number;
+    onClick?: (name: string) => void;
 }
 
-function TreemapContent({ x, y, width, height, name, value, index }: TreemapContentProps) {
+function TreemapContent({ x, y, width, height, name, value, index, onClick }: TreemapContentProps) {
     if (width < 50 || height < 30) return null;
     const color = CHART_PALETTE[(index ?? 0) % CHART_PALETTE.length]!;
     return (
-        <g>
+        <g style={{ cursor: 'pointer' }} onClick={() => name && onClick?.(name)}>
             <rect x={x} y={y} width={width} height={height} fill={color} rx={6} opacity={0.88} stroke="#fff" strokeWidth={2} />
             {width > 70 && height > 44 && (
                 <>
@@ -34,6 +36,8 @@ function TreemapContent({ x, y, width, height, name, value, index }: TreemapCont
 }
 
 export function ChargeTreemapChart({ cases }: { cases: CaseRecord[] }) {
+    const { openDrillDown } = useAnalyticsFilter();
+
     const data = useMemo(() => {
         const counts = new Map<string, number>();
         for (const c of cases) {
@@ -46,6 +50,11 @@ export function ChargeTreemapChart({ cases }: { cases: CaseRecord[] }) {
             .slice(0, 20);
     }, [cases]);
 
+    const handleNodeClick = useCallback((charge: string) => {
+        const matching = cases.filter((c) => c.charge === charge);
+        openDrillDown(`"${charge}" Cases (${matching.length})`, matching);
+    }, [cases, openDrillDown]);
+
     if (data.length === 0) return <p className="chart-empty">No charge data available.</p>;
 
     return (
@@ -54,7 +63,7 @@ export function ChargeTreemapChart({ cases }: { cases: CaseRecord[] }) {
                 data={data}
                 dataKey="value"
                 nameKey="name"
-                content={<TreemapContent x={0} y={0} width={0} height={0} />}
+                content={<TreemapContent x={0} y={0} width={0} height={0} onClick={handleNodeClick} />}
             />
         </ResponsiveContainer>
     );

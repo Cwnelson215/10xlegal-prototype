@@ -1,10 +1,13 @@
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 import { PieChart, Pie, Cell, Legend, ResponsiveContainer } from 'recharts';
 import { CustomTooltip } from '../CustomTooltip';
 import { CHART_PALETTE } from '../chartTheme';
+import { useAnalyticsFilter } from '../context';
 import type { CaseRecord } from '../../types';
 
 export function CaseTypeBreakdownChart({ cases }: { cases: CaseRecord[] }) {
+    const { openDrillDown, toggleCrossFilter } = useAnalyticsFilter();
+
     const data = useMemo(() => {
         const counts = new Map<string, number>();
         for (const c of cases) {
@@ -16,6 +19,19 @@ export function CaseTypeBreakdownChart({ cases }: { cases: CaseRecord[] }) {
             .sort((a, b) => b.value - a.value)
             .slice(0, 10);
     }, [cases]);
+
+    const handleClick = useCallback((_: unknown, index: number) => {
+        const entry = data[index];
+        if (!entry) return;
+        const matching = cases.filter((c) => c.caseType === entry.name);
+        openDrillDown(`${entry.name} Cases (${matching.length})`, matching);
+    }, [data, cases, openDrillDown]);
+
+    const handleDoubleClick = useCallback((_: unknown, index: number) => {
+        const entry = data[index];
+        if (!entry) return;
+        toggleCrossFilter('caseType', entry.name);
+    }, [data, toggleCrossFilter]);
 
     if (data.length === 0) return <p className="chart-empty">No case type data available.</p>;
 
@@ -30,6 +46,9 @@ export function CaseTypeBreakdownChart({ cases }: { cases: CaseRecord[] }) {
                     innerRadius={50}
                     dataKey="value"
                     paddingAngle={2}
+                    onClick={handleClick}
+                    onDoubleClick={handleDoubleClick}
+                    style={{ cursor: 'pointer' }}
                 >
                     {data.map((_, index) => (
                         <Cell key={index} fill={CHART_PALETTE[index % CHART_PALETTE.length]!} />

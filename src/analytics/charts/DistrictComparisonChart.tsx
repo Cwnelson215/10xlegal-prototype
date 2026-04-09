@@ -1,10 +1,13 @@
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from 'recharts';
 import { CustomTooltip } from '../CustomTooltip';
 import { CHART_COLORS, AXIS_TICK_STYLE, GRID_PROPS } from '../chartTheme';
+import { useAnalyticsFilter } from '../context';
 import type { CaseRecord } from '../../types';
 
 export function DistrictComparisonChart({ cases }: { cases: CaseRecord[] }) {
+    const { openDrillDown, toggleCrossFilter } = useAnalyticsFilter();
+
     const data = useMemo(() => {
         const counts = new Map<string, number>();
         for (const c of cases) {
@@ -12,13 +15,27 @@ export function DistrictComparisonChart({ cases }: { cases: CaseRecord[] }) {
                 counts.set(c.districtNumber, (counts.get(c.districtNumber) ?? 0) + 1);
             }
         }
-        return Array.from(counts, ([district, count]) => ({
-            district: `Dist. ${district}`,
+        return Array.from(counts, ([districtNum, count]) => ({
+            district: `Dist. ${districtNum}`,
+            districtNumber: districtNum,
             count,
         }))
             .sort((a, b) => b.count - a.count)
             .slice(0, 15);
     }, [cases]);
+
+    const handleClick = useCallback((entry: { districtNumber?: string }) => {
+        const dn = entry.districtNumber;
+        if (!dn) return;
+        const matching = cases.filter((c) => c.districtNumber === dn);
+        openDrillDown(`District ${dn} Cases (${matching.length})`, matching);
+    }, [cases, openDrillDown]);
+
+    const handleDoubleClick = useCallback((entry: { districtNumber?: string }) => {
+        const dn = entry.districtNumber;
+        if (!dn) return;
+        toggleCrossFilter('districtNumber', dn);
+    }, [toggleCrossFilter]);
 
     if (data.length === 0) return <p className="chart-empty">No district data available.</p>;
 
@@ -39,7 +56,15 @@ export function DistrictComparisonChart({ cases }: { cases: CaseRecord[] }) {
                 />
                 <YAxis allowDecimals={false} tick={AXIS_TICK_STYLE} />
                 <CustomTooltip />
-                <Bar dataKey="count" fill="url(#gradDistrict)" radius={[6, 6, 0, 0]} name="Cases" />
+                <Bar
+                    dataKey="count"
+                    fill="url(#gradDistrict)"
+                    radius={[6, 6, 0, 0]}
+                    name="Cases"
+                    onClick={handleClick}
+                    onDoubleClick={handleDoubleClick}
+                    style={{ cursor: 'pointer' }}
+                />
             </BarChart>
         </ResponsiveContainer>
     );

@@ -228,6 +228,56 @@
   font-weight: 400;
 }
 
+/* ===== Chart Card Title Row & Export ===== */
+.chart-card-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.chart-export-btns {
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+
+.chart-card:hover .chart-export-btns {
+  opacity: 1;
+}
+
+.chart-export-btn {
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 4px 6px;
+  color: var(--legal-steel);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+}
+
+.chart-export-btn:hover {
+  background: #F0F4F8;
+  border-color: #DDE3EA;
+  color: var(--legal-navy);
+}
+
+/* ===== Cross-filter highlight ===== */
+.chart-card--highlighted {
+  box-shadow: 0 0 0 2px var(--chart-blue), var(--shadow-md);
+}
+
+/* ===== Clickable chart elements ===== */
+.recharts-bar-rectangle,
+.recharts-pie-sector,
+.recharts-treemap-node {
+  cursor: pointer;
+}
+
 /* ===== Custom Tooltip ===== */
 .custom-tooltip {
   background: var(--bg-card);
