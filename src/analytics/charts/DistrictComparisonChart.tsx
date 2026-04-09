@@ -1,12 +1,12 @@
 import { useMemo, useCallback } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, type BarRectangleItem } from 'recharts';
 import { CustomTooltip } from '../CustomTooltip';
 import { CHART_COLORS, AXIS_TICK_STYLE, GRID_PROPS } from '../chartTheme';
 import { useAnalyticsFilter } from '../context';
 import type { CaseRecord } from '../../types';
 
 export function DistrictComparisonChart({ cases }: { cases: CaseRecord[] }) {
-    const { openDrillDown, toggleCrossFilter } = useAnalyticsFilter();
+    const { openDrillDown } = useAnalyticsFilter();
 
     const data = useMemo(() => {
         const counts = new Map<string, number>();
@@ -24,18 +24,12 @@ export function DistrictComparisonChart({ cases }: { cases: CaseRecord[] }) {
             .slice(0, 15);
     }, [cases]);
 
-    const handleClick = useCallback((entry: { districtNumber?: string }) => {
-        const dn = entry.districtNumber;
+    const handleClick = useCallback((entry: BarRectangleItem) => {
+        const dn = (entry as BarRectangleItem & { districtNumber?: string }).districtNumber;
         if (!dn) return;
         const matching = cases.filter((c) => c.districtNumber === dn);
         openDrillDown(`District ${dn} Cases (${matching.length})`, matching);
     }, [cases, openDrillDown]);
-
-    const handleDoubleClick = useCallback((entry: { districtNumber?: string }) => {
-        const dn = entry.districtNumber;
-        if (!dn) return;
-        toggleCrossFilter('districtNumber', dn);
-    }, [toggleCrossFilter]);
 
     if (data.length === 0) return <p className="chart-empty">No district data available.</p>;
 
@@ -62,7 +56,6 @@ export function DistrictComparisonChart({ cases }: { cases: CaseRecord[] }) {
                     radius={[6, 6, 0, 0]}
                     name="Cases"
                     onClick={handleClick}
-                    onDoubleClick={handleDoubleClick}
                     style={{ cursor: 'pointer' }}
                 />
             </BarChart>

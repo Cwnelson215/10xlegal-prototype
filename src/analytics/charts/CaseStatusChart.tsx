@@ -15,7 +15,7 @@ const STATUS_LABELS: Record<string, string> = {
 const STATUS_ORDER = ['active', 'pending', 'on-hold', 'closed'];
 
 export function CaseStatusChart({ cases }: { cases: CaseRecord[] }) {
-    const { openDrillDown, toggleCrossFilter } = useAnalyticsFilter();
+    const { openDrillDown } = useAnalyticsFilter();
 
     const data = useMemo(() => {
         const counts = new Map<string, number>();
@@ -38,12 +38,6 @@ export function CaseStatusChart({ cases }: { cases: CaseRecord[] }) {
         openDrillDown(`${entry.name} Cases (${matching.length})`, matching);
     }, [data, cases, openDrillDown]);
 
-    const handleDoubleClick = useCallback((_: unknown, index: number) => {
-        const entry = data[index];
-        if (!entry) return;
-        toggleCrossFilter('status', entry.status);
-    }, [data, toggleCrossFilter]);
-
     if (data.length === 0) return <p className="chart-empty">No data available.</p>;
 
     return (
@@ -58,7 +52,6 @@ export function CaseStatusChart({ cases }: { cases: CaseRecord[] }) {
                     dataKey="value"
                     paddingAngle={2}
                     onClick={handleClick}
-                    onDoubleClick={handleDoubleClick}
                     style={{ cursor: 'pointer' }}
                 >
                     {data.map((entry) => (

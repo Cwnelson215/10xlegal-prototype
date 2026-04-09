@@ -1,5 +1,5 @@
 import { useMemo, useCallback } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, type BarRectangleItem } from 'recharts';
 import { CustomTooltip } from '../CustomTooltip';
 import { CHART_COLORS, AXIS_TICK_STYLE, GRID_PROPS } from '../chartTheme';
 import { useAnalyticsFilter } from '../context';
@@ -10,7 +10,7 @@ function truncate(s: string, max: number): string {
 }
 
 export function CasesByCourtChart({ cases }: { cases: CaseRecord[] }) {
-    const { openDrillDown, toggleCrossFilter } = useAnalyticsFilter();
+    const { openDrillDown } = useAnalyticsFilter();
 
     const data = useMemo(() => {
         const counts = new Map<string, number>();
@@ -22,18 +22,12 @@ export function CasesByCourtChart({ cases }: { cases: CaseRecord[] }) {
             .slice(0, 15);
     }, [cases]);
 
-    const handleClick = useCallback((entry: { fullCourt?: string }) => {
-        const court = entry.fullCourt;
+    const handleClick = useCallback((entry: BarRectangleItem) => {
+        const court = (entry as BarRectangleItem & { fullCourt?: string }).fullCourt;
         if (!court) return;
         const matching = cases.filter((c) => c.court === court);
         openDrillDown(`Cases in ${court} (${matching.length})`, matching);
     }, [cases, openDrillDown]);
-
-    const handleDoubleClick = useCallback((entry: { fullCourt?: string }) => {
-        const court = entry.fullCourt;
-        if (!court) return;
-        toggleCrossFilter('court', court);
-    }, [toggleCrossFilter]);
 
     if (data.length === 0) return <p className="chart-empty">No data available.</p>;
 
@@ -56,7 +50,6 @@ export function CasesByCourtChart({ cases }: { cases: CaseRecord[] }) {
                     radius={[0, 6, 6, 0]}
                     name="Cases"
                     onClick={handleClick}
-                    onDoubleClick={handleDoubleClick}
                     style={{ cursor: 'pointer' }}
                 />
             </BarChart>

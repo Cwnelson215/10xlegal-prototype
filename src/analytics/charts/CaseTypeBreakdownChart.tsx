@@ -6,7 +6,7 @@ import { useAnalyticsFilter } from '../context';
 import type { CaseRecord } from '../../types';
 
 export function CaseTypeBreakdownChart({ cases }: { cases: CaseRecord[] }) {
-    const { openDrillDown, toggleCrossFilter } = useAnalyticsFilter();
+    const { openDrillDown } = useAnalyticsFilter();
 
     const data = useMemo(() => {
         const counts = new Map<string, number>();
@@ -27,12 +27,6 @@ export function CaseTypeBreakdownChart({ cases }: { cases: CaseRecord[] }) {
         openDrillDown(`${entry.name} Cases (${matching.length})`, matching);
     }, [data, cases, openDrillDown]);
 
-    const handleDoubleClick = useCallback((_: unknown, index: number) => {
-        const entry = data[index];
-        if (!entry) return;
-        toggleCrossFilter('caseType', entry.name);
-    }, [data, toggleCrossFilter]);
-
     if (data.length === 0) return <p className="chart-empty">No case type data available.</p>;
 
     return (
@@ -47,7 +41,6 @@ export function CaseTypeBreakdownChart({ cases }: { cases: CaseRecord[] }) {
                     dataKey="value"
                     paddingAngle={2}
                     onClick={handleClick}
-                    onDoubleClick={handleDoubleClick}
                     style={{ cursor: 'pointer' }}
                 >
                     {data.map((_, index) => (
