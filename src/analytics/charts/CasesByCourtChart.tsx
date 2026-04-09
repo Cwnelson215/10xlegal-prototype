@@ -1,7 +1,7 @@
 import { useMemo, useCallback } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, type BarRectangleItem } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, type BarRectangleItem } from 'recharts';
 import { CustomTooltip } from '../CustomTooltip';
-import { CHART_COLORS, AXIS_TICK_STYLE, GRID_PROPS, BAR_HOVER_PROPS } from '../chartTheme';
+import { CHART_COLORS, AXIS_TICK_STYLE, GRID_PROPS, BAR_HOVER_PROPS, TOOLTIP_CURSOR_FILL } from '../chartTheme';
 import { useAnalyticsFilter } from '../context';
 import type { CaseRecord } from '../../types';
 
@@ -21,6 +21,13 @@ export function CasesByCourtChart({ cases }: { cases: CaseRecord[] }) {
             .sort((a, b) => b.count - a.count)
             .slice(0, 15);
     }, [cases]);
+
+    const total = useMemo(() => data.reduce((s, d) => s + d.count, 0), [data]);
+    const fullNameMap = useMemo(() => {
+        const map = new Map<string, string>();
+        for (const d of data) map.set(d.court, d.fullCourt);
+        return map;
+    }, [data]);
 
     const handleClick = useCallback((entry: BarRectangleItem) => {
         const court = (entry as BarRectangleItem & { fullCourt?: string }).fullCourt;
@@ -43,7 +50,15 @@ export function CasesByCourtChart({ cases }: { cases: CaseRecord[] }) {
                 <CartesianGrid {...GRID_PROPS} horizontal={false} />
                 <XAxis type="number" allowDecimals={false} tick={AXIS_TICK_STYLE} />
                 <YAxis type="category" dataKey="court" width={130} tick={{ ...AXIS_TICK_STYLE, fontSize: 11 }} />
-                <CustomTooltip />
+                <Tooltip
+                    cursor={TOOLTIP_CURSOR_FILL}
+                    content={
+                        <CustomTooltip
+                            total={total}
+                            labelFormatter={(l) => fullNameMap.get(String(l)) ?? String(l)}
+                        />
+                    }
+                />
                 <Bar
                     dataKey="count"
                     fill="url(#gradCourtBar)"

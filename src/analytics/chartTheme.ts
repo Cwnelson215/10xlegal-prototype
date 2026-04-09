@@ -82,6 +82,21 @@ export const AREA_ACTIVE_DOT_PROPS = {
     stroke: '#fff',
 } as const;
 
+// Tooltip cursor overlay for bar/area charts
+export const TOOLTIP_CURSOR_FILL = { fill: 'rgba(27,42,74,0.06)' } as const;
+
+// Format a "YYYY-MM" month key as a human-readable label (e.g. "Mar 2024").
+export function formatMonthLabel(yyyyMm: string | number): string {
+    const s = String(yyyyMm);
+    const [y, m] = s.split('-');
+    if (!y || !m) return s;
+    const yearNum = Number(y);
+    const monthNum = Number(m);
+    if (!Number.isFinite(yearNum) || !Number.isFinite(monthNum)) return s;
+    const date = new Date(yearNum, monthNum - 1, 1);
+    return date.toLocaleString('en-US', { month: 'short', year: 'numeric' });
+}
+
 // Classify a ruling string into a meaningful outcome category.
 // The ruling field contains the real detail (e.g. "Charges All Disposed - Guilty").
 // The convictionOutcome field only has generic values like "Charges All Disposed".

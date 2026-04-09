@@ -1,5 +1,6 @@
 import { useMemo, useCallback } from 'react';
-import { Treemap, ResponsiveContainer } from 'recharts';
+import { Treemap, Tooltip, ResponsiveContainer } from 'recharts';
+import { CustomTooltip } from '../CustomTooltip';
 import { CHART_PALETTE } from '../chartTheme';
 import { useAnalyticsFilter } from '../context';
 import type { CaseRecord } from '../../types';
@@ -50,6 +51,8 @@ export function ChargeTreemapChart({ cases }: { cases: CaseRecord[] }) {
             .slice(0, 20);
     }, [cases]);
 
+    const total = useMemo(() => data.reduce((s, d) => s + d.value, 0), [data]);
+
     const handleNodeClick = useCallback((charge: string) => {
         const matching = cases.filter((c) => c.charge === charge);
         openDrillDown(`"${charge}" Cases (${matching.length})`, matching);
@@ -64,7 +67,17 @@ export function ChargeTreemapChart({ cases }: { cases: CaseRecord[] }) {
                 dataKey="value"
                 nameKey="name"
                 content={<TreemapContent x={0} y={0} width={0} height={0} onClick={handleNodeClick} />}
-            />
+            >
+                <Tooltip
+                    cursor={false}
+                    content={
+                        <CustomTooltip
+                            total={total}
+                            formatter={(value) => `${value.toLocaleString()} case${value === 1 ? '' : 's'}`}
+                        />
+                    }
+                />
+            </Treemap>
         </ResponsiveContainer>
     );
 }

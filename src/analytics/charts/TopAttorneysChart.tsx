@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, Tooltip, ResponsiveContainer } from 'recharts';
 import { CustomTooltip } from '../CustomTooltip';
-import { CHART_COLORS, AXIS_TICK_STYLE, GRID_PROPS, BAR_HOVER_PROPS } from '../chartTheme';
+import { CHART_COLORS, AXIS_TICK_STYLE, GRID_PROPS, BAR_HOVER_PROPS, TOOLTIP_CURSOR_FILL } from '../chartTheme';
 import type { CaseRecord } from '../../types';
 
 function truncate(s: string, max: number): string {
@@ -48,7 +48,19 @@ export function TopAttorneysChart({ cases }: { cases: CaseRecord[] }) {
                     interval={0}
                 />
                 <YAxis allowDecimals={false} tick={AXIS_TICK_STYLE} />
-                <CustomTooltip />
+                <Tooltip
+                    cursor={TOOLTIP_CURSOR_FILL}
+                    content={
+                        <CustomTooltip
+                            percentOfRow
+                            footer={(payload) => {
+                                const row = payload[0]?.payload as { total?: number } | undefined;
+                                if (row?.total == null) return null;
+                                return `Total cases: ${row.total.toLocaleString()}`;
+                            }}
+                        />
+                    }
+                />
                 <Legend iconType="circle" wrapperStyle={{ fontSize: 12, paddingTop: 12 }} />
                 <Bar dataKey="prosecution" fill={CHART_COLORS.coral} name="Prosecution" radius={[4, 4, 0, 0]} activeBar={BAR_HOVER_PROPS} />
                 <Bar dataKey="defense" fill={CHART_COLORS.blue} name="Defense" radius={[4, 4, 0, 0]} activeBar={BAR_HOVER_PROPS} />

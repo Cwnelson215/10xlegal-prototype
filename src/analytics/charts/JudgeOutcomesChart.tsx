@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, Tooltip, ResponsiveContainer } from 'recharts';
 import { CustomTooltip } from '../CustomTooltip';
-import { OUTCOME_COLORS, AXIS_TICK_STYLE, GRID_PROPS, BAR_HOVER_PROPS, classifyOutcome } from '../chartTheme';
+import { OUTCOME_COLORS, AXIS_TICK_STYLE, GRID_PROPS, BAR_HOVER_PROPS, TOOLTIP_CURSOR_FILL, classifyOutcome } from '../chartTheme';
 import type { CaseRecord } from '../../types';
 
 function truncate(s: string, max: number): string {
@@ -43,7 +43,18 @@ export function JudgeOutcomesChart({ cases }: { cases: CaseRecord[] }) {
                 <CartesianGrid {...GRID_PROPS} horizontal={false} />
                 <XAxis type="number" allowDecimals={false} tick={AXIS_TICK_STYLE} />
                 <YAxis type="category" dataKey="name" width={110} tick={{ ...AXIS_TICK_STYLE, fontSize: 11 }} />
-                <CustomTooltip />
+                <Tooltip
+                    cursor={TOOLTIP_CURSOR_FILL}
+                    content={
+                        <CustomTooltip
+                            percentOfRow
+                            footer={(payload) => {
+                                const sum = payload.reduce((s, p) => s + (p.value ?? 0), 0);
+                                return `Total cases: ${sum.toLocaleString()}`;
+                            }}
+                        />
+                    }
+                />
                 <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
                 <Bar dataKey="guilty" stackId="a" fill={OUTCOME_COLORS.guilty} name="Guilty" activeBar={BAR_HOVER_PROPS} />
                 <Bar dataKey="noContest" stackId="a" fill={OUTCOME_COLORS.noContest} name="No Contest" activeBar={BAR_HOVER_PROPS} />

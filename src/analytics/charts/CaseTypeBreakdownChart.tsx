@@ -1,5 +1,5 @@
 import { useMemo, useCallback } from 'react';
-import { PieChart, Pie, Cell, Legend, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, Legend, Tooltip, ResponsiveContainer } from 'recharts';
 import { CustomTooltip } from '../CustomTooltip';
 import { renderActiveShape } from '../pieActiveShape';
 import { CHART_PALETTE } from '../chartTheme';
@@ -20,6 +20,8 @@ export function CaseTypeBreakdownChart({ cases }: { cases: CaseRecord[] }) {
             .sort((a, b) => b.value - a.value)
             .slice(0, 10);
     }, [cases]);
+
+    const total = useMemo(() => data.reduce((s, d) => s + d.value, 0), [data]);
 
     const handleClick = useCallback((_: unknown, index: number) => {
         const entry = data[index];
@@ -49,7 +51,7 @@ export function CaseTypeBreakdownChart({ cases }: { cases: CaseRecord[] }) {
                         <Cell key={index} fill={CHART_PALETTE[index % CHART_PALETTE.length]!} />
                     ))}
                 </Pie>
-                <CustomTooltip />
+                <Tooltip cursor={false} content={<CustomTooltip total={total} />} />
                 <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11 }} />
             </PieChart>
         </ResponsiveContainer>

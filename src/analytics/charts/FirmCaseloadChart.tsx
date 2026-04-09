@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, Tooltip, ResponsiveContainer } from 'recharts';
 import { CustomTooltip } from '../CustomTooltip';
-import { CHART_COLORS, AXIS_TICK_STYLE, GRID_PROPS, BAR_HOVER_PROPS } from '../chartTheme';
+import { CHART_COLORS, AXIS_TICK_STYLE, GRID_PROPS, BAR_HOVER_PROPS, TOOLTIP_CURSOR_FILL } from '../chartTheme';
 import type { CaseRecord } from '../../types';
 
 function truncate(s: string, max: number): string {
@@ -41,7 +41,19 @@ export function FirmCaseloadChart({ cases }: { cases: CaseRecord[] }) {
                 <CartesianGrid {...GRID_PROPS} horizontal={false} />
                 <XAxis type="number" allowDecimals={false} tick={AXIS_TICK_STYLE} />
                 <YAxis type="category" dataKey="firm" width={130} tick={{ ...AXIS_TICK_STYLE, fontSize: 11 }} />
-                <CustomTooltip />
+                <Tooltip
+                    cursor={TOOLTIP_CURSOR_FILL}
+                    content={
+                        <CustomTooltip
+                            percentOfRow
+                            footer={(payload) => {
+                                const row = payload[0]?.payload as { total?: number } | undefined;
+                                if (row?.total == null) return null;
+                                return `Total cases: ${row.total.toLocaleString()}`;
+                            }}
+                        />
+                    }
+                />
                 <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
                 <Bar dataKey="prosecution" stackId="a" fill={CHART_COLORS.coral} name="Prosecution" activeBar={BAR_HOVER_PROPS} />
                 <Bar dataKey="defense" stackId="a" fill={CHART_COLORS.blue} name="Defense" radius={[0, 6, 6, 0]} activeBar={BAR_HOVER_PROPS} />

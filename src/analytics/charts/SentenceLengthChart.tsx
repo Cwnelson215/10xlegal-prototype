@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Cell, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { CustomTooltip } from '../CustomTooltip';
-import { CHART_PALETTE, AXIS_TICK_STYLE, GRID_PROPS, BAR_HOVER_PROPS, classifyOutcome } from '../chartTheme';
+import { CHART_PALETTE, AXIS_TICK_STYLE, GRID_PROPS, BAR_HOVER_PROPS, TOOLTIP_CURSOR_FILL, classifyOutcome } from '../chartTheme';
 import type { CaseRecord } from '../../types';
 
 const BUCKETS = [
@@ -89,6 +89,7 @@ export function SentenceLengthChart({ cases }: { cases: CaseRecord[] }) {
     }, [cases]);
 
     const hasData = data.some((d) => d.count > 0);
+    const total = data.reduce((s, d) => s + d.count, 0);
     if (!hasData) return <p className="chart-empty">No sentence data available.</p>;
 
     return (
@@ -97,7 +98,7 @@ export function SentenceLengthChart({ cases }: { cases: CaseRecord[] }) {
                 <CartesianGrid {...GRID_PROPS} />
                 <XAxis dataKey="label" tick={{ ...AXIS_TICK_STYLE, fontSize: 11 }} />
                 <YAxis allowDecimals={false} tick={AXIS_TICK_STYLE} />
-                <CustomTooltip />
+                <Tooltip cursor={TOOLTIP_CURSOR_FILL} content={<CustomTooltip total={total} />} />
                 <Bar dataKey="count" radius={[6, 6, 0, 0]} name="Cases" activeBar={BAR_HOVER_PROPS}>
                     {data.map((_, i) => (
                         <Cell key={i} fill={CHART_PALETTE[i % CHART_PALETTE.length]!} />

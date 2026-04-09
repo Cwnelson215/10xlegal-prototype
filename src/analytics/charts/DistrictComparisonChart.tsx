@@ -1,7 +1,7 @@
 import { useMemo, useCallback } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, type BarRectangleItem } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, type BarRectangleItem } from 'recharts';
 import { CustomTooltip } from '../CustomTooltip';
-import { CHART_COLORS, AXIS_TICK_STYLE, GRID_PROPS, BAR_HOVER_PROPS } from '../chartTheme';
+import { CHART_COLORS, AXIS_TICK_STYLE, GRID_PROPS, BAR_HOVER_PROPS, TOOLTIP_CURSOR_FILL } from '../chartTheme';
 import { useAnalyticsFilter } from '../context';
 import type { CaseRecord } from '../../types';
 
@@ -23,6 +23,8 @@ export function DistrictComparisonChart({ cases }: { cases: CaseRecord[] }) {
             .sort((a, b) => b.count - a.count)
             .slice(0, 15);
     }, [cases]);
+
+    const total = useMemo(() => data.reduce((s, d) => s + d.count, 0), [data]);
 
     const handleClick = useCallback((entry: BarRectangleItem) => {
         const dn = (entry as BarRectangleItem & { districtNumber?: string }).districtNumber;
@@ -49,7 +51,7 @@ export function DistrictComparisonChart({ cases }: { cases: CaseRecord[] }) {
                     interval={0}
                 />
                 <YAxis allowDecimals={false} tick={AXIS_TICK_STYLE} />
-                <CustomTooltip />
+                <Tooltip cursor={TOOLTIP_CURSOR_FILL} content={<CustomTooltip total={total} />} />
                 <Bar
                     dataKey="count"
                     fill="url(#gradDistrict)"

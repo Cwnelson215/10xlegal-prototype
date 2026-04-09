@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Legend, ReferenceLine, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Legend, ReferenceLine, Tooltip, ResponsiveContainer } from 'recharts';
 import { CustomTooltip } from '../CustomTooltip';
-import { CHART_COLORS, AXIS_TICK_STYLE, GRID_PROPS, AREA_ACTIVE_DOT_PROPS } from '../chartTheme';
+import { CHART_COLORS, AXIS_TICK_STYLE, GRID_PROPS, AREA_ACTIVE_DOT_PROPS, TOOLTIP_CURSOR_FILL, formatMonthLabel } from '../chartTheme';
 import type { CaseRecord } from '../../types';
 
 export function ProsDefVolumeChart({ cases }: { cases: CaseRecord[] }) {
@@ -47,7 +47,18 @@ export function ProsDefVolumeChart({ cases }: { cases: CaseRecord[] }) {
                     strokeDasharray="6 4"
                     label={{ value: `Avg: ${avgTotal}`, position: 'right', fill: '#627D98', fontSize: 11 }}
                 />
-                <CustomTooltip />
+                <Tooltip
+                    cursor={TOOLTIP_CURSOR_FILL}
+                    content={
+                        <CustomTooltip
+                            labelFormatter={formatMonthLabel}
+                            footer={(payload) => {
+                                const sum = payload.reduce((s, p) => s + (p.value ?? 0), 0);
+                                return `Total: ${sum.toLocaleString()}`;
+                            }}
+                        />
+                    }
+                />
                 <Legend iconType="circle" wrapperStyle={{ fontSize: 12, paddingTop: 8 }} />
                 <Area
                     type="natural"

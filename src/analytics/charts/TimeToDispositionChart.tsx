@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ReferenceLine, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ReferenceLine, Tooltip, ResponsiveContainer } from 'recharts';
 import { CustomTooltip } from '../CustomTooltip';
-import { CHART_COLORS, AXIS_TICK_STYLE, GRID_PROPS, BAR_HOVER_PROPS } from '../chartTheme';
+import { CHART_COLORS, AXIS_TICK_STYLE, GRID_PROPS, BAR_HOVER_PROPS, TOOLTIP_CURSOR_FILL } from '../chartTheme';
 import type { CaseRecord } from '../../types';
 
 function truncate(s: string, max: number): string {
@@ -58,7 +58,19 @@ export function TimeToDispositionChart({ cases }: { cases: CaseRecord[] }) {
                     stroke={CHART_COLORS.coral}
                     strokeDasharray="6 4"
                 />
-                <CustomTooltip formatter={(value, name) => name === 'Avg Days' ? `${value} days` : String(value)} />
+                <Tooltip
+                    cursor={TOOLTIP_CURSOR_FILL}
+                    content={
+                        <CustomTooltip
+                            formatter={(value, name) => name === 'Avg Days' ? `${value} days` : String(value)}
+                            footer={(payload) => {
+                                const row = payload[0]?.payload as { cases?: number } | undefined;
+                                if (row?.cases == null) return null;
+                                return `Sample size: ${row.cases.toLocaleString()} case${row.cases === 1 ? '' : 's'}`;
+                            }}
+                        />
+                    }
+                />
                 <Bar dataKey="avgDays" fill="url(#gradDisposition)" radius={[0, 6, 6, 0]} name="Avg Days" activeBar={BAR_HOVER_PROPS} />
             </BarChart>
         </ResponsiveContainer>

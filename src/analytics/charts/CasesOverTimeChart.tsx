@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Brush, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Brush, Tooltip, ResponsiveContainer } from 'recharts';
 import { CustomTooltip } from '../CustomTooltip';
-import { CHART_COLORS, AXIS_TICK_STYLE, GRID_PROPS, AREA_ACTIVE_DOT_PROPS } from '../chartTheme';
+import { CHART_COLORS, AXIS_TICK_STYLE, GRID_PROPS, AREA_ACTIVE_DOT_PROPS, TOOLTIP_CURSOR_FILL, formatMonthLabel } from '../chartTheme';
 import type { CaseRecord } from '../../types';
 
 export function CasesOverTimeChart({ cases }: { cases: CaseRecord[] }) {
@@ -34,13 +34,26 @@ export function CasesOverTimeChart({ cases }: { cases: CaseRecord[] }) {
                 <CartesianGrid {...GRID_PROPS} />
                 <XAxis dataKey="month" tick={AXIS_TICK_STYLE} interval="preserveStartEnd" />
                 <YAxis allowDecimals={false} tick={AXIS_TICK_STYLE} />
+                <Tooltip
+                    cursor={TOOLTIP_CURSOR_FILL}
+                    content={
+                        <CustomTooltip
+                            labelFormatter={formatMonthLabel}
+                            footer={(payload) => {
+                                const row = payload[0]?.payload as { cumulative?: number } | undefined;
+                                if (row?.cumulative == null) return null;
+                                return `Cumulative: ${row.cumulative.toLocaleString()}`;
+                            }}
+                        />
+                    }
+                />
                 <Area
                     type="monotone"
                     dataKey="count"
                     stroke={CHART_COLORS.blue}
                     fill="url(#gradBlue)"
                     strokeWidth={2.5}
-                    name="Cases"
+                    name="New Cases"
                     dot={false}
                     activeDot={AREA_ACTIVE_DOT_PROPS}
                 />
@@ -53,7 +66,6 @@ export function CasesOverTimeChart({ cases }: { cases: CaseRecord[] }) {
                         fill="#F0F4F8"
                     />
                 )}
-                <CustomTooltip />
             </AreaChart>
         </ResponsiveContainer>
     );

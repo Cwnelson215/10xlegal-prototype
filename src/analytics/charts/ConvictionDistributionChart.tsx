@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { PieChart, Pie, Cell, Legend, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, Legend, Tooltip, ResponsiveContainer } from 'recharts';
 import { CustomTooltip } from '../CustomTooltip';
 import { renderActiveShape } from '../pieActiveShape';
 import { CHART_PALETTE } from '../chartTheme';
@@ -60,7 +60,7 @@ export function ConvictionDistributionChart({ cases }: { cases: CaseRecord[] }) 
                 <text x="50%" y="55%" textAnchor="middle" fill="#627D98" fontSize={11}>
                     Total
                 </text>
-                <CustomTooltip />
+                <Tooltip cursor={false} content={<CustomTooltip total={total} />} />
                 <Legend
                     iconType="circle"
                     iconSize={8}
