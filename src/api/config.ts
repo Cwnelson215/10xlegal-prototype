@@ -30,6 +30,7 @@ export const API_ENDPOINTS = {
         DELETE: (id: string) => `/cases/${id}`,
         ASSIGN_JUDGE: (id: string) => `/cases/${id}/judge`,
         ASSIGN_ATTORNEY: (id: string) => `/cases/${id}/attorneys`,
+        REMOVE_ATTORNEY: (caseId: string, attorneyId: string) => `/cases/${caseId}/attorneys/${attorneyId}`,
     },
 
     // Documents endpoints
@@ -55,6 +56,7 @@ export const API_ENDPOINTS = {
         LIST: '/attorneys',
         CREATE: '/attorneys',
         GET: (id: string) => `/attorneys/${id}`,
+        UPDATE: (id: string) => `/attorneys/${id}`,
     },
 
     // Judges endpoints
@@ -62,6 +64,7 @@ export const API_ENDPOINTS = {
         LIST: '/judges',
         CREATE: '/judges',
         GET: (id: string) => `/judges/${id}`,
+        UPDATE: (id: string) => `/judges/${id}`,
     },
 
     // Firms endpoints

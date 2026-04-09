@@ -12,15 +12,15 @@ export function TopAttorneysChart({ cases }: { cases: CaseRecord[] }) {
     const data = useMemo(() => {
         const counts = new Map<string, { prosecution: number; defense: number }>();
         for (const c of cases) {
-            if (c.prosecutionAttorney) {
-                const entry = counts.get(c.prosecutionAttorney) ?? { prosecution: 0, defense: 0 };
+            for (const a of c.prosecutionAttorneys) {
+                const entry = counts.get(a.name) ?? { prosecution: 0, defense: 0 };
                 entry.prosecution++;
-                counts.set(c.prosecutionAttorney, entry);
+                counts.set(a.name, entry);
             }
-            if (c.defenseAttorney) {
-                const entry = counts.get(c.defenseAttorney) ?? { prosecution: 0, defense: 0 };
+            for (const a of c.defenseAttorneys) {
+                const entry = counts.get(a.name) ?? { prosecution: 0, defense: 0 };
                 entry.defense++;
-                counts.set(c.defenseAttorney, entry);
+                counts.set(a.name, entry);
             }
         }
         return Array.from(counts, ([name, { prosecution, defense }]) => ({

@@ -36,7 +36,6 @@
 │   ├── admin/                  # Admin dashboard pages
 │   ├── analytics/              # Analytics views and charts
 │   │   └── charts/             # Chart components
-│   ├── calendar/               # Calendar feature
 │   ├── cases/                  # Case management pages
 │   ├── context/                # React Context providers (AuthContext)
 │   ├── home/                   # Dashboard page
@@ -111,4 +110,4 @@ Four user roles: client, lawyer, legal-official, admin.
 
 ## Current State
 
-Full-stack application with Express/PostgreSQL backend deployed on AWS (ECS Fargate + RDS) via Pulumi. The API service layer is fully typed and structured. Admin dashboard, analytics, calendar, and case management features are implemented.
+Full-stack application with Express/PostgreSQL backend deployed on AWS (ECS Fargate + RDS) via Pulumi. The API service layer is fully typed and structured. Admin dashboard, analytics, and case management features are implemented.

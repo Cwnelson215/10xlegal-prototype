@@ -75,10 +75,17 @@ export const casesService = {
         return response.data!;
     },
 
-    async assignAttorney(caseId: string, side: 'prosecution' | 'defense', role: 'head' | 'arguing', attorneyId: string): Promise<Case> {
+    async assignAttorney(caseId: string, side: 'prosecution' | 'defense', attorneyId: string): Promise<Case> {
         const response = await apiClient.put<ApiResponse<Case>>(
             API_ENDPOINTS.CASES.ASSIGN_ATTORNEY(caseId),
-            { side, role, attorneyId }
+            { side, attorneyId }
+        );
+        return response.data!;
+    },
+
+    async removeAttorney(caseId: string, attorneyId: string): Promise<Case> {
+        const response = await apiClient.delete<ApiResponse<Case>>(
+            API_ENDPOINTS.CASES.REMOVE_ATTORNEY(caseId, attorneyId)
         );
         return response.data!;
     },

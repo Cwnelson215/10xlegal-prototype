@@ -62,10 +62,6 @@ The platform is designed to serve four user types:
 - Interactive charts and visualizations
 - Performance tracking
 
-#### Calendar
-- Deadline and event calendar view
-- Schedule management
-
 #### Admin Dashboard
 - User management
 - System oversight
@@ -136,7 +132,6 @@ The platform is designed to serve four user types:
 │   ├── admin/                    # Admin dashboard
 │   ├── analytics/                # Analytics views
 │   │   └── charts/               # Chart components
-│   ├── calendar/                 # Calendar feature
 │   ├── cases/                    # Case management pages
 │   ├── context/                  # React context providers
 │   │   └── AuthContext.tsx       # Authentication state management

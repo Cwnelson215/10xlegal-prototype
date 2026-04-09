@@ -6,7 +6,6 @@ import type { JSX } from 'react';
 import { Home } from './home/home';
 import { Landing } from './landing/landing';
 import { Analytics } from './analytics/analytics';
-import { Calendar } from './calendar/calendar';
 import { CaseDetail } from './cases/CaseDetail';
 import { AttorneyProfile } from './profiles/AttorneyProfile';
 
@@ -33,7 +32,6 @@ function DynamicHeader(): JSX.Element {
                             <Link to="/attorneys" className="nav-link">Attorneys</Link>
 
                             <Link to="/analytics" className="nav-link">Analytics</Link>
-                            <Link to="/calendar" className="nav-link">Calendar</Link>
                             {user?.role === 'admin' && <Link to="/admin" className="nav-link">Admin</Link>}
                         </nav>
                         <div className="header-actions">
@@ -93,7 +91,6 @@ function AppContent() {
                 <Route path="/" element={<Landing />} />
                 <Route path="/dashboard" element={<Home />} />
                 <Route path="/analytics" element={<Analytics />} />
-                <Route path="/calendar" element={<Calendar />} />
                 <Route path="/cases/:id" element={<CaseDetail />} />
                 <Route path="/attorneys" element={<AttorneysList />} />
                 <Route path="/attorneys/:id" element={<AttorneyProfile />} />

@@ -33,8 +33,8 @@ export function Home() {
                 : true;
 
             const matchesAttorney = attorneyQueryLower.length > 0
-                ? caseItem.prosecutionAttorney.toLowerCase().includes(attorneyQueryLower) ||
-                  caseItem.defenseAttorney.toLowerCase().includes(attorneyQueryLower)
+                ? caseItem.prosecutionAttorneys.some((a) => a.name.toLowerCase().includes(attorneyQueryLower)) ||
+                  caseItem.defenseAttorneys.some((a) => a.name.toLowerCase().includes(attorneyQueryLower))
                 : true;
 
             const matchesCounty = courtFilter === 'all' ? true : caseItem.court === courtFilter;
@@ -168,14 +168,18 @@ export function Home() {
                                             <td><Link to={`/cases/${caseItem.id}`} className="entity-link">{caseItem.caseNumber}</Link></td>
                                             <td>{caseItem.court}</td>
                                             <td>
-                                                {caseItem.prosecutionAttorneyId
-                                                    ? <Link to={`/attorneys/${caseItem.prosecutionAttorneyId}`} className="entity-link">{caseItem.prosecutionAttorney}</Link>
-                                                    : caseItem.prosecutionAttorney}
+                                                {caseItem.prosecutionAttorneys.length > 0
+                                                    ? caseItem.prosecutionAttorneys.map((a, i) => (
+                                                        <span key={a.id}>{i > 0 && ', '}<Link to={`/attorneys/${a.id}`} className="entity-link">{a.name}</Link></span>
+                                                    ))
+                                                    : ''}
                                             </td>
                                             <td>
-                                                {caseItem.defenseAttorneyId
-                                                    ? <Link to={`/attorneys/${caseItem.defenseAttorneyId}`} className="entity-link">{caseItem.defenseAttorney}</Link>
-                                                    : caseItem.defenseAttorney}
+                                                {caseItem.defenseAttorneys.length > 0
+                                                    ? caseItem.defenseAttorneys.map((a, i) => (
+                                                        <span key={a.id}>{i > 0 && ', '}<Link to={`/attorneys/${a.id}`} className="entity-link">{a.name}</Link></span>
+                                                    ))
+                                                    : ''}
                                             </td>
                                             <td>{caseItem.charge}</td>
                                             <td>{caseItem.courtDate}</td>

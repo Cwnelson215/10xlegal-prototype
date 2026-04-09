@@ -16,17 +16,17 @@ export function AttorneyWinRateChart({ cases }: { cases: CaseRecord[] }) {
         for (const c of cases) {
             const cls = classifyOutcome(c.ruling);
 
-            if (c.prosecutionAttorney) {
-                const entry = prosStats.get(c.prosecutionAttorney) ?? { total: 0, convictions: 0 };
+            for (const a of c.prosecutionAttorneys) {
+                const entry = prosStats.get(a.name) ?? { total: 0, convictions: 0 };
                 entry.total++;
                 if (cls === 'guilty' || cls === 'noContest') entry.convictions++;
-                prosStats.set(c.prosecutionAttorney, entry);
+                prosStats.set(a.name, entry);
             }
-            if (c.defenseAttorney) {
-                const entry = defStats.get(c.defenseAttorney) ?? { total: 0, wins: 0 };
+            for (const a of c.defenseAttorneys) {
+                const entry = defStats.get(a.name) ?? { total: 0, wins: 0 };
                 entry.total++;
                 if (cls === 'dismissed') entry.wins++;
-                defStats.set(c.defenseAttorney, entry);
+                defStats.set(a.name, entry);
             }
         }
 

@@ -50,6 +50,11 @@ export interface User {
 }
 
 // Case Types
+export interface CaseAttorney {
+    id: string;
+    name: string;
+}
+
 export interface Case {
     id: string;
     title: string;
@@ -59,9 +64,7 @@ export interface Case {
     clientId: string;
     lawyerId: string;
     court: string;
-    prosecutionAttorney: string;
     prosecutionFirm: string;
-    defenseAttorney: string;
     defenseFirm: string;
     charge: string;
     courtDate: string;
@@ -78,12 +81,8 @@ export interface Case {
     judgmentDescription: string;
     sentenceDescription: string;
     charges: { offense_code: string; description: string; judgment: string; sentence: string; value: string; units: string; charge_sequence: string }[];
-    prosecutionArguingAttorney?: string;
-    prosecutionArguingAttorneyId?: string;
-    defenseArguingAttorney?: string;
-    defenseArguingAttorneyId?: string;
-    prosecutionAttorneyId?: string;
-    defenseAttorneyId?: string;
+    prosecutionAttorneys: CaseAttorney[];
+    defenseAttorneys: CaseAttorney[];
     prosecutionFirmId?: string;
     defenseFirmId?: string;
     judgeName?: string;
@@ -197,6 +196,19 @@ export interface CreateJudgeRequest {
     title?: string | undefined;
     court?: string | undefined;
     district?: string | undefined;
+}
+
+export interface UpdateAttorneyRequest {
+    name?: string;
+    type?: 'prosecution' | 'defense';
+    firmId?: string | null;
+}
+
+export interface UpdateJudgeRequest {
+    name?: string;
+    title?: string;
+    court?: string;
+    district?: string;
 }
 
 // API Response Types

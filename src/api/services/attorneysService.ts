@@ -1,6 +1,6 @@
 import apiClient from '../client';
 import { API_ENDPOINTS } from '../config';
-import type { Attorney, ApiResponse, PaginatedResponse } from '../types';
+import type { Attorney, UpdateAttorneyRequest, ApiResponse, PaginatedResponse } from '../types';
 
 export const attorneysService = {
     async getAttorneys(type?: 'prosecution' | 'defense', page = 1, pageSize = 100): Promise<PaginatedResponse<Attorney>> {
@@ -24,6 +24,14 @@ export const attorneysService = {
     async createAttorney(data: { name: string; type: 'prosecution' | 'defense'; firmId?: string }): Promise<Attorney> {
         const response = await apiClient.post<ApiResponse<Attorney>>(
             API_ENDPOINTS.ATTORNEYS.CREATE,
+            data
+        );
+        return response.data!;
+    },
+
+    async updateAttorney(id: string, data: UpdateAttorneyRequest): Promise<Attorney> {
+        const response = await apiClient.put<ApiResponse<Attorney>>(
+            API_ENDPOINTS.ATTORNEYS.UPDATE(id),
             data
         );
         return response.data!;

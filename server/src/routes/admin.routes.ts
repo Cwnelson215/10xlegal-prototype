@@ -224,18 +224,16 @@ router.post('/upload', async (req, res) => {
             try {
               const placeholders: string[] = [];
               const values: any[] = [];
+              const colCount = 25;
               for (let b = 0; b < batch.length; b++) {
                 const r = batch[b];
-                const offset = b * 27;
-                placeholders.push(`(${Array.from({ length: 27 }, (_, k) => `$${offset + k + 1}`).join(',')})`);
-                const prosName = normalizeAttorneyName(r.prosecutionAttorney || r.prosecution_attorney || '');
-                const defName = normalizeAttorneyName(r.defenseAttorney || r.defense_attorney || '');
+                const offset = b * colCount;
+                placeholders.push(`(${Array.from({ length: colCount }, (_, k) => `$${offset + k + 1}`).join(',')})`);
                 values.push(
                   uuidv4(), r.title || `${r.charge || 'Case'} - ${r.caseNumber || r.case_number || ''}`,
                   r.description || '', r.status || 'active',
                   r.caseNumber || r.case_number || '', r.clientId || r.client_id || '',
-                  r.court || '', prosName,
-                  defName,
+                  r.court || '',
                   r.prosecutionFirm || r.prosecution_firm || '',
                   r.defenseFirm || r.defense_firm || '',
                   r.charge || '', r.courtDate || r.court_date || '',
@@ -256,7 +254,7 @@ router.post('/upload', async (req, res) => {
               }
               await db.query(
                 `INSERT INTO cases (id, title, description, status, case_number, client_id, court,
-                  prosecution_attorney, defense_attorney, prosecution_firm, defense_firm,
+                  prosecution_firm, defense_firm,
                   charge, court_date, ruling, sentence, conviction_outcome, conviction_date,
                   district_number, filing_date, disposition_date,
                   case_type, offense_code, sentence_date, charges,
@@ -269,18 +267,6 @@ router.post('/upload', async (req, res) => {
                   status = CASE WHEN cases.status = 'active' THEN EXCLUDED.status ELSE cases.status END,
                   client_id = CASE WHEN cases.client_id = '' THEN EXCLUDED.client_id ELSE cases.client_id END,
                   court = CASE WHEN cases.court = '' THEN EXCLUDED.court ELSE cases.court END,
-                  prosecution_attorney = CASE
-                    WHEN cases.prosecution_attorney = '' THEN EXCLUDED.prosecution_attorney
-                    WHEN EXCLUDED.prosecution_attorney = '' THEN cases.prosecution_attorney
-                    WHEN cases.prosecution_attorney LIKE '%' || EXCLUDED.prosecution_attorney || '%' THEN cases.prosecution_attorney
-                    ELSE cases.prosecution_attorney || '; ' || EXCLUDED.prosecution_attorney
-                  END,
-                  defense_attorney = CASE
-                    WHEN cases.defense_attorney = '' THEN EXCLUDED.defense_attorney
-                    WHEN EXCLUDED.defense_attorney = '' THEN cases.defense_attorney
-                    WHEN cases.defense_attorney LIKE '%' || EXCLUDED.defense_attorney || '%' THEN cases.defense_attorney
-                    ELSE cases.defense_attorney || '; ' || EXCLUDED.defense_attorney
-                  END,
                   prosecution_firm = CASE WHEN cases.prosecution_firm = '' THEN EXCLUDED.prosecution_firm ELSE cases.prosecution_firm END,
                   defense_firm = CASE WHEN cases.defense_firm = '' THEN EXCLUDED.defense_firm ELSE cases.defense_firm END,
                   charge = CASE WHEN cases.charge = '' THEN EXCLUDED.charge ELSE cases.charge END,
@@ -303,13 +289,21 @@ router.post('/upload', async (req, res) => {
               );
               importedRows += batch.length;
 
-              // Auto-create attorney records and link them to cases
+              // Auto-create attorney records and link them via case_attorneys junction table
               for (const r of batch) {
                 const caseNum = r.caseNumber || r.case_number || '';
                 if (!caseNum) continue;
                 const distNum = r.districtNumber || r.district_number || '';
                 const prosAtty = normalizeAttorneyName(r.prosecutionAttorney || r.prosecution_attorney || '');
                 const defAtty = normalizeAttorneyName(r.defenseAttorney || r.defense_attorney || '');
+
+                // Look up the case id
+                const caseIdResult = await db.query(
+                  'SELECT id FROM cases WHERE case_number = $1 AND district_number = $2',
+                  [caseNum, distNum]
+                );
+                const caseId = caseIdResult.rows[0]?.id;
+                if (!caseId) continue;
 
                 if (prosAtty) {
                   const attResult = await db.query(
@@ -322,8 +316,10 @@ router.post('/upload', async (req, res) => {
                   const attId = attResult.rows[0]?.id;
                   if (attId) {
                     await db.query(
-                      `UPDATE cases SET prosecution_attorney_id = $1 WHERE case_number = $2 AND district_number = $3`,
-                      [attId, caseNum, distNum]
+                      `INSERT INTO case_attorneys (id, case_id, attorney_id, side, attorney_name, created_at)
+                       VALUES ($1, $2, $3, 'prosecution', $4, $5)
+                       ON CONFLICT (case_id, attorney_id) DO NOTHING`,
+                      [uuidv4(), caseId, attId, prosAtty, now]
                     );
                   }
                 }
@@ -338,8 +334,10 @@ router.post('/upload', async (req, res) => {
                   const attId = attResult.rows[0]?.id;
                   if (attId) {
                     await db.query(
-                      `UPDATE cases SET defense_attorney_id = $1 WHERE case_number = $2 AND district_number = $3`,
-                      [attId, caseNum, distNum]
+                      `INSERT INTO case_attorneys (id, case_id, attorney_id, side, attorney_name, created_at)
+                       VALUES ($1, $2, $3, 'defense', $4, $5)
+                       ON CONFLICT (case_id, attorney_id) DO NOTHING`,
+                      [uuidv4(), caseId, attId, defAtty, now]
                     );
                   }
                 }
@@ -349,33 +347,22 @@ router.post('/upload', async (req, res) => {
               for (let b = 0; b < batch.length; b++) {
                 try {
                   const r = batch[b];
+                  const caseId = uuidv4();
                   await db.query(
                     `INSERT INTO cases (id, title, description, status, case_number, client_id, court,
-                      prosecution_attorney, defense_attorney, prosecution_firm, defense_firm,
+                      prosecution_firm, defense_firm,
                       charge, court_date, ruling, sentence, conviction_outcome, conviction_date,
                       district_number, filing_date, disposition_date,
                       case_type, offense_code, sentence_date, charges,
                       judgment_description, sentence_description,
                       updated_at)
-                     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27)
+                     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25)
                      ON CONFLICT (case_number, district_number) DO UPDATE SET
                       title = CASE WHEN cases.title = '' THEN EXCLUDED.title ELSE cases.title END,
                       description = CASE WHEN cases.description = '' THEN EXCLUDED.description ELSE cases.description END,
                       status = CASE WHEN cases.status = 'active' THEN EXCLUDED.status ELSE cases.status END,
                       client_id = CASE WHEN cases.client_id = '' THEN EXCLUDED.client_id ELSE cases.client_id END,
                       court = CASE WHEN cases.court = '' THEN EXCLUDED.court ELSE cases.court END,
-                      prosecution_attorney = CASE
-                        WHEN cases.prosecution_attorney = '' THEN EXCLUDED.prosecution_attorney
-                        WHEN EXCLUDED.prosecution_attorney = '' THEN cases.prosecution_attorney
-                        WHEN cases.prosecution_attorney LIKE '%' || EXCLUDED.prosecution_attorney || '%' THEN cases.prosecution_attorney
-                        ELSE cases.prosecution_attorney || '; ' || EXCLUDED.prosecution_attorney
-                      END,
-                      defense_attorney = CASE
-                        WHEN cases.defense_attorney = '' THEN EXCLUDED.defense_attorney
-                        WHEN EXCLUDED.defense_attorney = '' THEN cases.defense_attorney
-                        WHEN cases.defense_attorney LIKE '%' || EXCLUDED.defense_attorney || '%' THEN cases.defense_attorney
-                        ELSE cases.defense_attorney || '; ' || EXCLUDED.defense_attorney
-                      END,
                       prosecution_firm = CASE WHEN cases.prosecution_firm = '' THEN EXCLUDED.prosecution_firm ELSE cases.prosecution_firm END,
                       defense_firm = CASE WHEN cases.defense_firm = '' THEN EXCLUDED.defense_firm ELSE cases.defense_firm END,
                       charge = CASE WHEN cases.charge = '' THEN EXCLUDED.charge ELSE cases.charge END,
@@ -395,11 +382,10 @@ router.post('/upload', async (req, res) => {
                       sentence_description = CASE WHEN cases.sentence_description = '' THEN EXCLUDED.sentence_description ELSE cases.sentence_description END,
                       updated_at = EXCLUDED.updated_at`,
                     [
-                      uuidv4(), r.title || `${r.charge || 'Case'} - ${r.caseNumber || r.case_number || ''}`,
+                      caseId, r.title || `${r.charge || 'Case'} - ${r.caseNumber || r.case_number || ''}`,
                       r.description || '', r.status || 'active',
                       r.caseNumber || r.case_number || '', r.clientId || r.client_id || '',
-                      r.court || '', normalizeAttorneyName(r.prosecutionAttorney || r.prosecution_attorney || ''),
-                      normalizeAttorneyName(r.defenseAttorney || r.defense_attorney || ''),
+                      r.court || '',
                       r.prosecutionFirm || r.prosecution_firm || '',
                       r.defenseFirm || r.defense_firm || '',
                       r.charge || '', r.courtDate || r.court_date || '',
@@ -419,12 +405,18 @@ router.post('/upload', async (req, res) => {
                     ]
                   );
 
-                  // Auto-create attorney records and link to case
+                  // Auto-create attorney records and link via junction table
                   const fbCaseNum = r.caseNumber || r.case_number || '';
                   const fbDistNum = r.districtNumber || r.district_number || '';
                   const fbPros = normalizeAttorneyName(r.prosecutionAttorney || r.prosecution_attorney || '');
                   const fbDef = normalizeAttorneyName(r.defenseAttorney || r.defense_attorney || '');
-                  if (fbCaseNum && fbPros) {
+                  // Look up the actual case id (may differ from caseId on conflict)
+                  const fbCaseIdResult = await db.query(
+                    'SELECT id FROM cases WHERE case_number = $1 AND district_number = $2',
+                    [fbCaseNum, fbDistNum]
+                  );
+                  const fbCaseId = fbCaseIdResult.rows[0]?.id;
+                  if (fbCaseId && fbPros) {
                     const ar = await db.query(
                       `INSERT INTO attorneys (id, name, type, created_at, updated_at)
                        VALUES ($1, $2, 'prosecution', $3, $3)
@@ -433,10 +425,15 @@ router.post('/upload', async (req, res) => {
                       [uuidv4(), fbPros, now]
                     );
                     if (ar.rows[0]?.id) {
-                      await db.query(`UPDATE cases SET prosecution_attorney_id = $1 WHERE case_number = $2 AND district_number = $3`, [ar.rows[0].id, fbCaseNum, fbDistNum]);
+                      await db.query(
+                        `INSERT INTO case_attorneys (id, case_id, attorney_id, side, attorney_name, created_at)
+                         VALUES ($1, $2, $3, 'prosecution', $4, $5)
+                         ON CONFLICT (case_id, attorney_id) DO NOTHING`,
+                        [uuidv4(), fbCaseId, ar.rows[0].id, fbPros, now]
+                      );
                     }
                   }
-                  if (fbCaseNum && fbDef) {
+                  if (fbCaseId && fbDef) {
                     const ar = await db.query(
                       `INSERT INTO attorneys (id, name, type, created_at, updated_at)
                        VALUES ($1, $2, 'defense', $3, $3)
@@ -445,7 +442,12 @@ router.post('/upload', async (req, res) => {
                       [uuidv4(), fbDef, now]
                     );
                     if (ar.rows[0]?.id) {
-                      await db.query(`UPDATE cases SET defense_attorney_id = $1 WHERE case_number = $2 AND district_number = $3`, [ar.rows[0].id, fbCaseNum, fbDistNum]);
+                      await db.query(
+                        `INSERT INTO case_attorneys (id, case_id, attorney_id, side, attorney_name, created_at)
+                         VALUES ($1, $2, $3, 'defense', $4, $5)
+                         ON CONFLICT (case_id, attorney_id) DO NOTHING`,
+                        [uuidv4(), fbCaseId, ar.rows[0].id, fbDef, now]
+                      );
                     }
                   }
 

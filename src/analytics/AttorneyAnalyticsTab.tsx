@@ -25,13 +25,13 @@ export function AttorneyAnalyticsTab({ cases }: { cases: CaseRecord[] }) {
         for (const c of cases) {
             const cls = classifyOutcome(c.ruling);
 
-            if (c.prosecutionAttorney) {
-                prosecutionSet.add(c.prosecutionAttorney);
+            for (const a of c.prosecutionAttorneys) {
+                prosecutionSet.add(a.name);
                 prosTotal++;
                 if (cls === 'guilty' || cls === 'noContest') prosConvictions++;
             }
-            if (c.defenseAttorney) {
-                defenseSet.add(c.defenseAttorney);
+            for (const a of c.defenseAttorneys) {
+                defenseSet.add(a.name);
                 defTotal++;
                 if (cls === 'dismissed') defWins++;
             }

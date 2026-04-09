@@ -11,8 +11,8 @@ export function ProsDefVolumeChart({ cases }: { cases: CaseRecord[] }) {
             if (!c.courtDate) continue;
             const month = c.courtDate.slice(0, 7);
             const entry = monthly.get(month) ?? { prosecution: 0, defense: 0 };
-            if (c.prosecutionAttorney) entry.prosecution++;
-            if (c.defenseAttorney) entry.defense++;
+            if (c.prosecutionAttorneys.length > 0) entry.prosecution++;
+            if (c.defenseAttorneys.length > 0) entry.defense++;
             monthly.set(month, entry);
         }
         const result = Array.from(monthly, ([month, counts]) => ({ month, ...counts }))

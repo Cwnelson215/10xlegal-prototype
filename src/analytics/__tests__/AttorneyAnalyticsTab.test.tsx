@@ -7,7 +7,8 @@ import type { CaseRecord } from '../../types';
 const mockCases: CaseRecord[] = [
     {
         id: 'c1', title: '', description: '', status: 'active', caseNumber: '001', clientId: '', lawyerId: '',
-        court: 'Salt Lake', prosecutionAttorney: 'Pros A', prosecutionFirm: 'Firm X', defenseAttorney: 'Def A', defenseFirm: 'Firm Y',
+        court: 'Salt Lake', prosecutionAttorneys: [{ id: 'a1', name: 'Pros A' }], defenseAttorneys: [{ id: 'a2', name: 'Def A' }],
+        prosecutionFirm: 'Firm X', defenseFirm: 'Firm Y',
         charge: 'Theft', courtDate: '2026-01-15', districtNumber: '', filingDate: '',
         dispositionDate: '', convictionOutcome: 'Guilty', convictionDate: '', ruling: '',
         sentence: '', caseType: '', offenseCode: '', sentenceDate: '', judgmentDescription: '', sentenceDescription: '', charges: [],
@@ -15,7 +16,8 @@ const mockCases: CaseRecord[] = [
     },
     {
         id: 'c2', title: '', description: '', status: 'closed', caseNumber: '002', clientId: '', lawyerId: '',
-        court: 'Utah', prosecutionAttorney: 'Pros B', prosecutionFirm: 'Firm X', defenseAttorney: 'Def A', defenseFirm: 'Firm Y',
+        court: 'Utah', prosecutionAttorneys: [{ id: 'a3', name: 'Pros B' }], defenseAttorneys: [{ id: 'a2', name: 'Def A' }],
+        prosecutionFirm: 'Firm X', defenseFirm: 'Firm Y',
         charge: 'DUI', courtDate: '2026-02-15', districtNumber: '', filingDate: '',
         dispositionDate: '', convictionOutcome: 'Not Guilty', convictionDate: '', ruling: '',
         sentence: '', caseType: '', offenseCode: '', sentenceDate: '', judgmentDescription: '', sentenceDescription: '', charges: [],

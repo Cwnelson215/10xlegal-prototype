@@ -56,7 +56,7 @@ describe('AttorneyProfile', () => {
         await waitFor(() => {
             expect(screen.getByText('Test Prosecutor')).toBeInTheDocument();
         });
-        // case-1 has prosecutionAttorneyId: 'att-1'
+        // case-1 has prosecutionAttorneys: [{ id: 'att-1', name: 'Test Prosecutor' }]
         await waitFor(() => {
             expect(screen.getByText('21-CR-10001')).toBeInTheDocument();
         });

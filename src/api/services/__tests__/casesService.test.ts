@@ -35,7 +35,7 @@ describe('casesService', () => {
                 http.post('/api/cases', () => {
                     return HttpResponse.json({
                         success: true,
-                        data: { id: 'new-case', title: 'New Case', caseNumber: 'NEW-001', description: '', status: 'pending', clientId: 'c1', lawyerId: '', court: '', prosecutionAttorney: '', prosecutionFirm: '', defenseAttorney: '', defenseFirm: '', charge: '', courtDate: '', districtNumber: '', filingDate: '', dispositionDate: '', convictionOutcome: '', convictionDate: '', ruling: '', sentence: '', caseType: '', offenseCode: '', sentenceDate: '', judgmentDescription: '', sentenceDescription: '', charges: [], createdAt: '', updatedAt: '' },
+                        data: { id: 'new-case', title: 'New Case', caseNumber: 'NEW-001', description: '', status: 'pending', clientId: 'c1', lawyerId: '', court: '', prosecutionAttorneys: [], defenseAttorneys: [], prosecutionFirm: '', defenseFirm: '', charge: '', courtDate: '', districtNumber: '', filingDate: '', dispositionDate: '', convictionOutcome: '', convictionDate: '', ruling: '', sentence: '', caseType: '', offenseCode: '', sentenceDate: '', judgmentDescription: '', sentenceDescription: '', charges: [], createdAt: '', updatedAt: '' },
                     });
                 })
             );
@@ -51,7 +51,7 @@ describe('casesService', () => {
                 http.put('/api/cases/:id', () => {
                     return HttpResponse.json({
                         success: true,
-                        data: { id: 'case-1', title: 'Updated', caseNumber: '21-CR-10001', description: '', status: 'active', clientId: '', lawyerId: '', court: '', prosecutionAttorney: '', prosecutionFirm: '', defenseAttorney: '', defenseFirm: '', charge: '', courtDate: '', districtNumber: '', filingDate: '', dispositionDate: '', convictionOutcome: '', convictionDate: '', ruling: '', sentence: '', caseType: '', offenseCode: '', sentenceDate: '', judgmentDescription: '', sentenceDescription: '', charges: [], createdAt: '', updatedAt: '' },
+                        data: { id: 'case-1', title: 'Updated', caseNumber: '21-CR-10001', description: '', status: 'active', clientId: '', lawyerId: '', court: '', prosecutionAttorneys: [], defenseAttorneys: [], prosecutionFirm: '', defenseFirm: '', charge: '', courtDate: '', districtNumber: '', filingDate: '', dispositionDate: '', convictionOutcome: '', convictionDate: '', ruling: '', sentence: '', caseType: '', offenseCode: '', sentenceDate: '', judgmentDescription: '', sentenceDescription: '', charges: [], createdAt: '', updatedAt: '' },
                     });
                 })
             );

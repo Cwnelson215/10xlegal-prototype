@@ -73,20 +73,12 @@ export async function runSchema(): Promise<void> {
       client_id TEXT NOT NULL,
       lawyer_id TEXT NOT NULL DEFAULT '',
       court TEXT NOT NULL DEFAULT '',
-      prosecution_attorney TEXT NOT NULL DEFAULT '',
-      prosecution_attorney_id TEXT REFERENCES attorneys(id),
       prosecution_firm TEXT NOT NULL DEFAULT '',
       prosecution_firm_id TEXT REFERENCES law_firms(id),
-      defense_attorney TEXT NOT NULL DEFAULT '',
-      defense_attorney_id TEXT REFERENCES attorneys(id),
       defense_firm TEXT NOT NULL DEFAULT '',
       defense_firm_id TEXT REFERENCES law_firms(id),
       judge_name TEXT NOT NULL DEFAULT '',
       judge_id TEXT REFERENCES judges(id),
-      prosecution_arguing_attorney TEXT NOT NULL DEFAULT '',
-      prosecution_arguing_attorney_id TEXT REFERENCES attorneys(id),
-      defense_arguing_attorney TEXT NOT NULL DEFAULT '',
-      defense_arguing_attorney_id TEXT REFERENCES attorneys(id),
       charge TEXT NOT NULL DEFAULT '',
       court_date TEXT NOT NULL DEFAULT '',
       ruling TEXT NOT NULL DEFAULT '',
@@ -225,12 +217,6 @@ export async function runSchema(): Promise<void> {
   await pool.query(`ALTER TABLE cases ADD COLUMN IF NOT EXISTS judge_name TEXT NOT NULL DEFAULT ''`);
   await pool.query(`ALTER TABLE cases ADD COLUMN IF NOT EXISTS judge_id TEXT REFERENCES judges(id)`);
 
-  // Migrate: add arguing attorney columns if missing (for existing databases)
-  await pool.query(`ALTER TABLE cases ADD COLUMN IF NOT EXISTS prosecution_arguing_attorney TEXT NOT NULL DEFAULT ''`);
-  await pool.query(`ALTER TABLE cases ADD COLUMN IF NOT EXISTS prosecution_arguing_attorney_id TEXT REFERENCES attorneys(id)`);
-  await pool.query(`ALTER TABLE cases ADD COLUMN IF NOT EXISTS defense_arguing_attorney TEXT NOT NULL DEFAULT ''`);
-  await pool.query(`ALTER TABLE cases ADD COLUMN IF NOT EXISTS defense_arguing_attorney_id TEXT REFERENCES attorneys(id)`);
-
   // Migrate: unique index on attorneys(name, type) for upsert support
   await pool.query(`
     CREATE UNIQUE INDEX IF NOT EXISTS attorneys_name_type_idx ON attorneys (name, type)
@@ -246,8 +232,6 @@ export async function runSchema(): Promise<void> {
   `);
 
   // Performance indexes on foreign keys and frequently queried columns
-  await pool.query(`CREATE INDEX IF NOT EXISTS idx_cases_prosecution_attorney_id ON cases (prosecution_attorney_id)`);
-  await pool.query(`CREATE INDEX IF NOT EXISTS idx_cases_defense_attorney_id ON cases (defense_attorney_id)`);
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_cases_client_id ON cases (client_id)`);
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_cases_prosecution_firm_id ON cases (prosecution_firm_id)`);
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_cases_defense_firm_id ON cases (defense_firm_id)`);
@@ -258,8 +242,6 @@ export async function runSchema(): Promise<void> {
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user_id ON refresh_tokens (user_id)`);
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_audit_log_created_at ON audit_log (created_at DESC)`);
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_cases_judge_id ON cases (judge_id)`);
-  await pool.query(`CREATE INDEX IF NOT EXISTS idx_cases_prosecution_arguing_attorney_id ON cases (prosecution_arguing_attorney_id)`);
-  await pool.query(`CREATE INDEX IF NOT EXISTS idx_cases_defense_arguing_attorney_id ON cases (defense_arguing_attorney_id)`);
 
   // Migrate: normalize existing attorney names from "Last, First" to "First Last" title case
   await pool.query(`
@@ -272,57 +254,72 @@ export async function runSchema(): Promise<void> {
     UPDATE attorneys SET name = INITCAP(name), updated_at = NOW()
     WHERE name = UPPER(name) AND name NOT LIKE '%,%'
   `);
-  await pool.query(`
-    UPDATE cases
-    SET prosecution_attorney = INITCAP(TRIM(SPLIT_PART(prosecution_attorney, ',', 2)) || ' ' || TRIM(SPLIT_PART(prosecution_attorney, ',', 1))),
-        updated_at = NOW()
-    WHERE prosecution_attorney LIKE '%,%'
-  `);
-  await pool.query(`
-    UPDATE cases
-    SET defense_attorney = INITCAP(TRIM(SPLIT_PART(defense_attorney, ',', 2)) || ' ' || TRIM(SPLIT_PART(defense_attorney, ',', 1))),
-        updated_at = NOW()
-    WHERE defense_attorney LIKE '%,%'
-  `);
 
-  // Migrate: backfill attorney records from existing case data
-  // Create prosecution attorneys from cases that have a name but no attorney_id
+  // Migrate: create case_attorneys junction table for many-to-many relationship
   await pool.query(`
-    INSERT INTO attorneys (id, name, type, created_at, updated_at)
-    SELECT gen_random_uuid()::text, prosecution_attorney, 'prosecution', NOW(), NOW()
-    FROM cases
-    WHERE prosecution_attorney != ''
-      AND prosecution_attorney_id IS NULL
-    GROUP BY prosecution_attorney
-    ON CONFLICT (name, type) DO NOTHING
+    CREATE TABLE IF NOT EXISTS case_attorneys (
+      id TEXT PRIMARY KEY,
+      case_id TEXT NOT NULL REFERENCES cases(id) ON DELETE CASCADE,
+      attorney_id TEXT NOT NULL REFERENCES attorneys(id),
+      side TEXT NOT NULL CHECK(side IN ('prosecution', 'defense')),
+      attorney_name TEXT NOT NULL DEFAULT '',
+      created_at TEXT NOT NULL DEFAULT NOW()
+    )
   `);
-  // Create defense attorneys from cases that have a name but no attorney_id
-  await pool.query(`
-    INSERT INTO attorneys (id, name, type, created_at, updated_at)
-    SELECT gen_random_uuid()::text, defense_attorney, 'defense', NOW(), NOW()
-    FROM cases
-    WHERE defense_attorney != ''
-      AND defense_attorney_id IS NULL
-    GROUP BY defense_attorney
-    ON CONFLICT (name, type) DO NOTHING
+  await pool.query(`CREATE UNIQUE INDEX IF NOT EXISTS case_attorneys_case_attorney_idx ON case_attorneys (case_id, attorney_id)`);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_case_attorneys_case_id ON case_attorneys (case_id)`);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_case_attorneys_attorney_id ON case_attorneys (attorney_id)`);
+
+  // Migrate: move attorney data from cases columns into case_attorneys junction table
+  // Only run if the old columns still exist
+  const hasOldCols = await pool.query(`
+    SELECT column_name FROM information_schema.columns
+    WHERE table_name = 'cases' AND column_name = 'prosecution_attorney_id'
   `);
-  // Link existing cases to their newly-created attorney records
-  await pool.query(`
-    UPDATE cases SET prosecution_attorney_id = a.id
-    FROM attorneys a
-    WHERE cases.prosecution_attorney = a.name
-      AND a.type = 'prosecution'
-      AND cases.prosecution_attorney != ''
-      AND cases.prosecution_attorney_id IS NULL
-  `);
-  await pool.query(`
-    UPDATE cases SET defense_attorney_id = a.id
-    FROM attorneys a
-    WHERE cases.defense_attorney = a.name
-      AND a.type = 'defense'
-      AND cases.defense_attorney != ''
-      AND cases.defense_attorney_id IS NULL
-  `);
+  if (hasOldCols.rows.length > 0) {
+    // Prosecution head attorneys
+    await pool.query(`
+      INSERT INTO case_attorneys (id, case_id, attorney_id, side, attorney_name, created_at)
+      SELECT gen_random_uuid()::text, c.id, c.prosecution_attorney_id, 'prosecution', c.prosecution_attorney, NOW()
+      FROM cases c
+      WHERE c.prosecution_attorney_id IS NOT NULL
+      ON CONFLICT (case_id, attorney_id) DO NOTHING
+    `);
+    // Prosecution arguing attorneys
+    await pool.query(`
+      INSERT INTO case_attorneys (id, case_id, attorney_id, side, attorney_name, created_at)
+      SELECT gen_random_uuid()::text, c.id, c.prosecution_arguing_attorney_id, 'prosecution', c.prosecution_arguing_attorney, NOW()
+      FROM cases c
+      WHERE c.prosecution_arguing_attorney_id IS NOT NULL
+      ON CONFLICT (case_id, attorney_id) DO NOTHING
+    `);
+    // Defense head attorneys
+    await pool.query(`
+      INSERT INTO case_attorneys (id, case_id, attorney_id, side, attorney_name, created_at)
+      SELECT gen_random_uuid()::text, c.id, c.defense_attorney_id, 'defense', c.defense_attorney, NOW()
+      FROM cases c
+      WHERE c.defense_attorney_id IS NOT NULL
+      ON CONFLICT (case_id, attorney_id) DO NOTHING
+    `);
+    // Defense arguing attorneys
+    await pool.query(`
+      INSERT INTO case_attorneys (id, case_id, attorney_id, side, attorney_name, created_at)
+      SELECT gen_random_uuid()::text, c.id, c.defense_arguing_attorney_id, 'defense', c.defense_arguing_attorney, NOW()
+      FROM cases c
+      WHERE c.defense_arguing_attorney_id IS NOT NULL
+      ON CONFLICT (case_id, attorney_id) DO NOTHING
+    `);
+
+    // Drop old attorney columns from cases
+    await pool.query(`ALTER TABLE cases DROP COLUMN IF EXISTS prosecution_attorney`);
+    await pool.query(`ALTER TABLE cases DROP COLUMN IF EXISTS prosecution_attorney_id`);
+    await pool.query(`ALTER TABLE cases DROP COLUMN IF EXISTS prosecution_arguing_attorney`);
+    await pool.query(`ALTER TABLE cases DROP COLUMN IF EXISTS prosecution_arguing_attorney_id`);
+    await pool.query(`ALTER TABLE cases DROP COLUMN IF EXISTS defense_attorney`);
+    await pool.query(`ALTER TABLE cases DROP COLUMN IF EXISTS defense_attorney_id`);
+    await pool.query(`ALTER TABLE cases DROP COLUMN IF EXISTS defense_arguing_attorney`);
+    await pool.query(`ALTER TABLE cases DROP COLUMN IF EXISTS defense_arguing_attorney_id`);
+  }
 
   console.log('Database schema initialized');
 }

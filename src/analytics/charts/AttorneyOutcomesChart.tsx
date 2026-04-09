@@ -12,15 +12,15 @@ export function AttorneyOutcomesChart({ cases }: { cases: CaseRecord[] }) {
     const data = useMemo(() => {
         const attorneyCases = new Map<string, CaseRecord[]>();
         for (const c of cases) {
-            if (c.prosecutionAttorney) {
-                const arr = attorneyCases.get(c.prosecutionAttorney) ?? [];
+            for (const a of c.prosecutionAttorneys) {
+                const arr = attorneyCases.get(a.name) ?? [];
                 arr.push(c);
-                attorneyCases.set(c.prosecutionAttorney, arr);
+                attorneyCases.set(a.name, arr);
             }
-            if (c.defenseAttorney) {
-                const arr = attorneyCases.get(c.defenseAttorney) ?? [];
+            for (const a of c.defenseAttorneys) {
+                const arr = attorneyCases.get(a.name) ?? [];
                 arr.push(c);
-                attorneyCases.set(c.defenseAttorney, arr);
+                attorneyCases.set(a.name, arr);
             }
         }
 

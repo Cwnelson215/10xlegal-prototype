@@ -7,12 +7,11 @@ import './AssignJudgeModal.css';
 interface AssignAttorneyModalProps {
     caseId: string;
     side: 'prosecution' | 'defense';
-    role: 'head' | 'arguing';
     onAssigned: (updatedCase: Case) => void;
     onClose: () => void;
 }
 
-export function AssignAttorneyModal({ caseId, side, role, onAssigned, onClose }: AssignAttorneyModalProps) {
+export function AssignAttorneyModal({ caseId, side, onAssigned, onClose }: AssignAttorneyModalProps) {
     const [attorneys, setAttorneys] = useState<Attorney[]>([]);
     const [selectedAttorneyId, setSelectedAttorneyId] = useState('');
     const [isCreating, setIsCreating] = useState(false);
@@ -51,7 +50,7 @@ export function AssignAttorneyModal({ caseId, side, role, onAssigned, onClose }:
                 return;
             }
 
-            const updated = await casesService.assignAttorney(caseId, side, role, attorneyId);
+            const updated = await casesService.assignAttorney(caseId, side, attorneyId);
             onAssigned(updated);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to assign attorney');
@@ -60,9 +59,8 @@ export function AssignAttorneyModal({ caseId, side, role, onAssigned, onClose }:
         }
     }
 
-    const roleLabel = role === 'head' ? 'Head Lawyer' : 'Arguing Attorney';
     const sideLabel = side === 'prosecution' ? 'Prosecution' : 'Defense';
-    const title = `Assign ${sideLabel} ${roleLabel}`;
+    const title = `Add ${sideLabel} Attorney`;
 
     return (
         <div className="modal-overlay" onClick={onClose}>
@@ -126,7 +124,7 @@ export function AssignAttorneyModal({ caseId, side, role, onAssigned, onClose }:
                 <div className="modal-footer">
                     <button className="btn-cancel" onClick={onClose} disabled={isSubmitting}>Cancel</button>
                     <button className="btn-assign" onClick={handleAssign} disabled={isSubmitting}>
-                        {isSubmitting ? 'Assigning...' : `Assign ${roleLabel}`}
+                        {isSubmitting ? 'Adding...' : 'Add Attorney'}
                     </button>
                 </div>
             </div>

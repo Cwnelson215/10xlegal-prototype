@@ -4,7 +4,7 @@ import { getDb } from '../db/connection.js';
 import { authenticate, optionalAuth } from '../middleware/auth.js';
 import { apiResponse, apiError, parsePagination, paginatedResponse } from '../utils/responses.js';
 import { validate } from '../middleware/validate.js';
-import { createJudgeSchema } from '../validation/schemas.js';
+import { createJudgeSchema, updateJudgeSchema } from '../validation/schemas.js';
 import { auditLog } from '../utils/audit.js';
 
 const router = Router();
@@ -115,6 +115,74 @@ router.post('/', authenticate, validate(createJudgeSchema), async (req: any, res
     createdAt: now,
     updatedAt: now,
   }, 201);
+});
+
+// PUT /judges/:id
+router.put('/:id', authenticate, validate(updateJudgeSchema), async (req: any, res) => {
+  if (req.user.role !== 'admin') {
+    apiError(res, 'Admin access required', 403);
+    return;
+  }
+
+  const db = getDb();
+  const existing = await db.query('SELECT id, name FROM judges WHERE id = $1', [req.params.id]);
+  if (!existing.rows[0]) {
+    apiError(res, 'Judge not found', 404);
+    return;
+  }
+
+  const { name, title, court, district } = req.body;
+  const updates: string[] = [];
+  const values: unknown[] = [];
+  let idx = 1;
+
+  if (name !== undefined) { updates.push(`name = $${idx++}`); values.push(name.trim()); }
+  if (title !== undefined) { updates.push(`title = $${idx++}`); values.push(title); }
+  if (court !== undefined) { updates.push(`court = $${idx++}`); values.push(court); }
+  if (district !== undefined) { updates.push(`district = $${idx++}`); values.push(district); }
+
+  if (updates.length === 0) {
+    apiError(res, 'No fields to update', 400);
+    return;
+  }
+
+  updates.push(`updated_at = $${idx++}`);
+  values.push(new Date().toISOString());
+  values.push(req.params.id);
+
+  await db.query(
+    `UPDATE judges SET ${updates.join(', ')} WHERE id = $${idx}`,
+    values
+  );
+
+  // Update denormalized judge_name in cases table
+  if (name !== undefined) {
+    await db.query(
+      'UPDATE cases SET judge_name = $1, updated_at = NOW() WHERE judge_id = $2',
+      [name.trim(), req.params.id]
+    );
+  }
+
+  const result = await db.query(
+    `SELECT j.id, j.name, j.title, j.court, j.district, j.created_at, j.updated_at,
+            (SELECT COUNT(*)::int FROM cases WHERE judge_id = j.id) AS case_count
+     FROM judges j
+     WHERE j.id = $1`,
+    [req.params.id]
+  );
+  const row = result.rows[0] as any;
+
+  auditLog('judge_update', { userId: req.user.id, userName: req.user.name }, `Updated judge ${row.name}`);
+  apiResponse(res, {
+    id: row.id,
+    name: row.name,
+    title: row.title,
+    court: row.court,
+    district: row.district,
+    caseCount: row.case_count,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  });
 });
 
 export { router as judgesRoutes };

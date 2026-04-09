@@ -28,7 +28,8 @@ const mockAttorney: Attorney = {
 const mockCases: Case[] = [
     {
         id: 'c1', title: '', description: '', status: 'active', caseNumber: '001', clientId: '', lawyerId: '',
-        court: 'Salt Lake', prosecutionAttorney: '', prosecutionFirm: '', defenseAttorney: 'Test Attorney', defenseFirm: '',
+        court: 'Salt Lake', prosecutionAttorneys: [], defenseAttorneys: [{ id: 'att-1', name: 'Test Attorney' }],
+        prosecutionFirm: '', defenseFirm: '',
         charge: 'Theft', courtDate: '2026-01-15', districtNumber: '', filingDate: '2025-06-01',
         dispositionDate: '2026-01-10', convictionOutcome: 'Not Guilty', convictionDate: '', ruling: '',
         sentence: '', caseType: '', offenseCode: '', sentenceDate: '', judgmentDescription: '', sentenceDescription: '', charges: [],
@@ -36,7 +37,8 @@ const mockCases: Case[] = [
     },
     {
         id: 'c2', title: '', description: '', status: 'closed', caseNumber: '002', clientId: '', lawyerId: '',
-        court: 'Utah', prosecutionAttorney: '', prosecutionFirm: '', defenseAttorney: 'Test Attorney', defenseFirm: '',
+        court: 'Utah', prosecutionAttorneys: [], defenseAttorneys: [{ id: 'att-1', name: 'Test Attorney' }],
+        prosecutionFirm: '', defenseFirm: '',
         charge: 'Theft', courtDate: '2026-02-15', districtNumber: '', filingDate: '2025-09-01',
         dispositionDate: '2026-02-10', convictionOutcome: 'Guilty', convictionDate: '', ruling: '',
         sentence: '', caseType: '', offenseCode: '', sentenceDate: '', judgmentDescription: '', sentenceDescription: '', charges: [],

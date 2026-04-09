@@ -47,7 +47,7 @@ export function useCaseData() {
             }
             case 'lawyer': {
                 const filtered = allCases.filter(
-                    (c) => c.defenseAttorney === user.name || c.prosecutionAttorney === user.name,
+                    (c) => c.defenseAttorneys.some((a) => a.name === user.name) || c.prosecutionAttorneys.some((a) => a.name === user.name),
                 );
                 return filtered.length > 0 ? filtered : allCases;
             }

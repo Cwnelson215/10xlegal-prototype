@@ -65,7 +65,6 @@ export const assignJudgeSchema = z.object({
 
 export const assignAttorneySchema = z.object({
   side: z.enum(['prosecution', 'defense']),
-  role: z.enum(['head', 'arguing']),
   attorneyId: z.string().min(1, 'Attorney ID required'),
 });
 
@@ -73,4 +72,17 @@ export const createAttorneySchema = z.object({
   name: z.string().min(1, 'Name required'),
   type: z.enum(['prosecution', 'defense']),
   firmId: z.string().optional(),
+});
+
+export const updateAttorneySchema = z.object({
+  name: z.string().min(1).optional(),
+  type: z.enum(['prosecution', 'defense']).optional(),
+  firmId: z.string().nullable().optional(),
+});
+
+export const updateJudgeSchema = z.object({
+  name: z.string().min(1).optional(),
+  title: z.string().optional(),
+  court: z.string().optional(),
+  district: z.string().optional(),
 });

@@ -7,7 +7,7 @@ import type { CaseRecord } from '../../types';
 const mockCases: CaseRecord[] = [
     {
         id: 'c1', title: '', description: '', status: 'active', caseNumber: '001', clientId: '', lawyerId: '',
-        court: 'Salt Lake', prosecutionAttorney: '', prosecutionFirm: '', defenseAttorney: '', defenseFirm: '',
+        court: 'Salt Lake', prosecutionAttorneys: [], defenseAttorneys: [], prosecutionFirm: '', defenseFirm: '',
         charge: 'Theft', courtDate: '2026-01-15', districtNumber: '', filingDate: '2025-06-01',
         dispositionDate: '2026-01-10', convictionOutcome: 'Guilty', convictionDate: '', ruling: 'Guilty',
         sentence: '', caseType: '', offenseCode: '', sentenceDate: '', judgmentDescription: '', sentenceDescription: '', charges: [],
