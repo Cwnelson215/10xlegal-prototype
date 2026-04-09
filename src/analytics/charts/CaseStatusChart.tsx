@@ -1,4 +1,4 @@
-import { useMemo, useCallback, useState } from 'react';
+import { useMemo, useCallback } from 'react';
 import { PieChart, Pie, Cell, Legend, ResponsiveContainer } from 'recharts';
 import { CustomTooltip } from '../CustomTooltip';
 import { renderActiveShape } from '../pieActiveShape';
@@ -17,7 +17,6 @@ const STATUS_ORDER = ['active', 'pending', 'on-hold', 'closed'];
 
 export function CaseStatusChart({ cases }: { cases: CaseRecord[] }) {
     const { openDrillDown } = useAnalyticsFilter();
-    const [activeIndex, setActiveIndex] = useState<number | undefined>(undefined);
 
     const data = useMemo(() => {
         const counts = new Map<string, number>();
@@ -55,10 +54,7 @@ export function CaseStatusChart({ cases }: { cases: CaseRecord[] }) {
                     paddingAngle={2}
                     onClick={handleClick}
                     style={{ cursor: 'pointer' }}
-                    activeIndex={activeIndex}
                     activeShape={renderActiveShape}
-                    onMouseEnter={(_, index) => setActiveIndex(index)}
-                    onMouseLeave={() => setActiveIndex(undefined)}
                 >
                     {data.map((entry) => (
                         <Cell key={entry.status} fill={STATUS_COLORS[entry.status] ?? '#9FB3C8'} />

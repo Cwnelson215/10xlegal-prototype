@@ -1,6 +1,6 @@
-import { Sector } from 'recharts';
+import { Sector, type PieSectorDataItem } from 'recharts';
 
-export function renderActiveShape(props: Record<string, unknown>) {
+export function renderActiveShape(props: PieSectorDataItem) {
     const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill } = props as {
         cx: number; cy: number; innerRadius: number; outerRadius: number;
         startAngle: number; endAngle: number; fill: string;

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { PieChart, Pie, Cell, Legend, ResponsiveContainer } from 'recharts';
 import { CustomTooltip } from '../CustomTooltip';
 import { renderActiveShape } from '../pieActiveShape';
@@ -14,7 +14,6 @@ function shortenOutcome(name: string): string {
 }
 
 export function ConvictionDistributionChart({ cases }: { cases: CaseRecord[] }) {
-    const [activeIndex, setActiveIndex] = useState<number | undefined>(undefined);
     const data = useMemo(() => {
         const counts = new Map<string, number>();
         for (const c of cases) {
@@ -48,10 +47,7 @@ export function ConvictionDistributionChart({ cases }: { cases: CaseRecord[] }) 
                     dataKey="value"
                     nameKey="short"
                     paddingAngle={2}
-                    activeIndex={activeIndex}
                     activeShape={renderActiveShape}
-                    onMouseEnter={(_, index) => setActiveIndex(index)}
-                    onMouseLeave={() => setActiveIndex(undefined)}
                     style={{ cursor: 'pointer' }}
                 >
                     {data.map((_, index) => (
