@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Cell, ResponsiveContainer } from 'recharts';
 import { CustomTooltip } from '../CustomTooltip';
-import { CHART_PALETTE, AXIS_TICK_STYLE, GRID_PROPS, BAR_HOVER_PROPS } from '../chartTheme';
+import { CHART_PALETTE, AXIS_TICK_STYLE, GRID_PROPS, BAR_HOVER_PROPS, classifyOutcome } from '../chartTheme';
 import type { CaseRecord } from '../../types';
 
 const BUCKETS = [
@@ -60,6 +60,18 @@ export function SentenceLengthChart({ cases }: { cases: CaseRecord[] }) {
                         days = parseSentenceDays(charge.sentence);
                     }
                     if (days !== null) break;
+                }
+            }
+
+            // Fallback: use filing-to-disposition duration for convicted cases
+            if (days === null && c.filingDate && c.dispositionDate) {
+                const outcome = classifyOutcome(c.ruling);
+                if (outcome === 'guilty' || outcome === 'noContest') {
+                    const filing = new Date(c.filingDate).getTime();
+                    const disposition = new Date(c.dispositionDate).getTime();
+                    if (!isNaN(filing) && !isNaN(disposition) && disposition > filing) {
+                        days = Math.round((disposition - filing) / (1000 * 60 * 60 * 24));
+                    }
                 }
             }
 
