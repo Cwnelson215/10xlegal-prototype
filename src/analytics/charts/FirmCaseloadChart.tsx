@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer } from 'recharts';
 import { CustomTooltip } from '../CustomTooltip';
-import { CHART_COLORS, AXIS_TICK_STYLE, GRID_PROPS } from '../chartTheme';
+import { CHART_COLORS, AXIS_TICK_STYLE, GRID_PROPS, BAR_HOVER_PROPS } from '../chartTheme';
 import type { CaseRecord } from '../../types';
 
 function truncate(s: string, max: number): string {
@@ -43,8 +43,8 @@ export function FirmCaseloadChart({ cases }: { cases: CaseRecord[] }) {
                 <YAxis type="category" dataKey="firm" width={130} tick={{ ...AXIS_TICK_STYLE, fontSize: 11 }} />
                 <CustomTooltip />
                 <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
-                <Bar dataKey="prosecution" stackId="a" fill={CHART_COLORS.coral} name="Prosecution" />
-                <Bar dataKey="defense" stackId="a" fill={CHART_COLORS.blue} name="Defense" radius={[0, 6, 6, 0]} />
+                <Bar dataKey="prosecution" stackId="a" fill={CHART_COLORS.coral} name="Prosecution" activeBar={BAR_HOVER_PROPS} />
+                <Bar dataKey="defense" stackId="a" fill={CHART_COLORS.blue} name="Defense" radius={[0, 6, 6, 0]} activeBar={BAR_HOVER_PROPS} />
             </BarChart>
         </ResponsiveContainer>
     );

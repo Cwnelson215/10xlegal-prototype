@@ -278,6 +278,25 @@
   cursor: pointer;
 }
 
+/* ===== Hover transitions ===== */
+.recharts-bar-rectangle rect,
+.recharts-active-bar rect {
+  transition: fill-opacity 0.15s ease, stroke 0.15s ease;
+}
+
+.recharts-pie-sector path {
+  transition: d 0.2s ease;
+}
+
+.treemap-cell {
+  transition: opacity 0.15s ease, stroke 0.15s ease, stroke-width 0.15s ease;
+}
+.treemap-cell:hover {
+  opacity: 1 !important;
+  stroke: #1B2A4A !important;
+  stroke-width: 2.5px;
+}
+
 /* ===== Custom Tooltip ===== */
 .custom-tooltip {
   background: var(--bg-card);

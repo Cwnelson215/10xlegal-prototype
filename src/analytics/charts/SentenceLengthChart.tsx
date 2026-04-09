@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Cell, ResponsiveContainer } from 'recharts';
 import { CustomTooltip } from '../CustomTooltip';
-import { CHART_PALETTE, AXIS_TICK_STYLE, GRID_PROPS } from '../chartTheme';
+import { CHART_PALETTE, AXIS_TICK_STYLE, GRID_PROPS, BAR_HOVER_PROPS } from '../chartTheme';
 import type { CaseRecord } from '../../types';
 
 const BUCKETS = [
@@ -86,7 +86,7 @@ export function SentenceLengthChart({ cases }: { cases: CaseRecord[] }) {
                 <XAxis dataKey="label" tick={{ ...AXIS_TICK_STYLE, fontSize: 11 }} />
                 <YAxis allowDecimals={false} tick={AXIS_TICK_STYLE} />
                 <CustomTooltip />
-                <Bar dataKey="count" radius={[6, 6, 0, 0]} name="Cases">
+                <Bar dataKey="count" radius={[6, 6, 0, 0]} name="Cases" activeBar={BAR_HOVER_PROPS}>
                     {data.map((_, i) => (
                         <Cell key={i} fill={CHART_PALETTE[i % CHART_PALETTE.length]!} />
                     ))}

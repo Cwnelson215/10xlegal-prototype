@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ReferenceLine, ResponsiveContainer } from 'recharts';
 import { CustomTooltip } from '../CustomTooltip';
-import { CHART_COLORS, AXIS_TICK_STYLE, GRID_PROPS } from '../chartTheme';
+import { CHART_COLORS, AXIS_TICK_STYLE, GRID_PROPS, BAR_HOVER_PROPS } from '../chartTheme';
 import type { CaseRecord } from '../../types';
 
 function truncate(s: string, max: number): string {
@@ -59,7 +59,7 @@ export function CourtThroughputChart({ cases }: { cases: CaseRecord[] }) {
                     strokeDasharray="6 4"
                 />
                 <CustomTooltip formatter={(value, name) => name === 'Avg Days' ? `${value} days` : String(value)} />
-                <Bar dataKey="avgDays" fill="url(#gradThroughput)" radius={[0, 6, 6, 0]} name="Avg Days" />
+                <Bar dataKey="avgDays" fill="url(#gradThroughput)" radius={[0, 6, 6, 0]} name="Avg Days" activeBar={BAR_HOVER_PROPS} />
             </BarChart>
         </ResponsiveContainer>
     );

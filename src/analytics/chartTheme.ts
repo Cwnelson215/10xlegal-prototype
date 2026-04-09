@@ -68,6 +68,20 @@ export const GRID_PROPS = {
     stroke: '#E4E7EB',
 } as const;
 
+// Hover highlight for Bar components
+export const BAR_HOVER_PROPS = {
+    fillOpacity: 0.75,
+    stroke: '#1B2A4A',
+    strokeWidth: 1.5,
+} as const;
+
+// Hover highlight for Area activeDot
+export const AREA_ACTIVE_DOT_PROPS = {
+    r: 6,
+    strokeWidth: 2,
+    stroke: '#fff',
+} as const;
+
 // Classify a ruling string into a meaningful outcome category.
 // The ruling field contains the real detail (e.g. "Charges All Disposed - Guilty").
 // The convictionOutcome field only has generic values like "Charges All Disposed".

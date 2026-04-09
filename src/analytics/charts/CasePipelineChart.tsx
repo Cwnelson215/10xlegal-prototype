@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Cell, ResponsiveContainer } from 'recharts';
 import { CustomTooltip } from '../CustomTooltip';
-import { STATUS_COLORS, AXIS_TICK_STYLE, GRID_PROPS } from '../chartTheme';
+import { STATUS_COLORS, AXIS_TICK_STYLE, GRID_PROPS, BAR_HOVER_PROPS } from '../chartTheme';
 import type { CaseRecord } from '../../types';
 
 const PIPELINE_STAGES = [
@@ -31,7 +31,7 @@ export function CasePipelineChart({ cases }: { cases: CaseRecord[] }) {
                 <XAxis dataKey="stage" tick={AXIS_TICK_STYLE} />
                 <YAxis allowDecimals={false} tick={AXIS_TICK_STYLE} />
                 <CustomTooltip />
-                <Bar dataKey="count" radius={[6, 6, 0, 0]} name="Cases">
+                <Bar dataKey="count" radius={[6, 6, 0, 0]} name="Cases" activeBar={BAR_HOVER_PROPS}>
                     {data.map((entry) => (
                         <Cell key={entry.status} fill={STATUS_COLORS[entry.status] ?? '#9FB3C8'} />
                     ))}

@@ -20,7 +20,7 @@ function TreemapContent({ x, y, width, height, name, value, index, onClick }: Tr
     const color = CHART_PALETTE[(index ?? 0) % CHART_PALETTE.length]!;
     return (
         <g style={{ cursor: 'pointer' }} onClick={() => name && onClick?.(name)}>
-            <rect x={x} y={y} width={width} height={height} fill={color} rx={6} opacity={0.88} stroke="#fff" strokeWidth={2} />
+            <rect x={x} y={y} width={width} height={height} fill={color} rx={6} opacity={0.88} stroke="#fff" strokeWidth={2} className="treemap-cell" />
             {width > 70 && height > 44 && (
                 <>
                     <text x={x + 10} y={y + 22} fill="#fff" fontSize={13} fontWeight={600}>

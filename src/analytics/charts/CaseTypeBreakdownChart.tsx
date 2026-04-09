@@ -1,12 +1,14 @@
-import { useMemo, useCallback } from 'react';
+import { useMemo, useCallback, useState } from 'react';
 import { PieChart, Pie, Cell, Legend, ResponsiveContainer } from 'recharts';
 import { CustomTooltip } from '../CustomTooltip';
+import { renderActiveShape } from '../pieActiveShape';
 import { CHART_PALETTE } from '../chartTheme';
 import { useAnalyticsFilter } from '../context';
 import type { CaseRecord } from '../../types';
 
 export function CaseTypeBreakdownChart({ cases }: { cases: CaseRecord[] }) {
     const { openDrillDown } = useAnalyticsFilter();
+    const [activeIndex, setActiveIndex] = useState<number | undefined>(undefined);
 
     const data = useMemo(() => {
         const counts = new Map<string, number>();
@@ -42,6 +44,10 @@ export function CaseTypeBreakdownChart({ cases }: { cases: CaseRecord[] }) {
                     paddingAngle={2}
                     onClick={handleClick}
                     style={{ cursor: 'pointer' }}
+                    activeIndex={activeIndex}
+                    activeShape={renderActiveShape}
+                    onMouseEnter={(_, index) => setActiveIndex(index)}
+                    onMouseLeave={() => setActiveIndex(undefined)}
                 >
                     {data.map((_, index) => (
                         <Cell key={index} fill={CHART_PALETTE[index % CHART_PALETTE.length]!} />

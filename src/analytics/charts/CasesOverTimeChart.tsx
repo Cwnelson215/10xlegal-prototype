@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Brush, ResponsiveContainer } from 'recharts';
 import { CustomTooltip } from '../CustomTooltip';
-import { CHART_COLORS, AXIS_TICK_STYLE, GRID_PROPS } from '../chartTheme';
+import { CHART_COLORS, AXIS_TICK_STYLE, GRID_PROPS, AREA_ACTIVE_DOT_PROPS } from '../chartTheme';
 import type { CaseRecord } from '../../types';
 
 export function CasesOverTimeChart({ cases }: { cases: CaseRecord[] }) {
@@ -42,7 +42,7 @@ export function CasesOverTimeChart({ cases }: { cases: CaseRecord[] }) {
                     strokeWidth={2.5}
                     name="Cases"
                     dot={false}
-                    activeDot={{ r: 5, strokeWidth: 2 }}
+                    activeDot={AREA_ACTIVE_DOT_PROPS}
                 />
                 {data.length > 12 && (
                     <Brush

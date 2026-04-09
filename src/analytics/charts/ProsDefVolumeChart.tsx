@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Legend, ReferenceLine, ResponsiveContainer } from 'recharts';
 import { CustomTooltip } from '../CustomTooltip';
-import { CHART_COLORS, AXIS_TICK_STYLE, GRID_PROPS } from '../chartTheme';
+import { CHART_COLORS, AXIS_TICK_STYLE, GRID_PROPS, AREA_ACTIVE_DOT_PROPS } from '../chartTheme';
 import type { CaseRecord } from '../../types';
 
 export function ProsDefVolumeChart({ cases }: { cases: CaseRecord[] }) {
@@ -57,6 +57,7 @@ export function ProsDefVolumeChart({ cases }: { cases: CaseRecord[] }) {
                     name="Prosecution"
                     strokeWidth={2}
                     dot={false}
+                    activeDot={AREA_ACTIVE_DOT_PROPS}
                 />
                 <Area
                     type="natural"
@@ -66,6 +67,7 @@ export function ProsDefVolumeChart({ cases }: { cases: CaseRecord[] }) {
                     name="Defense"
                     strokeWidth={2}
                     dot={false}
+                    activeDot={AREA_ACTIVE_DOT_PROPS}
                 />
             </AreaChart>
         </ResponsiveContainer>

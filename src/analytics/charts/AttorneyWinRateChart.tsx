@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer } from 'recharts';
 import { CustomTooltip } from '../CustomTooltip';
-import { CHART_COLORS, AXIS_TICK_STYLE, GRID_PROPS, classifyOutcome } from '../chartTheme';
+import { CHART_COLORS, AXIS_TICK_STYLE, GRID_PROPS, BAR_HOVER_PROPS, classifyOutcome } from '../chartTheme';
 import type { CaseRecord } from '../../types';
 
 function truncate(s: string, max: number): string {
@@ -68,8 +68,8 @@ export function AttorneyWinRateChart({ cases }: { cases: CaseRecord[] }) {
                 <YAxis type="category" dataKey="name" width={110} tick={{ ...AXIS_TICK_STYLE, fontSize: 11 }} />
                 <CustomTooltip formatter={(value) => `${value}%`} />
                 <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
-                <Bar dataKey="prosRate" fill={CHART_COLORS.coral} name="Conviction Rate" radius={[0, 6, 6, 0]} />
-                <Bar dataKey="defRate" fill={CHART_COLORS.green} name="Dismissal Rate" radius={[0, 6, 6, 0]} />
+                <Bar dataKey="prosRate" fill={CHART_COLORS.coral} name="Conviction Rate" radius={[0, 6, 6, 0]} activeBar={BAR_HOVER_PROPS} />
+                <Bar dataKey="defRate" fill={CHART_COLORS.green} name="Dismissal Rate" radius={[0, 6, 6, 0]} activeBar={BAR_HOVER_PROPS} />
             </BarChart>
         </ResponsiveContainer>
     );

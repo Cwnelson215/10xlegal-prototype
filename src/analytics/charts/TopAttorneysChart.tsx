@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer } from 'recharts';
 import { CustomTooltip } from '../CustomTooltip';
-import { CHART_COLORS, AXIS_TICK_STYLE, GRID_PROPS } from '../chartTheme';
+import { CHART_COLORS, AXIS_TICK_STYLE, GRID_PROPS, BAR_HOVER_PROPS } from '../chartTheme';
 import type { CaseRecord } from '../../types';
 
 function truncate(s: string, max: number): string {
@@ -50,8 +50,8 @@ export function TopAttorneysChart({ cases }: { cases: CaseRecord[] }) {
                 <YAxis allowDecimals={false} tick={AXIS_TICK_STYLE} />
                 <CustomTooltip />
                 <Legend iconType="circle" wrapperStyle={{ fontSize: 12, paddingTop: 12 }} />
-                <Bar dataKey="prosecution" fill={CHART_COLORS.coral} name="Prosecution" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="defense" fill={CHART_COLORS.blue} name="Defense" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="prosecution" fill={CHART_COLORS.coral} name="Prosecution" radius={[4, 4, 0, 0]} activeBar={BAR_HOVER_PROPS} />
+                <Bar dataKey="defense" fill={CHART_COLORS.blue} name="Defense" radius={[4, 4, 0, 0]} activeBar={BAR_HOVER_PROPS} />
             </BarChart>
         </ResponsiveContainer>
     );

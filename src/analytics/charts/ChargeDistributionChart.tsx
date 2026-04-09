@@ -1,7 +1,7 @@
 import { useMemo, useCallback } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, type BarRectangleItem } from 'recharts';
 import { CustomTooltip } from '../CustomTooltip';
-import { CHART_COLORS, AXIS_TICK_STYLE, GRID_PROPS } from '../chartTheme';
+import { CHART_COLORS, AXIS_TICK_STYLE, GRID_PROPS, BAR_HOVER_PROPS } from '../chartTheme';
 import { useAnalyticsFilter } from '../context';
 import type { CaseRecord } from '../../types';
 
@@ -55,6 +55,7 @@ export function ChargeDistributionChart({ cases }: { cases: CaseRecord[] }) {
                     name="Cases"
                     onClick={handleClick}
                     style={{ cursor: 'pointer' }}
+                    activeBar={BAR_HOVER_PROPS}
                 />
             </BarChart>
         </ResponsiveContainer>
