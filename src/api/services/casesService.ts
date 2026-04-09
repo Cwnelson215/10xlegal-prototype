@@ -13,14 +13,32 @@ import type {
     PaginatedResponse,
 } from '../types';
 
+/** Normalize case data to ensure attorney arrays exist (handles old API responses) */
+function normalizeCase(c: any): Case {
+    if (!c) return c;
+    if (!c.prosecutionAttorneys) {
+        c.prosecutionAttorneys = c.prosecutionAttorneyId
+            ? [{ id: c.prosecutionAttorneyId, name: c.prosecutionAttorney || '' }]
+            : [];
+    }
+    if (!c.defenseAttorneys) {
+        c.defenseAttorneys = c.defenseAttorneyId
+            ? [{ id: c.defenseAttorneyId, name: c.defenseAttorney || '' }]
+            : [];
+    }
+    return c as Case;
+}
+
 export const casesService = {
     /**
      * Get all cases
      */
     async getCases(page = 1, pageSize = 10): Promise<PaginatedResponse<Case>> {
-        return apiClient.get<PaginatedResponse<Case>>(
+        const result = await apiClient.get<PaginatedResponse<Case>>(
             `${API_ENDPOINTS.CASES.LIST}?page=${page}&pageSize=${pageSize}`
         );
+        result.data = result.data.map(normalizeCase);
+        return result;
     },
 
     /**
@@ -30,8 +48,7 @@ export const casesService = {
         const response = await apiClient.get<ApiResponse<Case>>(
             API_ENDPOINTS.CASES.GET(id)
         );
-        
-        return response.data!;
+        return normalizeCase(response.data!);
     },
 
     /**
@@ -42,8 +59,7 @@ export const casesService = {
             API_ENDPOINTS.CASES.CREATE,
             data
         );
-        
-        return response.data!;
+        return normalizeCase(response.data!);
     },
 
     /**
@@ -54,8 +70,7 @@ export const casesService = {
             API_ENDPOINTS.CASES.UPDATE(id),
             data
         );
-        
-        return response.data!;
+        return normalizeCase(response.data!);
     },
 
     /**
@@ -72,7 +87,7 @@ export const casesService = {
             API_ENDPOINTS.CASES.ASSIGN_JUDGE(caseId),
             { judgeId }
         );
-        return response.data!;
+        return normalizeCase(response.data!);
     },
 
     async assignAttorney(caseId: string, side: 'prosecution' | 'defense', attorneyId: string): Promise<Case> {
@@ -80,13 +95,13 @@ export const casesService = {
             API_ENDPOINTS.CASES.ASSIGN_ATTORNEY(caseId),
             { side, attorneyId }
         );
-        return response.data!;
+        return normalizeCase(response.data!);
     },
 
     async removeAttorney(caseId: string, attorneyId: string): Promise<Case> {
         const response = await apiClient.delete<ApiResponse<Case>>(
             API_ENDPOINTS.CASES.REMOVE_ATTORNEY(caseId, attorneyId)
         );
-        return response.data!;
+        return normalizeCase(response.data!);
     },
 };
