@@ -24,8 +24,8 @@
 - **multer** for file uploads
 
 ### Infrastructure
-- **Pulumi** for AWS infrastructure (ECS Fargate, ALB, RDS, ECR)
-- **Docker** for containerization
+- **Pulumi** (TypeScript) for AWS — standalone program at `infra/index.ts` provisions VPC, ALB, ECS Fargate cluster + service, RDS PostgreSQL, ECR, IAM, CloudWatch, and Secrets Manager. No external/platform stack dependency.
+- **Docker** + **docker-compose** for local full-stack dev and the production backend image
 
 ## Project Structure
 
@@ -54,7 +54,10 @@
 │   ├── utils/                  # Shared utilities
 │   ├── validation/             # Zod schemas
 │   └── __tests__/              # Server tests
-├── infra/                      # Pulumi AWS infrastructure
+├── infra/                      # Standalone Pulumi AWS program (index.ts)
+├── Pulumi.yaml                 # Pulumi project (main: infra)
+├── Pulumi.dev.yaml.example     # Stack config template — copy to Pulumi.dev.yaml (gitignored)
+├── .env.example                # Env template — copy to .env (gitignored)
 └── docker-compose.yml          # Local full-stack development
 ```
 
@@ -72,17 +75,20 @@
 
 ## Environment
 
+`.env` is **gitignored**. Copy `.env.example` to `.env` and edit. The example covers both frontend and backend variables.
+
 ### Frontend
-- `VITE_API_URL` — Backend API base URL (default: `http://localhost:3000/api`)
-- Can also be set at runtime via `window.__API_URL__`
+- `VITE_API_URL` — Backend API base URL (default: `/api`, proxied to backend in dev)
+- `window.__API_URL__` — Runtime override, settable from `index.html` after build
 
 ### Backend
 - `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` — PostgreSQL connection
-- `DATABASE_URL` — Alternative single connection string
-- `JWT_SECRET` — Secret for signing JWT tokens
+- `DATABASE_URL` — Alternative single connection string (overrides `DB_*`)
+- `DB_POOL_MAX` — Pool size (default: 20)
+- `JWT_SECRET` — Required in production; dev fallback is `INSECURE-DEV-ONLY-CHANGE-ME`
 - `PORT` — Server port (default: 3000)
-- `FRONTEND_URL` — Frontend origin for CORS
-- `NODE_ENV` — Environment (development/production)
+- `FRONTEND_URL` — Frontend origin for CORS (default: `http://localhost:5173`)
+- `NODE_ENV` — `development` or `production`
 
 ## Key Patterns
 
@@ -102,12 +108,20 @@
 
 ## Database
 
-PostgreSQL on AWS RDS. Connection via `pg` pool configured in `server/src/db/connection.ts`. Schema defined in `server/src/db/schema.ts`.
+PostgreSQL. Connection via `pg` pool in `server/src/db/connection.ts`. Schema defined in `server/src/db/schema.ts` and **auto-created on backend startup** via `runSchema()` called from `server/src/index.ts` — no separate migration runner.
 
-Tables: users, refresh_tokens, law_firms, attorneys, cases, documents, deadlines, import_history, audit_log
+Tables: `users`, `refresh_tokens`, `law_firms`, `attorneys`, `judges`, `cases`, `case_attorneys`, `documents`, `deadlines`, `import_history`, `audit_log`.
 
 Four user roles: client, lawyer, legal-official, admin.
 
+## Deployment
+
+Full deployment guide is in `README.md`. Quick reference:
+
+- **Local dev (full stack):** `cp .env.example .env && docker compose up` — frontend on `:80`, backend on `:3000`, postgres on `:5432`.
+- **AWS deploy:** `pulumi stack init dev`, copy `Pulumi.dev.yaml.example` → `Pulumi.dev.yaml`, set `frontendUrl` and `--secret jwtSecret`, then `pulumi up` from the repo root. The Pulumi program owns its own VPC/RDS/ECR/cluster — nothing external is required.
+- **CI/CD:** `.github/workflows/ci.yml` runs tests on PRs and deploys on push to `main`. Requires `PULUMI_STACK` and `VITE_API_URL` GitHub variables, plus `AWS_*` and `PULUMI_ACCESS_TOKEN` secrets.
+
 ## Current State
 
-Full-stack application with Express/PostgreSQL backend deployed on AWS (ECS Fargate + RDS) via Pulumi. The API service layer is fully typed and structured. Admin dashboard, analytics, and case management features are implemented.
+Prototype handoff-ready. Personal credentials, domain references, and developer-account dependencies have been stripped. The API service layer is fully typed and structured. Admin dashboard, analytics, case management, and authentication features are implemented. Frontend test suite has 180 tests passing across 30 files.

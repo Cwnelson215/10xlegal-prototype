@@ -39,7 +39,6 @@ Pulumi.*.yaml
 *.njsproj
 *.sln
 *.sw?
-CLAUDE.MD
 
 # Server runtime data
 server/data/
