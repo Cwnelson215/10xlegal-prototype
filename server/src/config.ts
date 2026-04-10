@@ -31,7 +31,7 @@ function buildDatabaseConfig(): pg.PoolConfig {
 export const config = {
   isProduction,
   port: Number(process.env.PORT) || 3000,
-  jwtSecret: process.env.JWT_SECRET || 'dev-secret-change-in-production',
+  jwtSecret: process.env.JWT_SECRET || 'INSECURE-DEV-ONLY-CHANGE-ME',
   jwtExpiresIn: '24h' as const,
   refreshTokenExpiresIn: '7d' as const,
   databaseConfig: buildDatabaseConfig(),

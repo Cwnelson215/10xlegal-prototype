@@ -1,0 +1,38 @@
+# Copy this file to `Pulumi.dev.yaml` (or any stack name you initialize) and
+# fill in real values. The real stack file is gitignored because it will hold
+# an encrypted secret tied to your Pulumi account.
+#
+# Setup:
+#   pulumi stack init dev
+#   cp Pulumi.dev.yaml.example Pulumi.dev.yaml
+#   pulumi config set aws:region us-east-1
+#   pulumi config set 10xlegal-server:frontendUrl https://your-frontend.example.com
+#   pulumi config set --secret 10xlegal-server:jwtSecret "$(openssl rand -hex 32)"
+#   cd infra && npm install && cd ..
+#   pulumi up
+
+config:
+  aws:region: us-east-1
+
+  10xlegal-server:appName: 10xlegal-server
+
+  # Origin used for backend CORS (where the frontend will be served from).
+  10xlegal-server:frontendUrl: http://localhost:5173
+
+  # Set this with `pulumi config set --secret` — never paste the plain value here.
+  # 10xlegal-server:jwtSecret: <encrypted via pulumi>
+
+  10xlegal-server:containerPort: "3000"
+  10xlegal-server:cpu: "256"
+  10xlegal-server:memory: "512"
+  10xlegal-server:desiredCount: "1"
+  10xlegal-server:imageTag: latest
+
+  10xlegal-server:dbInstanceClass: db.t4g.micro
+  10xlegal-server:dbAllocatedStorage: "20"
+  10xlegal-server:dbUsername: appuser
+
+  # Optional — uncomment to enable HTTPS. The cert must already exist in ACM
+  # in the same region as `aws:region` above. With this set, the HTTP listener
+  # becomes a 301 redirect to HTTPS.
+  # 10xlegal-server:certificateArn: arn:aws:acm:us-east-1:000000000000:certificate/00000000-0000-0000-0000-000000000000

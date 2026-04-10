@@ -16,7 +16,7 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - JWT_SECRET=${JWT_SECRET}
+      - JWT_SECRET=${JWT_SECRET:-INSECURE-LOCAL-DEV-ONLY-CHANGE-ME}
       - PORT=3000
       - FRONTEND_URL=http://localhost
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/10xlegal

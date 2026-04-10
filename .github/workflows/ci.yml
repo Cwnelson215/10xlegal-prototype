@@ -1,5 +1,19 @@
 name: CI/CD
 
+# ----------------------------------------------------------------------------
+# Required GitHub repo configuration:
+#
+#   Variables (Settings → Secrets and variables → Actions → Variables):
+#     PULUMI_STACK   — full Pulumi stack name, e.g. "your-org/dev"
+#     VITE_API_URL   — backend URL the built frontend should call
+#     AWS_REGION     — (optional) defaults to us-east-1
+#
+#   Secrets (Settings → Secrets and variables → Actions → Secrets):
+#     AWS_ACCESS_KEY_ID
+#     AWS_SECRET_ACCESS_KEY
+#     PULUMI_ACCESS_TOKEN
+# ----------------------------------------------------------------------------
+
 on:
   push:
     branches: [main]
@@ -12,7 +26,7 @@ permissions:
   id-token: write
 
 env:
-  AWS_REGION: us-east-1
+  AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
 
 jobs:
   frontend-tests:
@@ -91,6 +105,8 @@ jobs:
     needs: [backend-tests]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
+    env:
+      PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
     steps:
       - uses: actions/checkout@v4
 
@@ -112,21 +128,36 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
+      # Run pulumi up first so the ECR repo (and everything else) exists before
+      # we try to push an image to it. On the very first run this will provision
+      # the entire stack. The ECS service will fail-loop until the image is
+      # pushed in the next step, then we force a redeploy.
+      - name: Pulumi Up
+        uses: pulumi/actions@v5
+        with:
+          command: up
+          stack-name: ${{ vars.PULUMI_STACK }}
+          work-dir: .
+          config-map: '{"10xlegal-server:imageTag":{"value":"${{ github.sha }}"}}'
 
-      - name: Get ECR Repository URL
-        id: ecr-url
-        env:
-          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+      - name: Read Pulumi stack outputs
+        id: outputs
         run: |
-          ECR_URL=$(pulumi stack output ecrRepositoryUrl --stack Cwnelson215/10xlegal-server-dev)
+          ECR_URL=$(pulumi stack output ecrRepositoryUrl --stack ${{ vars.PULUMI_STACK }})
+          CLUSTER_NAME=$(pulumi stack output clusterName --stack ${{ vars.PULUMI_STACK }})
+          SERVICE_NAME=$(pulumi stack output serviceName --stack ${{ vars.PULUMI_STACK }})
+          APP_URL=$(pulumi stack output appUrl --stack ${{ vars.PULUMI_STACK }})
           echo "ecr-url=$ECR_URL" >> $GITHUB_OUTPUT
+          echo "cluster-name=$CLUSTER_NAME" >> $GITHUB_OUTPUT
+          echo "service-name=$SERVICE_NAME" >> $GITHUB_OUTPUT
+          echo "app-url=$APP_URL" >> $GITHUB_OUTPUT
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build and Push Docker Image
         env:
-          ECR_URL: ${{ steps.ecr-url.outputs.ecr-url }}
+          ECR_URL: ${{ steps.outputs.outputs.ecr-url }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build -f server/Dockerfile -t $ECR_URL:$IMAGE_TAG .
@@ -134,26 +165,20 @@ jobs:
           docker push $ECR_URL:$IMAGE_TAG
           docker push $ECR_URL:latest
 
-      - name: Deploy Infrastructure
-        uses: pulumi/actions@v5
-        with:
-          command: up
-          stack-name: Cwnelson215/10xlegal-server-dev
-          work-dir: .
-          config-map: '{"10xlegal-server:imageTag":{"value":"${{ github.sha }}"}}'
-
       - name: Force ECS Service Update
+        env:
+          CLUSTER_NAME: ${{ steps.outputs.outputs.cluster-name }}
+          SERVICE_NAME: ${{ steps.outputs.outputs.service-name }}
         run: |
           aws ecs update-service \
-            --cluster portfolio-dev-cluster \
-            --service 10xlegal-server \
+            --cluster "$CLUSTER_NAME" \
+            --service "$SERVICE_NAME" \
             --force-new-deployment
 
       - name: Output App URL
         env:
-          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          APP_URL: ${{ steps.outputs.outputs.app-url }}
         run: |
-          APP_URL=$(pulumi stack output appUrl --stack Cwnelson215/10xlegal-server-dev)
-          echo "### Backend Deployment Complete! :rocket:" >> $GITHUB_STEP_SUMMARY
+          echo "### Backend Deployment Complete" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**App URL:** $APP_URL" >> $GITHUB_STEP_SUMMARY

@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 560" font-family="Helvetica, Arial, sans-serif">
+  <rect width="900" height="560" fill="#ffffff"/>
+  <text x="450" y="44" text-anchor="middle" font-size="26" font-weight="700" fill="#1a2b4c">Automated Test Coverage</text>
+  <text x="450" y="70" text-anchor="middle" font-size="14" fill="#5a6b85">219 tests across 36 files  •  100% passing</text>
+
+  <!-- Donut chart centered at 300, 320 -->
+  <!-- Frontend 180/219 = 82.2% -> 295.9 deg ; Backend 39/219 = 17.8% -> 64.1 deg -->
+  <!-- Frontend arc from 0 to 295.9: large arc -->
+  <!-- Compute end point for frontend arc: angle 295.9 from top (start at top: 0,-r) -->
+  <!-- r = 140, cx=300, cy=320 -->
+  <!-- start angle 0 (top): (300, 180) -->
+  <!-- end angle 295.9 (clockwise from top): x = 300 + 140*sin(295.9°), y = 320 - 140*cos(295.9°) -->
+  <!-- sin(295.9) = -0.9001, cos(295.9) = 0.4357 -->
+  <!-- end_x = 300 + 140*(-0.9001) = 300 - 126.0 = 174.0 -->
+  <!-- end_y = 320 - 140*(0.4357) = 320 - 61.0 = 259.0 -->
+  <path d="M 300 180 A 140 140 0 1 1 174 259 L 240 297 A 70 70 0 1 0 300 250 Z" fill="#3b6fb6"/>
+
+  <!-- Backend arc: from 174,259 back to 300,180 (small arc) -->
+  <!-- Inner radius 70: at top inner = (300, 250); at end (174,259) inner -->
+  <!-- inner end: x = 300 + 70*sin(295.9), y = 320 - 70*cos(295.9) -->
+  <!-- inner_x = 300 + 70*(-0.9001) = 237; inner_y = 320 - 70*0.4357 = 290 -->
+  <path d="M 174 259 A 140 140 0 0 1 300 180 L 300 250 A 70 70 0 0 0 240 297 Z" fill="#3ba99a"/>
+
+  <!-- Center text -->
+  <text x="300" y="313" text-anchor="middle" font-size="40" font-weight="700" fill="#1a2b4c">219</text>
+  <text x="300" y="340" text-anchor="middle" font-size="14" fill="#5a6b85">tests passing</text>
+
+  <!-- Legend -->
+  <rect x="540" y="200" width="22" height="22" fill="#3b6fb6"/>
+  <text x="572" y="218" font-size="18" font-weight="600" fill="#1a2b4c">Frontend (Vitest)</text>
+  <text x="572" y="240" font-size="14" fill="#5a6b85">180 tests across 30 files  •  82%</text>
+
+  <rect x="540" y="280" width="22" height="22" fill="#3ba99a"/>
+  <text x="572" y="298" font-size="18" font-weight="600" fill="#1a2b4c">Backend (Vitest)</text>
+  <text x="572" y="320" font-size="14" fill="#5a6b85">39 tests across 6 files  •  18%</text>
+
+  <rect x="540" y="370" width="240" height="80" fill="#f3f6fb" stroke="#cfd8e6"/>
+  <text x="556" y="395" font-size="14" font-weight="600" fill="#1a2b4c">≥ 80% coverage milestone</text>
+  <text x="556" y="416" font-size="13" fill="#5a6b85">reached on April 1, 2026</text>
+  <text x="556" y="434" font-size="13" fill="#5a6b85">(commit e8d6751)</text>
+</svg>

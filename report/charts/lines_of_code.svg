@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 560" font-family="Helvetica, Arial, sans-serif">
+  <rect width="900" height="560" fill="#ffffff"/>
+  <text x="450" y="44" text-anchor="middle" font-size="26" font-weight="700" fill="#1a2b4c">Codebase Composition by Layer</text>
+  <text x="450" y="70" text-anchor="middle" font-size="14" fill="#5a6b85">Total: 17,918 lines of source code</text>
+
+  <!-- Horizontal bar chart -->
+  <!-- Plot area: x 260-820, y 120-480 -->
+  <!-- Max = 11000, scale = 560/11000 = 0.0509 -->
+
+  <!-- Frontend (TS/TSX): 10,631 -->
+  <rect x="260" y="130" width="541" height="48" fill="#3b6fb6"/>
+  <text x="250" y="160" text-anchor="end" font-size="16" font-weight="600" fill="#1a2b4c">Frontend (TS/TSX)</text>
+  <text x="811" y="160" font-size="16" font-weight="700" fill="#1a2b4c">10,631</text>
+
+  <!-- Frontend CSS: 2,713 -->
+  <rect x="260" y="200" width="138" height="48" fill="#5a8bc4"/>
+  <text x="250" y="230" text-anchor="end" font-size="16" font-weight="600" fill="#1a2b4c">Frontend (CSS)</text>
+  <text x="408" y="230" font-size="16" font-weight="700" fill="#1a2b4c">2,713</text>
+
+  <!-- Backend (TS): 3,959 -->
+  <rect x="260" y="270" width="201" height="48" fill="#2c8aa8"/>
+  <text x="250" y="300" text-anchor="end" font-size="16" font-weight="600" fill="#1a2b4c">Backend (TS)</text>
+  <text x="471" y="300" font-size="16" font-weight="700" fill="#1a2b4c">3,959</text>
+
+  <!-- DB Schema: 325 -->
+  <rect x="260" y="340" width="17" height="48" fill="#3ba99a"/>
+  <text x="250" y="370" text-anchor="end" font-size="16" font-weight="600" fill="#1a2b4c">Database Schema</text>
+  <text x="287" y="370" font-size="16" font-weight="700" fill="#1a2b4c">325</text>
+
+  <!-- Infra (Pulumi): 290 -->
+  <rect x="260" y="410" width="15" height="48" fill="#7bbf6a"/>
+  <text x="250" y="440" text-anchor="end" font-size="16" font-weight="600" fill="#1a2b4c">Infrastructure (Pulumi)</text>
+  <text x="285" y="440" font-size="16" font-weight="700" fill="#1a2b4c">290</text>
+
+  <text x="450" y="520" text-anchor="middle" font-size="13" fill="#7a8aa3">Excludes node_modules, lockfiles, and build output</text>
+</svg>

@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" font-family="Helvetica, Arial, sans-serif">
+  <rect width="900" height="600" fill="#ffffff"/>
+  <text x="450" y="44" text-anchor="middle" font-size="26" font-weight="700" fill="#1a2b4c">UI Components Built by Feature Area</text>
+  <text x="450" y="70" text-anchor="middle" font-size="14" fill="#5a6b85">72 React components delivered across 8 feature areas</text>
+
+  <!-- Horizontal bars; max 22, scale 22 px per unit -->
+  <!-- y rows start at 110, step 56 -->
+
+  <!-- Analytics charts: 22 -->
+  <rect x="280" y="110" width="484" height="36" fill="#3b6fb6"/>
+  <text x="270" y="135" text-anchor="end" font-size="15" font-weight="600" fill="#1a2b4c">Analytics — Charts</text>
+  <text x="774" y="135" font-size="15" font-weight="700" fill="#1a2b4c">22</text>
+
+  <!-- Analytics dashboards/tabs: 12 (OverviewTab, CasesTab, AttorneyAnalyticsTab, JudgesTab, FilterToolbar, KpiCard, KpiRow, SummaryStats, CaseDrillDownModal, CustomTooltip, ChartCard, analytics root) -->
+  <rect x="280" y="166" width="264" height="36" fill="#2c8aa8"/>
+  <text x="270" y="191" text-anchor="end" font-size="15" font-weight="600" fill="#1a2b4c">Analytics — Dashboard UI</text>
+  <text x="554" y="191" font-size="15" font-weight="700" fill="#1a2b4c">12</text>
+
+  <!-- Admin Console: 9 (AdminLogin, admin root, UserManagementTab, DataImportTab, ImportHistoryTab, AuditLogTab, SystemOverviewTab, parseFile, transformCSAM) -->
+  <rect x="280" y="222" width="198" height="36" fill="#3ba99a"/>
+  <text x="270" y="247" text-anchor="end" font-size="15" font-weight="600" fill="#1a2b4c">Admin Console</text>
+  <text x="488" y="247" font-size="15" font-weight="700" fill="#1a2b4c">9</text>
+
+  <!-- API Service Layer: 9 (auth, cases, attorneys, judges, deadlines, documents, admin, user + client/config) -->
+  <rect x="280" y="278" width="198" height="36" fill="#5a8bc4"/>
+  <text x="270" y="303" text-anchor="end" font-size="15" font-weight="600" fill="#1a2b4c">API Service Layer</text>
+  <text x="488" y="303" font-size="15" font-weight="700" fill="#1a2b4c">9</text>
+
+  <!-- Profiles: 4 -->
+  <rect x="280" y="334" width="88" height="36" fill="#7bbf6a"/>
+  <text x="270" y="359" text-anchor="end" font-size="15" font-weight="600" fill="#1a2b4c">Profiles</text>
+  <text x="378" y="359" font-size="15" font-weight="700" fill="#1a2b4c">4</text>
+
+  <!-- Cases: 3 -->
+  <rect x="280" y="390" width="66" height="36" fill="#9bcf6e"/>
+  <text x="270" y="415" text-anchor="end" font-size="15" font-weight="600" fill="#1a2b4c">Cases</text>
+  <text x="356" y="415" font-size="15" font-weight="700" fill="#1a2b4c">3</text>
+
+  <!-- Auth/Landing: 2 -->
+  <rect x="280" y="446" width="44" height="36" fill="#c2d96a"/>
+  <text x="270" y="471" text-anchor="end" font-size="15" font-weight="600" fill="#1a2b4c">Auth / Landing</text>
+  <text x="334" y="471" font-size="15" font-weight="700" fill="#1a2b4c">2</text>
+
+  <!-- Home Dashboard: 1 -->
+  <rect x="280" y="502" width="22" height="36" fill="#e0d75e"/>
+  <text x="270" y="527" text-anchor="end" font-size="15" font-weight="600" fill="#1a2b4c">Home Dashboard</text>
+  <text x="312" y="527" font-size="15" font-weight="700" fill="#1a2b4c">1</text>
+
+  <text x="450" y="580" text-anchor="middle" font-size="12" fill="#7a8aa3">Counts include feature components and supporting modules; tests excluded</text>
+</svg>

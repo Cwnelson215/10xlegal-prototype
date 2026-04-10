@@ -1,4 +1,4 @@
 name: 10xlegal-server
 runtime: nodejs
-description: 10X-Legal backend API on portfolio platform
+description: Standalone AWS infrastructure for the 10X-Legal backend API
 main: infra

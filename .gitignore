@@ -12,6 +12,23 @@ dist
 dist-ssr
 *.local
 
+# Test coverage output
+coverage
+
+# Environment files (never commit secrets)
+.env
+.env.local
+.env.*.local
+server/.env
+server/.env.local
+
+# Pulumi local stack files (may contain encrypted secrets tied to your account)
+Pulumi.dev.yaml
+Pulumi.prod.yaml
+Pulumi.*.yaml
+!Pulumi.yaml
+!Pulumi.*.yaml.example
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

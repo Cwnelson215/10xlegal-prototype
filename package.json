@@ -13,16 +13,8 @@
     "test": "vitest run",
     "test:watch": "vitest"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Cwnelson215/10xlegal-prototype.git"
-  },
   "author": "",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/Cwnelson215/10xlegal-prototype/issues"
-  },
-  "homepage": "https://github.com/Cwnelson215/10xlegal-prototype#readme",
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
